@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+node_modules/
+web/node_modules/
+web/dist/
+coverage/
+*.out
+*.log
+.DS_Store
+.idea/
+.vscode/
+/tmp/
+backups/
+
+*.tsbuildinfo
