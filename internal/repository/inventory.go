@@ -1,0 +1,19 @@
+package repository
+
+import (
+	"context"
+
+	"github.com/sanskarIN/stockpilot/internal/domain"
+)
+
+type Inventory interface {
+	CreateWarehouse(context.Context, domain.Warehouse) error
+	ListWarehouses(context.Context, bool) ([]domain.Warehouse, error)
+	CreateLocation(context.Context, domain.Location) error
+	ListLocations(context.Context, string, bool) ([]domain.Location, error)
+	CreateLot(context.Context, domain.Lot) error
+	ApplyMovement(context.Context, domain.StockMovement) (domain.StockBalance, error)
+	Transfer(context.Context, domain.TransferRequest) error
+	GetBalance(context.Context, string, string, string) (domain.StockBalance, error)
+	ListLowStock(context.Context, int) ([]domain.StockBalance, error)
+}
