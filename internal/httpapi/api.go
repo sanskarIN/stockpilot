@@ -25,17 +25,15 @@ type API struct {
 	logger    *slog.Logger
 }
 
+// New returns the core API wrapped with StockPilot's common HTTP hardening.
+// Server composition that also serves authentication and static assets should
+// use NewCore plus WrapCommon so the outermost handler is wrapped exactly once.
 func New(catalog repository.Catalog, inventory repository.Inventory, orders repository.Orders, ping func(context.Context) error, origins []string, logger *slog.Logger) http.Handler {
-	if logger == nil {
-		logger = slog.Default()
-	}
-	a := &API{catalog: catalog, inventory: inventory, orders: orders, ping: ping, logger: logger, origins: make(map[string]struct{}, len(origins))}
-	for _, origin := range origins {
-		if origin = strings.TrimSpace(origin); origin != "" {
-			a.origins[origin] = struct{}{}
-		}
-	}
+	return WrapCommon(NewCore(catalog, inventory, orders, ping), origins, logger)
+}
 
+func NewCore(catalog repository.Catalog, inventory repository.Inventory, orders repository.Orders, ping func(context.Context) error) http.Handler {
+	a := &API{catalog: catalog, inventory: inventory, orders: orders, ping: ping}
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", a.health)
 	mux.HandleFunc("GET /readyz", a.ready)
@@ -60,8 +58,20 @@ func New(catalog repository.Catalog, inventory repository.Inventory, orders repo
 	mux.HandleFunc("POST /api/v1/orders", a.createOrder)
 	mux.HandleFunc("GET /api/v1/orders/{id}", a.getOrder)
 	mux.HandleFunc("POST /api/v1/orders/{orderID}/lines/{lineID}/receive", a.receiveOrderLine)
+	return mux
+}
 
-	return a.middleware(mux)
+func WrapCommon(next http.Handler, origins []string, logger *slog.Logger) http.Handler {
+	if logger == nil {
+		logger = slog.Default()
+	}
+	a := &API{logger: logger, origins: make(map[string]struct{}, len(origins))}
+	for _, origin := range origins {
+		if origin = strings.TrimSpace(origin); origin != "" {
+			a.origins[origin] = struct{}{}
+		}
+	}
+	return a.middleware(next)
 }
 
 func (a *API) middleware(next http.Handler) http.Handler {
@@ -75,17 +85,20 @@ func (a *API) middleware(next http.Handler) http.Handler {
 		w.Header().Set("Referrer-Policy", "no-referrer")
 		w.Header().Set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
 		w.Header().Set("Content-Security-Policy", "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'")
+		w.Header().Set("Cross-Origin-Opener-Policy", "same-origin")
+		w.Header().Set("X-Frame-Options", "DENY")
 
 		origin := r.Header.Get("Origin")
-		if origin != "" {
+		if origin != "" && strings.HasPrefix(r.URL.Path, "/api/") {
 			if _, ok := a.origins[origin]; !ok {
 				writeJSON(w, http.StatusForbidden, map[string]any{"error": "origin is not allowed", "requestId": requestID})
 				return
 			}
 			w.Header().Set("Access-Control-Allow-Origin", origin)
+			w.Header().Set("Access-Control-Allow-Credentials", "true")
 			w.Header().Set("Vary", "Origin")
-			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, X-Request-ID")
-			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, X-Request-ID, X-StockPilot-CSRF")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
 		}
 		if r.Method == http.MethodOptions {
 			w.WriteHeader(http.StatusNoContent)
@@ -101,7 +114,11 @@ func (a *API) middleware(next http.Handler) http.Handler {
 					writeJSON(sw, http.StatusInternalServerError, map[string]any{"error": "internal server error", "requestId": requestID})
 				}
 			}
-			a.logger.Info("http request", "request_id", requestID, "method", r.Method, "path", r.URL.Path, "status", sw.status, "duration_ms", time.Since(started).Milliseconds())
+			status := sw.status
+			if status == 0 {
+				status = http.StatusOK
+			}
+			a.logger.Info("http request", "request_id", requestID, "method", r.Method, "path", r.URL.Path, "status", status, "duration_ms", time.Since(started).Milliseconds())
 		}()
 		next.ServeHTTP(sw, r)
 	})
