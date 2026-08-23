@@ -4,7 +4,7 @@ services:
     environment:
       POSTGRES_DB: stockpilot
       POSTGRES_USER: stockpilot
-      POSTGRES_PASSWORD: stockpilot
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
     ports:
       - "5432:5432"
     healthcheck:
@@ -12,6 +12,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
+    restart: unless-stopped
     volumes:
       - stockpilot_db:/var/lib/postgresql/data
 
@@ -20,17 +21,32 @@ services:
     environment:
       APP_ENV: production
       HTTP_ADDR: :8080
-      DATABASE_URL: postgres://stockpilot:stockpilot@db:5432/stockpilot?sslmode=disable
-      SESSION_SECRET: change-this-before-production-change-this
-      CORS_ORIGINS: http://localhost:8080
+      DATABASE_URL: ${DATABASE_URL_DOCKER:?DATABASE_URL_DOCKER must be set}
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET must be set}
+      SESSION_TTL: ${SESSION_TTL:-12h}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
       BACKUP_DIR: /app/backups
       AUTO_MIGRATE: "true"
       MIGRATIONS_DIR: /app/migrations
+      STATIC_DIR: /app/web/dist
     ports:
       - "8080:8080"
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/app/stockpilot", "--healthcheck"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - stockpilot_backups:/app/backups
 
 volumes:
   stockpilot_db:
+  stockpilot_backups:
