@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
@@ -23,9 +24,10 @@ const (
 )
 
 type Service struct {
-	repo repository.Access
-	ttl  time.Duration
-	now  func() time.Time
+	repo     repository.Access
+	ttl      time.Duration
+	tokenKey []byte
+	now      func() time.Time
 }
 
 type LoginResult struct {
@@ -40,8 +42,11 @@ type Principal struct {
 	ExpiresAt time.Time
 }
 
-func New(repo repository.Access, ttl time.Duration) *Service {
-	return &Service{repo: repo, ttl: ttl, now: func() time.Time { return time.Now().UTC() }}
+func New(repo repository.Access, ttl time.Duration, sessionSecret string) *Service {
+	return &Service{
+		repo: repo, ttl: ttl, tokenKey: []byte(sessionSecret),
+		now: func() time.Time { return time.Now().UTC() },
+	}
 }
 
 func (s *Service) BootstrapAdmin(ctx context.Context, email, displayName, password string) (domain.User, error) {
@@ -95,10 +100,11 @@ func (s *Service) Login(ctx context.Context, email, password string) (LoginResul
 		return LoginResult{}, domain.ErrForbidden
 	}
 
-	rawToken, tokenHash, err := newSessionToken()
+	rawToken, err := newSessionToken()
 	if err != nil {
 		return LoginResult{}, err
 	}
+	tokenHash := s.hashToken(rawToken)
 	now := s.now()
 	sessionID, err := idgen.New("ses")
 	if err != nil {
@@ -124,7 +130,7 @@ func (s *Service) Resolve(ctx context.Context, rawToken string) (Principal, erro
 		return Principal{}, domain.ErrForbidden
 	}
 	now := s.now()
-	session, user, err := s.repo.FindSession(ctx, hashToken(rawToken), now)
+	session, user, err := s.repo.FindSession(ctx, s.hashToken(rawToken), now)
 	if err != nil {
 		return Principal{}, domain.ErrForbidden
 	}
@@ -138,7 +144,7 @@ func (s *Service) Logout(ctx context.Context, rawToken string) error {
 	if rawToken == "" {
 		return nil
 	}
-	return s.repo.DeleteSession(ctx, hashToken(rawToken))
+	return s.repo.DeleteSession(ctx, s.hashToken(rawToken))
 }
 
 func (s *Service) PurgeExpired(ctx context.Context) (int64, error) {
@@ -156,16 +162,16 @@ func hashPassword(password string) ([]byte, error) {
 	return hash, nil
 }
 
-func newSessionToken() (string, string, error) {
+func newSessionToken() (string, error) {
 	var raw [32]byte
 	if _, err := rand.Read(raw[:]); err != nil {
-		return "", "", fmt.Errorf("generate session token: %w", err)
+		return "", fmt.Errorf("generate session token: %w", err)
 	}
-	token := base64.RawURLEncoding.EncodeToString(raw[:])
-	return token, hashToken(token), nil
+	return base64.RawURLEncoding.EncodeToString(raw[:]), nil
 }
 
-func hashToken(token string) string {
-	digest := sha256.Sum256([]byte(token))
-	return hex.EncodeToString(digest[:])
+func (s *Service) hashToken(token string) string {
+	mac := hmac.New(sha256.New, s.tokenKey)
+	_, _ = mac.Write([]byte(token))
+	return hex.EncodeToString(mac.Sum(nil))
 }
