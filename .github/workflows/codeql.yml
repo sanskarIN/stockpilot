@@ -1,0 +1,58 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '23 3 * * 1'
+
+permissions:
+  contents: read
+  security-events: write
+  packages: read
+
+env:
+  GO_VERSION: '1.26.x'
+  NODE_VERSION: '22'
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['go', 'javascript-typescript']
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+      - name: Set up Go
+        if: matrix.language == 'go'
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: Set up Node.js
+        if: matrix.language == 'javascript-typescript'
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      - name: Build Go target
+        if: matrix.language == 'go'
+        run: go build ./cmd/server
+      - name: Install web dependencies
+        if: matrix.language == 'javascript-typescript'
+        working-directory: web
+        run: npm install --no-audit --no-fund
+      - name: Build web target
+        if: matrix.language == 'javascript-typescript'
+        working-directory: web
+        run: npm run build
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v3
