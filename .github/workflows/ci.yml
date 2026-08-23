@@ -1,0 +1,115 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Go quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.x'
+          cache: true
+      - name: Download modules
+        run: go mod download
+      - name: Check formatting
+        run: test -z "$(gofmt -l cmd internal)"
+      - name: Vet
+        run: go vet ./...
+      - name: Test
+        run: go test -race -coverprofile=coverage.out ./...
+      - name: Build server
+        run: go build -trimpath -o bin/stockpilot ./cmd/server
+
+  frontend:
+    name: Web quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: web/package.json
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Typecheck and build
+        run: npm run build
+
+  postgres-integration:
+    name: PostgreSQL migration smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: stockpilot
+          POSTGRES_USER: stockpilot
+          POSTGRES_PASSWORD: stockpilot
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U stockpilot -d stockpilot"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      APP_ENV: production
+      HTTP_ADDR: :8080
+      DATABASE_URL: postgres://stockpilot:stockpilot@localhost:5432/stockpilot?sslmode=disable
+      SESSION_SECRET: ci-only-session-secret-that-is-never-used-outside-tests
+      CORS_ORIGINS: http://localhost:8080
+      AUTO_MIGRATE: 'true'
+      MIGRATIONS_DIR: ./migrations
+      STATIC_DIR: ./web/dist
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.26.x'
+          cache: true
+      - name: Start StockPilot
+        run: |
+          go run ./cmd/server > /tmp/stockpilot.log 2>&1 &
+          echo $! > /tmp/stockpilot.pid
+      - name: Verify readiness after migrations
+        run: |
+          for attempt in {1..30}; do
+            if curl --fail --silent http://localhost:8080/readyz | grep -q '"ready"'; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/stockpilot.log
+          exit 1
+      - name: Stop StockPilot
+        if: always()
+        run: |
+          if [ -f /tmp/stockpilot.pid ]; then
+            kill "$(cat /tmp/stockpilot.pid)" 2>/dev/null || true
+          fi
