@@ -8,6 +8,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func (s *Store) Migrate(ctx context.Context, dir string) error {
@@ -48,7 +50,10 @@ func (s *Store) Migrate(ctx context.Context, dir string) error {
 		if err != nil {
 			return fmt.Errorf("read migration %d: %w", migration.version, err)
 		}
-		if _, err := s.pool.Exec(ctx, string(sqlBytes)); err != nil {
+		// Migration files can contain BEGIN/COMMIT and multiple DDL statements.
+		// pgx extended protocol only accepts one statement at a time, so execute
+		// trusted repository-owned migration files with the simple protocol.
+		if _, err := s.pool.Exec(ctx, string(sqlBytes), pgx.QueryExecModeSimpleProtocol); err != nil {
 			return fmt.Errorf("apply migration %d: %w", migration.version, err)
 		}
 		if _, err := s.pool.Exec(ctx, `INSERT INTO schema_migrations(version) VALUES ($1) ON CONFLICT (version) DO NOTHING`, migration.version); err != nil {
