@@ -7,3 +7,5 @@ export function registerServiceWorker() {
     });
   });
 }
+
+registerServiceWorker();
