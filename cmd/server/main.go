@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/sanskarIN/stockpilot/internal/auth"
 	"github.com/sanskarIN/stockpilot/internal/config"
 	"github.com/sanskarIN/stockpilot/internal/httpapi"
 	"github.com/sanskarIN/stockpilot/internal/postgres"
@@ -41,16 +42,19 @@ func main() {
 		}
 	}
 
-	api := httpapi.New(store, store, store, store.Ping, cfg.CORSOrigins, logger)
+	authService := auth.New(store, cfg.SessionTTL, cfg.SessionSecret)
+	coreAPI := httpapi.NewCore(store, store, store, store.Ping)
+	protectedAPI := httpapi.WithAccess(coreAPI, authService, store, cfg.Environment == "production")
+
 	root := http.NewServeMux()
-	root.Handle("/api/", api)
-	root.Handle("/healthz", api)
-	root.Handle("/readyz", api)
+	root.Handle("/api/", protectedAPI)
+	root.Handle("/healthz", coreAPI)
+	root.Handle("/readyz", coreAPI)
 	root.Handle("/", http.FileServer(http.Dir(cfg.StaticDir)))
 
 	server := &http.Server{
 		Addr:              cfg.HTTPAddr,
-		Handler:           root,
+		Handler:           httpapi.WrapCommon(root, cfg.CORSOrigins, logger),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       15 * time.Second,
 		WriteTimeout:      30 * time.Second,
