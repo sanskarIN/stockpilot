@@ -14,17 +14,18 @@ android {
         versionName = "0.1.0"
 
         testInstrumentationRunner = "android.test.InstrumentationTestRunner"
-        buildConfigField("String", "DEFAULT_API_URL", "\"http://10.0.2.2:8080\"")
     }
 
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
+            buildConfigField("String", "DEFAULT_API_URL", "\"http://10.0.2.2:8080\"")
         }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            buildConfigField("String", "DEFAULT_API_URL", "\"\"")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
