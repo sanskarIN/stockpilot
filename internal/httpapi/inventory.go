@@ -94,6 +94,7 @@ func (a *API) applyMovement(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	movement.ID = id
+	movement.ActorID = authenticatedActorID(r)
 	if movement.OccurredAt.IsZero() {
 		movement.OccurredAt = time.Now().UTC()
 	}
@@ -116,6 +117,7 @@ func (a *API) transfer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	transfer.ID = id
+	transfer.ActorID = authenticatedActorID(r)
 	if transfer.OccurredAt.IsZero() {
 		transfer.OccurredAt = time.Now().UTC()
 	}
@@ -133,4 +135,12 @@ func (a *API) listLowStock(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"items": items})
+}
+
+func authenticatedActorID(r *http.Request) string {
+	principal, ok := PrincipalFromContext(r.Context())
+	if !ok {
+		return ""
+	}
+	return principal.User.ID
 }
