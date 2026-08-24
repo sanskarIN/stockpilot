@@ -18,8 +18,9 @@ form.addEventListener("submit", async (event) => {
   try {
     const normalized = normalizeServerUrl(serverInput.value);
     const pattern = originPattern(normalized);
-    const alreadyGranted = await chrome.permissions.contains({ origins: [pattern] });
-    const granted = alreadyGranted || await chrome.permissions.request({ origins: [pattern] });
+    // Keep the permission request as the first asynchronous browser API call
+    // so it remains directly associated with this explicit user gesture.
+    const granted = await chrome.permissions.request({ origins: [pattern] });
     if (!granted) {
       throw new Error("Server access permission was not granted.");
     }
@@ -58,18 +59,14 @@ async function initialize() {
     return;
   }
 
-  try {
-    serverUrl = normalizeServerUrl(stored.serverUrl);
-    serverInput.value = serverUrl;
-    openButton.disabled = false;
-    const permission = await chrome.permissions.contains({ origins: [originPattern(serverUrl)] });
-    if (permission) {
-      await checkStatus();
-    } else {
-      setStatus("idle", "Permission needed", "Save & connect to grant access to this server.");
-    }
-  } catch (error) {
-    showError(error);
+  serverUrl = normalizeServerUrl(stored.serverUrl);
+  serverInput.value = serverUrl;
+  openButton.disabled = false;
+  const permission = await chrome.permissions.contains({ origins: [originPattern(serverUrl)] });
+  if (permission) {
+    await checkStatus();
+  } else {
+    setStatus("idle", "Permission needed", "Save & connect to grant access to this server.");
   }
 }
 
@@ -151,4 +148,4 @@ function clearError() {
   errorBox.hidden = true;
 }
 
-initialize();
+initialize().catch(showError);
