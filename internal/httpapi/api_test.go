@@ -8,12 +8,17 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/sanskarIN/stockpilot/internal/auth"
 	"github.com/sanskarIN/stockpilot/internal/domain"
 	"github.com/sanskarIN/stockpilot/internal/repository"
 )
 
 type fakeStore struct {
 	createdProduct domain.Product
+	movementActor  string
+	transferActor  string
+	createdOrder   domain.PurchaseOrder
+	receiptActor   string
 }
 
 func (f *fakeStore) CreateCategory(context.Context, domain.Category) error { return nil }
@@ -41,22 +46,30 @@ func (f *fakeStore) ListLocations(context.Context, string, bool) ([]domain.Locat
 	return nil, nil
 }
 func (f *fakeStore) CreateLot(context.Context, domain.Lot) error { return nil }
-func (f *fakeStore) ApplyMovement(context.Context, domain.StockMovement) (domain.StockBalance, error) {
+func (f *fakeStore) ApplyMovement(_ context.Context, movement domain.StockMovement) (domain.StockBalance, error) {
+	f.movementActor = movement.ActorID
 	return domain.StockBalance{}, nil
 }
-func (f *fakeStore) Transfer(context.Context, domain.TransferRequest) error { return nil }
+func (f *fakeStore) Transfer(_ context.Context, request domain.TransferRequest) error {
+	f.transferActor = request.ActorID
+	return nil
+}
 func (f *fakeStore) GetBalance(context.Context, string, string, string) (domain.StockBalance, error) {
 	return domain.StockBalance{}, nil
 }
 func (f *fakeStore) ListLowStock(context.Context, int) ([]domain.StockBalance, error) { return nil, nil }
-func (f *fakeStore) CreateOrder(context.Context, domain.PurchaseOrder) error { return nil }
+func (f *fakeStore) CreateOrder(_ context.Context, order domain.PurchaseOrder) error {
+	f.createdOrder = order
+	return nil
+}
 func (f *fakeStore) GetOrder(context.Context, string) (domain.PurchaseOrder, error) {
 	return domain.PurchaseOrder{}, nil
 }
 func (f *fakeStore) ListOrders(context.Context, domain.PurchaseOrderStatus, int, int) ([]domain.PurchaseOrder, error) {
 	return nil, nil
 }
-func (f *fakeStore) ReceiveLine(context.Context, string, string, int64, string, string, string) error {
+func (f *fakeStore) ReceiveLine(_ context.Context, _ string, _ string, _ int64, _ string, _ string, actorID string) error {
+	f.receiptActor = actorID
 	return nil
 }
 
@@ -135,4 +148,86 @@ func TestCreateProductGeneratesIDAndDefaultsCurrency(t *testing.T) {
 	if store.createdProduct.Currency != "INR" {
 		t.Fatalf("currency = %q, want INR", store.createdProduct.Currency)
 	}
+}
+
+func TestInventoryMutationUsesAuthenticatedActor(t *testing.T) {
+	store := &fakeStore{}
+	handler := NewCore(store, store, store, func(context.Context) error { return nil })
+	request := authenticatedRequest(
+		http.MethodPost,
+		"/api/v1/inventory/movements",
+		`{"productId":"prd_1","locationId":"loc_1","type":"stock_in","quantityDelta":5,"actorId":"usr_spoofed"}`,
+	)
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusCreated {
+		t.Fatalf("status = %d, want %d; body=%s", recorder.Code, http.StatusCreated, recorder.Body.String())
+	}
+	if store.movementActor != "usr_session" {
+		t.Fatalf("movement actor = %q, want authenticated user", store.movementActor)
+	}
+}
+
+func TestTransferUsesAuthenticatedActor(t *testing.T) {
+	store := &fakeStore{}
+	handler := NewCore(store, store, store, func(context.Context) error { return nil })
+	request := authenticatedRequest(
+		http.MethodPost,
+		"/api/v1/inventory/transfers",
+		`{"productId":"prd_1","fromLocationId":"loc_a","toLocationId":"loc_b","quantity":2,"actorId":"usr_spoofed"}`,
+	)
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusCreated {
+		t.Fatalf("status = %d, want %d; body=%s", recorder.Code, http.StatusCreated, recorder.Body.String())
+	}
+	if store.transferActor != "usr_session" {
+		t.Fatalf("transfer actor = %q, want authenticated user", store.transferActor)
+	}
+}
+
+func TestCreateOrderUsesAuthenticatedActor(t *testing.T) {
+	store := &fakeStore{}
+	handler := NewCore(store, store, store, func(context.Context) error { return nil })
+	request := authenticatedRequest(
+		http.MethodPost,
+		"/api/v1/orders",
+		`{"number":"PO-1","supplierId":"sup_1","warehouseId":"wh_1","createdBy":"usr_spoofed","lines":[]}`,
+	)
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusCreated {
+		t.Fatalf("status = %d, want %d; body=%s", recorder.Code, http.StatusCreated, recorder.Body.String())
+	}
+	if store.createdOrder.CreatedBy != "usr_session" {
+		t.Fatalf("createdBy = %q, want authenticated user", store.createdOrder.CreatedBy)
+	}
+}
+
+func TestReceiveOrderLineUsesAuthenticatedActor(t *testing.T) {
+	store := &fakeStore{}
+	handler := NewCore(store, store, store, func(context.Context) error { return nil })
+	request := authenticatedRequest(
+		http.MethodPost,
+		"/api/v1/orders/po_1/lines/pol_1/receive",
+		`{"quantity":1,"locationId":"loc_1"}`,
+	)
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d; body=%s", recorder.Code, http.StatusOK, recorder.Body.String())
+	}
+	if store.receiptActor != "usr_session" {
+		t.Fatalf("receipt actor = %q, want authenticated user", store.receiptActor)
+	}
+}
+
+func authenticatedRequest(method, target, body string) *http.Request {
+	request := httptest.NewRequest(method, target, strings.NewReader(body))
+	principal := auth.Principal{User: domain.User{ID: "usr_session", Role: domain.RoleAdmin, Active: true}}
+	return request.WithContext(context.WithValue(request.Context(), principalContextKey{}, principal))
 }
