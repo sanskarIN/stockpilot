@@ -28,5 +28,8 @@ export function normalizeServerUrl(value) {
 }
 
 export function originPattern(value) {
-  return `${normalizeServerUrl(value)}/*`;
+  const url = new URL(normalizeServerUrl(value));
+  // Chrome match patterns do not scope host permissions by port, so request
+  // only the configured scheme + host instead of a broad all-host permission.
+  return `${url.protocol}//${url.hostname}/*`;
 }
