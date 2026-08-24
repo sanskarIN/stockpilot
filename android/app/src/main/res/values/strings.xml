@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">StockPilot</string>
+    <string name="app_credit">Made by the Sanskar</string>
+    <string name="sign_in_title">Sign in to StockPilot</string>
+    <string name="sign_in_subtitle">Connect to your StockPilot server to manage inventory from Android.</string>
+    <string name="api_url_label">Server URL</string>
+    <string name="email_label">Email</string>
+    <string name="password_label">Password</string>
+    <string name="sign_in_action">Sign in</string>
+    <string name="refresh_action">Refresh</string>
+    <string name="sign_out_action">Sign out</string>
+    <string name="retry_action">Retry</string>
+    <string name="products_title">Products</string>
+    <string name="low_stock_title">Low stock</string>
+    <string name="orders_title">Purchase orders</string>
+    <string name="account_title">Account</string>
+    <string name="loading">Loading…</string>
+</resources>
