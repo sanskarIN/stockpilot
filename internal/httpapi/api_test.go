@@ -31,11 +31,15 @@ func (f *fakeStore) GetProduct(_ context.Context, id string) (domain.Product, er
 	}
 	return domain.Product{}, domain.ErrNotFound
 }
-func (f *fakeStore) ListProducts(context.Context, repository.ProductFilter) ([]domain.Product, error) { return nil, nil }
+func (f *fakeStore) ListProducts(context.Context, repository.ProductFilter) ([]domain.Product, error) {
+	return nil, nil
+}
 func (f *fakeStore) CreateWarehouse(context.Context, domain.Warehouse) error { return nil }
 func (f *fakeStore) ListWarehouses(context.Context, bool) ([]domain.Warehouse, error) { return nil, nil }
 func (f *fakeStore) CreateLocation(context.Context, domain.Location) error { return nil }
-func (f *fakeStore) ListLocations(context.Context, string, bool) ([]domain.Location, error) { return nil, nil }
+func (f *fakeStore) ListLocations(context.Context, string, bool) ([]domain.Location, error) {
+	return nil, nil
+}
 func (f *fakeStore) CreateLot(context.Context, domain.Lot) error { return nil }
 func (f *fakeStore) ApplyMovement(context.Context, domain.StockMovement) (domain.StockBalance, error) {
 	return domain.StockBalance{}, nil
@@ -46,11 +50,15 @@ func (f *fakeStore) GetBalance(context.Context, string, string, string) (domain.
 }
 func (f *fakeStore) ListLowStock(context.Context, int) ([]domain.StockBalance, error) { return nil, nil }
 func (f *fakeStore) CreateOrder(context.Context, domain.PurchaseOrder) error { return nil }
-func (f *fakeStore) GetOrder(context.Context, string) (domain.PurchaseOrder, error) { return domain.PurchaseOrder{}, nil }
+func (f *fakeStore) GetOrder(context.Context, string) (domain.PurchaseOrder, error) {
+	return domain.PurchaseOrder{}, nil
+}
 func (f *fakeStore) ListOrders(context.Context, domain.PurchaseOrderStatus, int, int) ([]domain.PurchaseOrder, error) {
 	return nil, nil
 }
-func (f *fakeStore) ReceiveLine(context.Context, string, string, int64, string, string) error { return nil }
+func (f *fakeStore) ReceiveLine(context.Context, string, string, int64, string, string, string) error {
+	return nil
+}
 
 func TestHealthEndpoint(t *testing.T) {
 	store := &fakeStore{}
