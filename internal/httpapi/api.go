@@ -20,20 +20,37 @@ type API struct {
 	catalog   repository.Catalog
 	inventory repository.Inventory
 	orders    repository.Orders
+	reports   repository.Reports
+	audit     repository.Audit
 	ping      func(context.Context) error
 	origins   map[string]struct{}
 	logger    *slog.Logger
 }
 
+type CoreOption func(*API)
+
+func WithInsights(reports repository.Reports, audit repository.Audit) CoreOption {
+	return func(api *API) {
+		api.reports = reports
+		api.audit = audit
+	}
+}
+
 // New returns the core API wrapped with StockPilot's common HTTP hardening.
 // Server composition that also serves authentication and static assets should
 // use NewCore plus WrapCommon so the outermost handler is wrapped exactly once.
-func New(catalog repository.Catalog, inventory repository.Inventory, orders repository.Orders, ping func(context.Context) error, origins []string, logger *slog.Logger) http.Handler {
-	return WrapCommon(NewCore(catalog, inventory, orders, ping), origins, logger)
+func New(catalog repository.Catalog, inventory repository.Inventory, orders repository.Orders, ping func(context.Context) error, origins []string, logger *slog.Logger, options ...CoreOption) http.Handler {
+	return WrapCommon(NewCore(catalog, inventory, orders, ping, options...), origins, logger)
 }
 
-func NewCore(catalog repository.Catalog, inventory repository.Inventory, orders repository.Orders, ping func(context.Context) error) http.Handler {
+func NewCore(catalog repository.Catalog, inventory repository.Inventory, orders repository.Orders, ping func(context.Context) error, options ...CoreOption) http.Handler {
 	a := &API{catalog: catalog, inventory: inventory, orders: orders, ping: ping}
+	for _, option := range options {
+		if option != nil {
+			option(a)
+		}
+	}
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", a.health)
 	mux.HandleFunc("GET /readyz", a.ready)
@@ -58,6 +75,14 @@ func NewCore(catalog repository.Catalog, inventory repository.Inventory, orders 
 	mux.HandleFunc("POST /api/v1/orders", a.createOrder)
 	mux.HandleFunc("GET /api/v1/orders/{id}", a.getOrder)
 	mux.HandleFunc("POST /api/v1/orders/{orderID}/lines/{lineID}/receive", a.receiveOrderLine)
+	if a.reports != nil {
+		mux.HandleFunc("GET /api/v1/reports/overview", a.reportOverview)
+		mux.HandleFunc("GET /api/v1/reports/inventory", a.reportInventory)
+		mux.HandleFunc("GET /api/v1/reports/purchasing", a.reportPurchasing)
+	}
+	if a.audit != nil {
+		mux.HandleFunc("GET /api/v1/audit", a.listAuditEvents)
+	}
 	return mux
 }
 
