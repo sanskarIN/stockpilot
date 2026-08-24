@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "StockPilot Companion",
+  "version": "0.1.0",
+  "description": "Connect to a StockPilot deployment and open its inventory dashboard from the browser toolbar.",
+  "minimum_chrome_version": "116",
+  "permissions": ["storage"],
+  "optional_host_permissions": ["http://*/*", "https://*/*"],
+  "background": {
+    "service_worker": "src/background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_title": "StockPilot Companion",
+    "default_popup": "src/popup.html"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}
