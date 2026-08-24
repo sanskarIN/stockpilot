@@ -1,4 +1,4 @@
-package in.sanskar.stockpilot
+package `in`.sanskar.stockpilot
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
