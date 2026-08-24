@@ -34,4 +34,39 @@ class ApiClientTest {
             ApiClient.normalizeBaseUrl("https://")
         }
     }
+
+    @Test
+    fun normalizeBaseUrl_rejectsEmbeddedCredentials() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ApiClient.normalizeBaseUrl("https://user:secret@inventory.example.com")
+        }
+    }
+
+    @Test
+    fun normalizeBaseUrl_rejectsPath() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ApiClient.normalizeBaseUrl("https://inventory.example.com/app")
+        }
+    }
+
+    @Test
+    fun normalizeBaseUrl_rejectsQuery() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ApiClient.normalizeBaseUrl("https://inventory.example.com?tenant=one")
+        }
+    }
+
+    @Test
+    fun normalizeBaseUrl_rejectsFragment() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ApiClient.normalizeBaseUrl("https://inventory.example.com#dashboard")
+        }
+    }
+
+    @Test
+    fun normalizeBaseUrl_rejectsOutOfRangePort() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ApiClient.normalizeBaseUrl("https://inventory.example.com:65536")
+        }
+    }
 }
