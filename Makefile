@@ -1,21 +1,23 @@
 GRADLE ?= gradle
 
-.PHONY: help fmt test test-unit vet build web-install web-build android-lint android-test android-build extension-check extension-test dev db-up db-down migrate backup clean
+.PHONY: help fmt test test-unit vet build web-install web-build android-lint android-test android-build extension-check extension-test dev db-up db-down migrate backup backup-powershell clean
 
 help:
 	@echo "StockPilot development commands"
-	@echo "  make fmt              Format Go code"
-	@echo "  make test             Run backend tests"
-	@echo "  make vet              Run Go vet"
-	@echo "  make build            Build backend"
-	@echo "  make web-build        Build frontend"
-	@echo "  make android-lint     Run Android lint"
-	@echo "  make android-test     Run Android unit tests"
-	@echo "  make android-build    Build Android debug APK"
-	@echo "  make extension-check  Validate extension sources"
-	@echo "  make extension-test   Run extension unit tests"
-	@echo "  make db-up            Start PostgreSQL with Docker Compose"
-	@echo "  make migrate          Apply SQL migrations"
+	@echo "  make fmt               Format Go code"
+	@echo "  make test              Run backend tests"
+	@echo "  make vet               Run Go vet"
+	@echo "  make build             Build backend"
+	@echo "  make web-build         Build frontend"
+	@echo "  make android-lint      Run Android lint"
+	@echo "  make android-test      Run Android unit tests"
+	@echo "  make android-build     Build Android debug APK"
+	@echo "  make extension-check   Validate extension sources"
+	@echo "  make extension-test    Run extension unit tests"
+	@echo "  make db-up             Start PostgreSQL with Docker Compose"
+	@echo "  make migrate           Apply SQL migrations"
+	@echo "  make backup            Create a database backup with Bash"
+	@echo "  make backup-powershell Create a database backup with PowerShell"
 
 fmt:
 	gofmt -w $$(find cmd internal -name '*.go')
@@ -69,7 +71,10 @@ migrate:
 	done
 
 backup:
-	./scripts/backup.sh
+	bash ./scripts/backup.sh
+
+backup-powershell:
+	pwsh -NoProfile -File ./scripts/backup.ps1
 
 clean:
 	rm -rf bin web/dist coverage android/.gradle android/app/build
