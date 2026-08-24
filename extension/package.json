@@ -1,0 +1,10 @@
+{
+  "name": "stockpilot-browser-extension",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "check": "node --check src/background.js && node --check src/popup.js && node --check src/url.js && node -e \"JSON.parse(require('node:fs').readFileSync('manifest.json', 'utf8'))\"",
+    "test": "node --test"
+  }
+}
