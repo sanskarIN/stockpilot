@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StockPilot Companion</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="brand">
+        <div class="brand-mark" aria-hidden="true">SP</div>
+        <div>
+          <h1>StockPilot</h1>
+          <p>Browser companion</p>
+        </div>
+      </header>
+
+      <form id="server-form" novalidate>
+        <label for="server-url">Server URL</label>
+        <input
+          id="server-url"
+          name="serverUrl"
+          type="url"
+          inputmode="url"
+          autocomplete="url"
+          placeholder="https://stockpilot.example.com"
+          required
+        />
+        <button class="primary" type="submit">Save &amp; connect</button>
+      </form>
+
+      <section class="status-card" aria-live="polite">
+        <span id="status-dot" class="status-dot" aria-hidden="true"></span>
+        <div>
+          <strong id="status-title">Not connected</strong>
+          <p id="status-detail">Configure your StockPilot server.</p>
+        </div>
+      </section>
+
+      <div class="actions">
+        <button id="refresh-button" type="button">Check status</button>
+        <button id="open-button" class="primary" type="button" disabled>Open StockPilot</button>
+      </div>
+
+      <p id="error" class="error" role="alert" hidden></p>
+      <footer>Made by the Sanskar</footer>
+    </main>
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>
