@@ -8,6 +8,7 @@ Unreleased operational-insights milestone — move beyond the core MVP into reli
 
 - Default branch: `main`.
 - Continuation branch: `feat/replenishment-reporting`.
+- Pull request: `#10` — `feat: add replenishment and inventory reporting`.
 - Base commit for this continuation: `09e90918e87f9c26a71acc4d103aa6a1f2c6d655`.
 - No open GitHub issues were present when this continuation started.
 - The original checklist in this file was stale: the repository already contained the Go/PostgreSQL core, web/PWA, authentication/RBAC, Android app, Manifest V3 extension, tests, CI, and security work.
@@ -73,6 +74,8 @@ Unreleased operational-insights milestone — move beyond the core MVP into reli
 - [x] Repaired the pre-existing broken `make backup` command by adding `scripts/backup.sh` and invoking it portably with `sh`.
 - [x] Backup creation now uses restrictive file permissions, custom PostgreSQL dump format, partial-file cleanup, and empty-output protection.
 - [x] CI validates backup-script shell syntax.
+- [x] Improved the Go formatting gate so a failure prints the exact files requiring `gofmt`.
+- [x] The PR formatting gate exposed existing drift in `internal/domain/catalog_test.go`, `internal/domain/purchasing_test.go`, and `internal/httpapi/access.go`, plus the updated `internal/httpapi/api_test.go`; all four files were normalized with `gofmt` without behavior changes.
 
 ### Project documentation
 
@@ -85,7 +88,7 @@ Unreleased operational-insights milestone — move beyond the core MVP into reli
 
 ### Static/unit/build gates configured
 
-- Go formatting check: `test -z "$(gofmt -l cmd internal)"`.
+- Go formatting check: `gofmt -l cmd internal`, with exact non-formatted file reporting and a failing exit status when drift exists.
 - Go vet: `go vet ./...`.
 - Go race/unit tests: `go test -race -coverprofile=coverage.out ./...`.
 - Go server build: `go build -trimpath -o bin/stockpilot ./cmd/server`.
@@ -94,10 +97,18 @@ Unreleased operational-insights milestone — move beyond the core MVP into reli
 - PostgreSQL reporting integration test: `go test ./internal/postgres -run TestReportingIntegration -count=1`.
 - Backup script syntax: `sh -n scripts/backup.sh`.
 - Existing Android and extension workflows remain separate quality gates.
+- CodeQL remains an independent pull-request security gate.
+
+### PR validation status
+
+- PR `#10` is the validation surface for this continuation.
+- The first validation pass correctly failed the Go formatting gate, which revealed previously hidden formatting drift.
+- The formatting gate was made diagnostic and all reported files were then normalized.
+- Final merge must occur only after the latest PR head completes all required checks successfully.
 
 ### Environment note
 
-The connected GitHub environment does not provide a local checkout with dependency/network access for an independent full build. This continuation therefore adds/updates executable GitHub Actions gates and uses the pull-request workflow as the authoritative validation environment. Final workflow results should be checked before merging.
+The connected GitHub environment does not provide a local checkout with dependency/network access for an independent full build. This continuation therefore adds/updates executable GitHub Actions gates and uses the pull-request workflow as the authoritative validation environment. Final workflow results are checked before merge.
 
 ## Known limitations / remaining product work
 
@@ -128,7 +139,7 @@ No schema migration is required for this continuation. The existing `products_ba
 
 ## Release notes draft
 
-Unreleased: add aggregate reorder recommendations that include stockouts, currency-safe inventory valuation, exact barcode lookup, dashboard reporting integration, real PostgreSQL reporting integration coverage, a repaired database-backup command, and current root documentation.
+Unreleased: add aggregate reorder recommendations that include stockouts, currency-safe inventory valuation, exact barcode lookup, dashboard reporting integration, real PostgreSQL reporting integration coverage, a repaired database-backup command, stronger CI diagnostics, Go formatting cleanup, and current root documentation.
 
 ## Continuation commits
 
@@ -155,3 +166,10 @@ Unreleased: add aggregate reorder recommendations that include stockouts, curren
 - `21b5537` — `ci: verify reporting queries and backup script`
 - `6921c89` — `fix(web): preserve operator dashboard permissions`
 - `2b8206b` — `fix(web): render valuation by role permission`
+- `fa96b7f` — `docs: refresh StockPilot continuity log`
+- `d5330a8` — `docs: mark backup creation implemented`
+- `7218dcb` — `ci: report files that need gofmt`
+- `8a089f9` — `style(go): format catalog tests`
+- `1c8c770` — `style(go): format purchasing tests`
+- `ebd7742` — `style(go): format access handler`
+- `6515956` — `style(go): format API tests`
