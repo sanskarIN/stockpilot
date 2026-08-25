@@ -23,5 +23,6 @@ type Catalog interface {
 	CreateProduct(context.Context, domain.Product) error
 	UpdateProduct(context.Context, domain.Product) error
 	GetProduct(context.Context, string) (domain.Product, error)
+	GetProductByBarcode(context.Context, string) (domain.Product, error)
 	ListProducts(context.Context, ProductFilter) ([]domain.Product, error)
 }
