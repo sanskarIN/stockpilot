@@ -54,6 +54,8 @@ func NewCore(catalog repository.Catalog, inventory repository.Inventory, orders 
 	mux.HandleFunc("POST /api/v1/inventory/movements", a.applyMovement)
 	mux.HandleFunc("POST /api/v1/inventory/transfers", a.transfer)
 	mux.HandleFunc("GET /api/v1/inventory/low-stock", a.listLowStock)
+	mux.HandleFunc("GET /api/v1/inventory/reorder-suggestions", a.listReorderSuggestions)
+	mux.HandleFunc("GET /api/v1/reports/inventory-valuation", a.inventoryValuation)
 	mux.HandleFunc("GET /api/v1/orders", a.listOrders)
 	mux.HandleFunc("POST /api/v1/orders", a.createOrder)
 	mux.HandleFunc("GET /api/v1/orders/{id}", a.getOrder)
