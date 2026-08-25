@@ -17,6 +17,7 @@ This roadmap reflects the implemented repository state rather than the original 
 - [x] Aggregate reorder recommendations including zero-stock products.
 - [x] Inventory valuation grouped by currency.
 - [x] Exact barcode lookup API for scanner-driven workflows.
+- [x] Portable local PostgreSQL backup command with safe partial-file handling.
 
 ## Next — operational workflows
 
@@ -34,9 +35,9 @@ This roadmap reflects the implemented repository state rather than the original 
 - [ ] Audit viewer with actor, action, target, request ID, and timestamp filters.
 - [ ] CSV product import with dry-run validation and row-level error reports.
 - [ ] CSV inventory and report export.
-- [ ] Backup script and documented restore drill with retention hooks.
+- [ ] Documented restore drill and backup-retention hooks.
 - [ ] Scheduled-backup deployment examples that keep credentials outside source control.
-- [ ] Database integration tests covering concurrent inventory mutations and migrations.
+- [ ] Database integration tests covering concurrent inventory mutations and migration compatibility.
 
 ## Next — reporting and analytics
 
