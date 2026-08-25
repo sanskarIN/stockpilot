@@ -18,9 +18,9 @@ type fakeStore struct {
 	valuation          domain.InventoryValuationReport
 }
 
-func (f *fakeStore) CreateCategory(context.Context, domain.Category) error { return nil }
-func (f *fakeStore) ListCategories(context.Context) ([]domain.Category, error) { return nil, nil }
-func (f *fakeStore) CreateSupplier(context.Context, domain.Supplier) error { return nil }
+func (f *fakeStore) CreateCategory(context.Context, domain.Category) error          { return nil }
+func (f *fakeStore) ListCategories(context.Context) ([]domain.Category, error)      { return nil, nil }
+func (f *fakeStore) CreateSupplier(context.Context, domain.Supplier) error          { return nil }
 func (f *fakeStore) ListSuppliers(context.Context, bool) ([]domain.Supplier, error) { return nil, nil }
 func (f *fakeStore) CreateProduct(_ context.Context, product domain.Product) error {
 	f.createdProduct = product
@@ -39,11 +39,17 @@ func (f *fakeStore) GetProductByBarcode(_ context.Context, barcode string) (doma
 	}
 	return domain.Product{}, domain.ErrNotFound
 }
-func (f *fakeStore) ListProducts(context.Context, repository.ProductFilter) ([]domain.Product, error) { return nil, nil }
+func (f *fakeStore) ListProducts(context.Context, repository.ProductFilter) ([]domain.Product, error) {
+	return nil, nil
+}
 func (f *fakeStore) CreateWarehouse(context.Context, domain.Warehouse) error { return nil }
-func (f *fakeStore) ListWarehouses(context.Context, bool) ([]domain.Warehouse, error) { return nil, nil }
+func (f *fakeStore) ListWarehouses(context.Context, bool) ([]domain.Warehouse, error) {
+	return nil, nil
+}
 func (f *fakeStore) CreateLocation(context.Context, domain.Location) error { return nil }
-func (f *fakeStore) ListLocations(context.Context, string, bool) ([]domain.Location, error) { return nil, nil }
+func (f *fakeStore) ListLocations(context.Context, string, bool) ([]domain.Location, error) {
+	return nil, nil
+}
 func (f *fakeStore) CreateLot(context.Context, domain.Lot) error { return nil }
 func (f *fakeStore) ApplyMovement(context.Context, domain.StockMovement) (domain.StockBalance, error) {
 	return domain.StockBalance{}, nil
@@ -52,7 +58,9 @@ func (f *fakeStore) Transfer(context.Context, domain.TransferRequest) error { re
 func (f *fakeStore) GetBalance(context.Context, string, string, string) (domain.StockBalance, error) {
 	return domain.StockBalance{}, nil
 }
-func (f *fakeStore) ListLowStock(context.Context, int) ([]domain.StockBalance, error) { return nil, nil }
+func (f *fakeStore) ListLowStock(context.Context, int) ([]domain.StockBalance, error) {
+	return nil, nil
+}
 func (f *fakeStore) ListReorderSuggestions(context.Context, int) ([]domain.ReorderSuggestion, error) {
 	return f.reorderSuggestions, nil
 }
@@ -60,11 +68,15 @@ func (f *fakeStore) GetInventoryValuation(context.Context, int) (domain.Inventor
 	return f.valuation, nil
 }
 func (f *fakeStore) CreateOrder(context.Context, domain.PurchaseOrder) error { return nil }
-func (f *fakeStore) GetOrder(context.Context, string) (domain.PurchaseOrder, error) { return domain.PurchaseOrder{}, nil }
+func (f *fakeStore) GetOrder(context.Context, string) (domain.PurchaseOrder, error) {
+	return domain.PurchaseOrder{}, nil
+}
 func (f *fakeStore) ListOrders(context.Context, domain.PurchaseOrderStatus, int, int) ([]domain.PurchaseOrder, error) {
 	return nil, nil
 }
-func (f *fakeStore) ReceiveLine(context.Context, string, string, int64, string, string) error { return nil }
+func (f *fakeStore) ReceiveLine(context.Context, string, string, int64, string, string) error {
+	return nil
+}
 
 func TestHealthEndpoint(t *testing.T) {
 	store := &fakeStore{}
@@ -173,7 +185,7 @@ func TestReorderSuggestionsEndpoint(t *testing.T) {
 
 func TestInventoryValuationEndpoint(t *testing.T) {
 	store := &fakeStore{valuation: domain.InventoryValuationReport{
-		Items: []domain.InventoryValuationItem{{ProductID: "prd_1", SKU: "SKU-1", Name: "Widget", Unit: "piece", OnHand: 4, UnitCostMinor: 2500, Currency: "INR", ValueMinor: 10000}},
+		Items:  []domain.InventoryValuationItem{{ProductID: "prd_1", SKU: "SKU-1", Name: "Widget", Unit: "piece", OnHand: 4, UnitCostMinor: 2500, Currency: "INR", ValueMinor: 10000}},
 		Totals: []domain.InventoryValuationTotal{{Currency: "INR", ValueMinor: 10000}},
 	}}
 	handler := New(store, store, store, func(context.Context) error { return nil }, nil, nil)
