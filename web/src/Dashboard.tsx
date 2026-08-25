@@ -22,6 +22,7 @@ export function Dashboard({ user, onLogout, onSessionExpired }: { user: User; on
     return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   });
   const [loggingOut, setLoggingOut] = useState(false);
+  const canViewReports = user.role !== "operator";
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -31,7 +32,7 @@ export function Dashboard({ user, onLogout, onSessionExpired }: { user: User; on
   const load = useCallback(async () => {
     setState({ kind: "loading" });
     try {
-      const data = await stockpilotAPI.dashboard();
+      const data = await stockpilotAPI.dashboard(canViewReports);
       setProducts(data.products);
       setReorderSuggestions(data.reorderSuggestions);
       setValuation(data.valuation);
@@ -44,7 +45,7 @@ export function Dashboard({ user, onLogout, onSessionExpired }: { user: User; on
       }
       setState({ kind: "error", message: error instanceof Error ? error.message : "StockPilot could not load dashboard data." });
     }
-  }, [onSessionExpired]);
+  }, [canViewReports, onSessionExpired]);
 
   useEffect(() => {
     void load();
@@ -149,7 +150,9 @@ export function Dashboard({ user, onLogout, onSessionExpired }: { user: User; on
 
           <article className="panel" aria-labelledby="valuation-title">
             <div className="panel-heading"><div><p className="eyebrow">Reporting</p><h2 id="valuation-title">Inventory valuation</h2></div></div>
-            {valuation.totals.length === 0 && state.kind !== "loading" ? (
+            {!canViewReports ? (
+              <EmptyState title="Reporting permission required" body="Inventory valuation is available to roles with reporting access." />
+            ) : valuation.totals.length === 0 && state.kind !== "loading" ? (
               <EmptyState title="No inventory value yet" body="Valuation totals will appear after products and stock balances are available." />
             ) : (
               <ul className="activity-list">
