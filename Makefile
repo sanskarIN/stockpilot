@@ -16,6 +16,7 @@ help:
 	@echo "  make extension-test   Run extension unit tests"
 	@echo "  make db-up            Start PostgreSQL with Docker Compose"
 	@echo "  make migrate          Apply SQL migrations"
+	@echo "  make backup           Create a local PostgreSQL backup"
 
 fmt:
 	gofmt -w $$(find cmd internal -name '*.go')
@@ -69,7 +70,7 @@ migrate:
 	done
 
 backup:
-	./scripts/backup.sh
+	sh ./scripts/backup.sh
 
 clean:
 	rm -rf bin web/dist coverage android/.gradle android/app/build
