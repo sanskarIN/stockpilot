@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { APIError, stockpilotAPI } from "./api";
-import type { Product, PurchaseOrder, StockBalance, User } from "./types";
+import type { InventoryValuationReport, Product, PurchaseOrder, ReorderSuggestion, User } from "./types";
 
 type LoadState =
   | { kind: "loading" }
@@ -8,10 +8,12 @@ type LoadState =
   | { kind: "error"; message: string };
 
 const navigation = ["Overview", "Products", "Inventory", "Purchase orders", "Warehouses", "Reports"];
+const emptyValuation: InventoryValuationReport = { items: [], totals: [] };
 
 export function Dashboard({ user, onLogout, onSessionExpired }: { user: User; onLogout: () => Promise<void>; onSessionExpired: () => void }) {
   const [products, setProducts] = useState<Product[]>([]);
-  const [lowStock, setLowStock] = useState<StockBalance[]>([]);
+  const [reorderSuggestions, setReorderSuggestions] = useState<ReorderSuggestion[]>([]);
+  const [valuation, setValuation] = useState<InventoryValuationReport>(emptyValuation);
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
   const [state, setState] = useState<LoadState>({ kind: "loading" });
   const [theme, setTheme] = useState<"light" | "dark">(() => {
@@ -31,7 +33,8 @@ export function Dashboard({ user, onLogout, onSessionExpired }: { user: User; on
     try {
       const data = await stockpilotAPI.dashboard();
       setProducts(data.products);
-      setLowStock(data.lowStock);
+      setReorderSuggestions(data.reorderSuggestions);
+      setValuation(data.valuation);
       setOrders(data.orders);
       setState({ kind: "ready" });
     } catch (error) {
@@ -47,9 +50,8 @@ export function Dashboard({ user, onLogout, onSessionExpired }: { user: User; on
     void load();
   }, [load]);
 
-  const productsByID = useMemo(() => new Map(products.map((product) => [product.id, product])), [products]);
   const openOrders = orders.filter((order) => !["received", "cancelled"].includes(order.status));
-  const healthyProducts = Math.max(products.length - new Set(lowStock.map((item) => item.productId)).size, 0);
+  const healthyProducts = Math.max(products.length - reorderSuggestions.length, 0);
   const healthPercent = products.length === 0 ? 100 : Math.round((healthyProducts / products.length) * 100);
 
   async function logout() {
@@ -86,7 +88,7 @@ export function Dashboard({ user, onLogout, onSessionExpired }: { user: User; on
           <div>
             <p className="eyebrow">Operations control center</p>
             <h1>Inventory overview</h1>
-            <p className="muted">Live stock health, replenishment signals, and purchasing activity.</p>
+            <p className="muted">Live stock health, replenishment recommendations, valuation, and purchasing activity.</p>
           </div>
           <div className="topbar-actions account-actions">
             <span className="account-chip"><strong>{user.displayName}</strong><small>{user.role}</small></span>
@@ -112,39 +114,52 @@ export function Dashboard({ user, onLogout, onSessionExpired }: { user: User; on
 
         <section className="metrics" aria-label="Inventory summary">
           <Metric label="Active products" value={products.length.toLocaleString()} detail="Tracked catalog items" />
-          <Metric label="Low-stock balances" value={lowStock.length.toLocaleString()} detail="At or below reorder point" tone={lowStock.length > 0 ? "warning" : "good"} />
+          <Metric label="Reorder alerts" value={reorderSuggestions.length.toLocaleString()} detail="Products at or below reorder point" tone={reorderSuggestions.length > 0 ? "warning" : "good"} />
           <Metric label="Open purchase orders" value={openOrders.length.toLocaleString()} detail="Draft, ordered, or partial" />
           <Metric label="Stock health" value={`${healthPercent}%`} detail={`${healthyProducts} products above threshold`} tone={healthPercent >= 90 ? "good" : "warning"} />
         </section>
 
         <section className="dashboard-grid">
-          <article className="panel wide" aria-labelledby="low-stock-title">
+          <article className="panel wide" aria-labelledby="reorder-title">
             <div className="panel-heading">
-              <div><p className="eyebrow">Replenishment</p><h2 id="low-stock-title">Low-stock attention</h2></div>
-              <span className="count-pill">{lowStock.length}</span>
+              <div><p className="eyebrow">Replenishment</p><h2 id="reorder-title">Recommended reorders</h2></div>
+              <span className="count-pill">{reorderSuggestions.length}</span>
             </div>
-            {lowStock.length === 0 && state.kind !== "loading" ? (
-              <EmptyState title="No low-stock balances" body="Tracked balances are currently above their product reorder points." />
+            {reorderSuggestions.length === 0 && state.kind !== "loading" ? (
+              <EmptyState title="No reorder alerts" body="All active products are currently above their configured reorder points." />
             ) : (
               <div className="table-wrap">
                 <table>
-                  <thead><tr><th>Product</th><th>SKU</th><th>Location</th><th className="numeric">On hand</th><th>Updated</th></tr></thead>
+                  <thead><tr><th>Product</th><th>SKU</th><th className="numeric">On hand</th><th className="numeric">Reorder point</th><th className="numeric">Suggested order</th></tr></thead>
                   <tbody>
-                    {lowStock.slice(0, 8).map((balance) => {
-                      const product = productsByID.get(balance.productId);
-                      return (
-                        <tr key={`${balance.productId}:${balance.locationId}:${balance.lotId ?? ""}`}>
-                          <td><strong>{product?.name ?? "Unknown product"}</strong></td>
-                          <td className="mono">{product?.sku ?? "—"}</td>
-                          <td className="mono compact">{shortID(balance.locationId)}</td>
-                          <td className="numeric"><span className="status-badge warning">{balance.quantity.toLocaleString()}</span></td>
-                          <td>{formatDate(balance.updatedAt)}</td>
-                        </tr>
-                      );
-                    })}
+                    {reorderSuggestions.slice(0, 10).map((suggestion) => (
+                      <tr key={suggestion.productId}>
+                        <td><strong>{suggestion.name}</strong><br /><span className="compact">Target {suggestion.targetStock.toLocaleString()} {suggestion.unit}</span></td>
+                        <td className="mono">{suggestion.sku}</td>
+                        <td className="numeric"><span className="status-badge warning">{suggestion.onHand.toLocaleString()}</span></td>
+                        <td className="numeric">{suggestion.reorderPoint.toLocaleString()}</td>
+                        <td className="numeric"><strong>{suggestion.suggestedQuantity.toLocaleString()}</strong> {suggestion.unit}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
+            )}
+          </article>
+
+          <article className="panel" aria-labelledby="valuation-title">
+            <div className="panel-heading"><div><p className="eyebrow">Reporting</p><h2 id="valuation-title">Inventory valuation</h2></div></div>
+            {valuation.totals.length === 0 && state.kind !== "loading" ? (
+              <EmptyState title="No inventory value yet" body="Valuation totals will appear after products and stock balances are available." />
+            ) : (
+              <ul className="activity-list">
+                {valuation.totals.map((total) => (
+                  <li key={total.currency}><span><strong>{total.currency}</strong><small>Current on-hand value</small></span><strong>{formatMoney(total.valueMinor, total.currency)}</strong></li>
+                ))}
+                {valuation.items.slice(0, 3).map((item) => (
+                  <li key={item.productId}><span><strong>{item.name}</strong><small>{item.onHand.toLocaleString()} {item.unit} on hand</small></span><span>{formatMoney(item.valueMinor, item.currency)}</span></li>
+                ))}
+              </ul>
             )}
           </article>
 
@@ -185,11 +200,6 @@ function Metric({ label, value, detail, tone = "neutral" }: { label: string; val
 
 function EmptyState({ title, body }: { title: string; body: string }) {
   return <div className="empty-state"><strong>{title}</strong><p>{body}</p></div>;
-}
-
-function shortID(value: string) {
-  if (value.length <= 14) return value;
-  return `${value.slice(0, 7)}…${value.slice(-5)}`;
 }
 
 function formatDate(value: string) {
