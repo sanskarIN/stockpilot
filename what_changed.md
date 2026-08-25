@@ -2,61 +2,156 @@
 
 ## Current milestone
 
-Phase 1 — clean end-to-end MVP foundation.
+Unreleased operational-insights milestone — move beyond the core MVP into reliable replenishment, valuation, scanner lookup, and release-quality project documentation.
 
 ## Repository state reviewed
 
 - Default branch: `main`.
-- Existing history before this continuation: repository initialization plus development/Docker foundation.
-- No open GitHub issues were present at the start of this continuation.
-- The repository did not yet contain application source directories, migrations, web source, tests, or this continuity log.
+- Continuation branch: `feat/replenishment-reporting`.
+- Base commit for this continuation: `09e90918e87f9c26a71acc4d103aa6a1f2c6d655`.
+- No open GitHub issues were present when this continuation started.
+- The original checklist in this file was stale: the repository already contained the Go/PostgreSQL core, web/PWA, authentication/RBAC, Android app, Manifest V3 extension, tests, CI, and security work.
+- The repository code and commit history are now treated as the source of truth for future continuations.
 
-## Completed work
+## Implemented foundation already present before this continuation
 
-- [x] Repository metadata and existing development foundation reviewed.
-- [x] Master development prompt re-read and used as the requirements baseline.
-- [ ] Domain model for catalog, warehouses/locations, inventory, purchasing, and auditability.
-- [ ] PostgreSQL schema and first migration.
-- [ ] Backend configuration, database connection, HTTP server, health/readiness endpoints.
-- [ ] Initial React/TypeScript web shell and responsive dashboard foundation.
-- [ ] Domain/service tests for high-risk inventory rules.
-- [ ] Documentation and CI baseline.
+- [x] Catalog domain: categories, suppliers, products, SKU/barcode metadata, costing, reorder settings.
+- [x] Warehouse/location model.
+- [x] Stock balances, stock movements, transfers, and negative-stock prevention.
+- [x] Lot and expiry rules.
+- [x] Purchase orders and receiving.
+- [x] PostgreSQL schema, constraints, indexes, and migration runner.
+- [x] Go HTTP server, health/readiness endpoints, request IDs, validation, and security middleware.
+- [x] Authentication, opaque sessions, password hashing, session-token peppering, CSRF protection, and RBAC.
+- [x] Operator-only administrator bootstrap command.
+- [x] React + TypeScript responsive dashboard.
+- [x] PWA manifest/service worker integration.
+- [x] Native Android client with encrypted session persistence and release TLS enforcement.
+- [x] Manifest V3 browser companion with scoped optional host permissions.
+- [x] Backend/web/Android/extension CI, CodeQL, and Dependabot baselines.
 
-## Files/modules added or changed in this continuation
+## Work completed in this continuation
 
-This section is updated as commits land.
+### Replenishment
 
-## Verification commands and results
+- [x] Added `domain.ReorderSuggestion`.
+- [x] Added aggregate product-level reorder queries instead of relying only on individual location/lot balances.
+- [x] Zero-stock active products are now eligible for replenishment recommendations even when no inventory-balance row exists.
+- [x] Suggested order quantity targets `reorder point + reorder quantity` and subtracts current aggregate on-hand stock.
+- [x] Added checked overflow handling for reorder-target arithmetic.
+- [x] Added `GET /api/v1/inventory/reorder-suggestions`.
+- [x] Added unit tests for replenishment calculations.
 
-- Repository/API inspection: completed through the connected GitHub repository.
-- Local full build is not available from the GitHub connector environment; validation that can be performed without fetching dependencies will be recorded here.
+### Inventory valuation
 
-## Known limitations
+- [x] Added valuation item, currency-total, and report domain models.
+- [x] Added product-level inventory valuation from aggregate on-hand stock and unit cost.
+- [x] Added complete totals grouped by currency so incompatible currencies are never silently combined.
+- [x] Valuation multiplication uses PostgreSQL numeric arithmetic before checked conversion to application `int64` minor units.
+- [x] Added `GET /api/v1/reports/inventory-valuation`.
+- [x] Added API tests for report serialization.
 
-- GitHub connector commit operations do not expose an author-email field. Commits are made through the authenticated GitHub connection; the requested `sanskarin@outlook.in` author email cannot be forced through the available write API.
-- The current `Dockerfile` references backend/frontend paths that were not yet present before this continuation; Phase 1 fills these paths.
+### Barcode workflow foundation
 
-## Open issues / next exact tasks
+- [x] Confirmed the existing schema already enforces unique non-empty product barcodes.
+- [x] Added repository support for exact barcode lookup.
+- [x] Added `GET /api/v1/products/by-barcode/{barcode}` for scanner-driven clients.
+- [x] Added input validation and API coverage for exact barcode lookup.
 
-1. Add validated catalog domain entities.
-2. Add warehouses, locations, inventory movements, transfers, and lot tracking.
-3. Add purchase-order domain rules.
-4. Add repository contracts and application services.
-5. Add the initial PostgreSQL migration with constraints and indexes.
-6. Add configuration, pgx pool wiring, and HTTP health/readiness API.
-7. Add the React/TypeScript application shell.
-8. Add tests, documentation, CI, security baseline, and update this log.
+### Web dashboard
+
+- [x] Replaced the misleading per-balance low-stock dashboard signal with aggregate reorder recommendations.
+- [x] Added suggested-order quantities and target stock to the replenishment table.
+- [x] Added inventory valuation display grouped by currency.
+- [x] Preserved the existing RBAC boundary: operators do not receive `reports:read`; the dashboard skips valuation for that role instead of broadening privileges or failing the entire load.
+- [x] Added a typed web client method for exact barcode lookup.
+
+### Reliability and operations
+
+- [x] Added a real PostgreSQL integration test for barcode lookup, reorder suggestions, and valuation against the migrated schema.
+- [x] Extended PostgreSQL CI to run the reporting integration test.
+- [x] Repaired the pre-existing broken `make backup` command by adding `scripts/backup.sh` and invoking it portably with `sh`.
+- [x] Backup creation now uses restrictive file permissions, custom PostgreSQL dump format, partial-file cleanup, and empty-output protection.
+- [x] CI validates backup-script shell syntax.
+
+### Project documentation
+
+- [x] Added root `README.md` with architecture, setup, quality commands, security baseline, API insight endpoints, clients, support/contact, credit, and license information.
+- [x] Added `CHANGELOG.md`.
+- [x] Added `ROADMAP.md` based on actual repository state.
+- [x] Replaced the stale Phase 1 continuity checklist in this file.
+
+## Verification
+
+### Static/unit/build gates configured
+
+- Go formatting check: `test -z "$(gofmt -l cmd internal)"`.
+- Go vet: `go vet ./...`.
+- Go race/unit tests: `go test -race -coverprofile=coverage.out ./...`.
+- Go server build: `go build -trimpath -o bin/stockpilot ./cmd/server`.
+- Web typecheck/build: `npm run build` in `web`.
+- PostgreSQL migration readiness smoke test.
+- PostgreSQL reporting integration test: `go test ./internal/postgres -run TestReportingIntegration -count=1`.
+- Backup script syntax: `sh -n scripts/backup.sh`.
+- Existing Android and extension workflows remain separate quality gates.
+
+### Environment note
+
+The connected GitHub environment does not provide a local checkout with dependency/network access for an independent full build. This continuation therefore adds/updates executable GitHub Actions gates and uses the pull-request workflow as the authoritative validation environment. Final workflow results should be checked before merging.
+
+## Known limitations / remaining product work
+
+- Product/category/supplier/warehouse/location management is still primarily API-backed; full web CRUD screens remain.
+- Stock movement, transfer, purchase-order creation, and receiving need guided first-class web workflows.
+- Exact barcode lookup is now available, but camera-based barcode/QR scanning UI is not yet implemented.
+- Audit permissions exist, but a first-class append-only audit event store/viewer still remains.
+- CSV import/export remains.
+- Backup creation now works; restore drill tooling, retention, and scheduled deployment examples remain.
+- Full browser E2E and Android instrumentation coverage remain release-hardening tasks.
+- Accessibility and production restore/migration-rollback audits remain before a stable release.
+
+## Next exact tasks
+
+1. Complete and merge this replenishment/reporting branch only after all required CI checks pass.
+2. Build web catalog management screens with validation, loading/error states, and role-aware write controls.
+3. Add guided stock movement and transfer workflows.
+4. Add purchase-order creation/editing/receiving UI and an action to seed draft orders from reorder recommendations without bypassing approvals.
+5. Add camera barcode/QR scanning on supported clients backed by the exact barcode endpoint.
+6. Add append-only audit events and an audit viewer.
+7. Add CSV import/export with dry-run validation and row-level errors.
+8. Add restore tooling, retention hooks, and scheduled-backup deployment examples.
+9. Add end-to-end browser tests and continue stable-release acceptance work.
 
 ## Migration notes
 
-No database migration had been committed before this continuation.
+No schema migration is required for this continuation. The existing `products_barcode_uq` partial unique index already guarantees uniqueness for non-empty barcodes. Replenishment and valuation are computed from the current `products` and `inventory_balances` schema.
 
 ## Release notes draft
 
-Unreleased Phase 1 foundation: establish the first real StockPilot domain, persistence schema, API process, and web application shell.
+Unreleased: add aggregate reorder recommendations that include stockouts, currency-safe inventory valuation, exact barcode lookup, dashboard reporting integration, real PostgreSQL reporting integration coverage, a repaired database-backup command, and current root documentation.
 
-## Recent meaningful commits
+## Continuation commits
 
-- `c1da19a` — `build: establish StockPilot development foundation`
-- `b28093c` — `chore: initialize StockPilot repository`
-- `78c6f5a` — `Initial commit`
+- `f6a8801` — `feat(replenishment): add reorder and valuation models`
+- `314a399` — `feat(replenishment): extend inventory reporting contract`
+- `69e4503` — `feat(reporting): implement reorder and valuation queries`
+- `7c8ab14` — `test(reporting): cover replenishment calculations`
+- `3064355` — `feat(api): add replenishment and valuation handlers`
+- `5142836` — `feat(api): expose replenishment reporting routes`
+- `b1e734a` — `feat(catalog): add barcode lookup contract`
+- `f4cd13a` — `feat(catalog): implement exact barcode lookup`
+- `59e4259` — `feat(api): add scanner-friendly barcode lookup`
+- `9526133` — `feat(api): route exact barcode lookup`
+- `d2308a1` — `test(api): cover barcode and inventory reports`
+- `3235ca4` — `feat(web): type replenishment and valuation data`
+- `fcd27fb` — `feat(web): consume replenishment reporting APIs`
+- `9123151` — `feat(web): surface reorder and valuation insights`
+- `986e758` — `docs: add StockPilot project guide`
+- `1cfbb30` — `docs: add delivery roadmap`
+- `3763d77` — `docs: add project changelog`
+- `aec5d0f` — `fix(ops): repair database backup command`
+- `21c6a27` — `fix(ops): invoke portable backup script`
+- `6255d7d` — `test(postgres): verify reporting against real schema`
+- `21b5537` — `ci: verify reporting queries and backup script`
+- `6921c89` — `fix(web): preserve operator dashboard permissions`
+- `2b8206b` — `fix(web): render valuation by role permission`
