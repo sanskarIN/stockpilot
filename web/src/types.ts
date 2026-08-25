@@ -15,10 +15,12 @@ export type Product = {
   id: string;
   sku: string;
   name: string;
+  barcode?: string;
   unit: string;
   unitCostMinor: number;
   currency: string;
   reorderPoint: number;
+  reorderQuantity: number;
   active: boolean;
 };
 
@@ -28,6 +30,40 @@ export type StockBalance = {
   lotId?: string;
   quantity: number;
   updatedAt: string;
+};
+
+export type ReorderSuggestion = {
+  productId: string;
+  sku: string;
+  name: string;
+  supplierId?: string;
+  unit: string;
+  onHand: number;
+  reorderPoint: number;
+  reorderQuantity: number;
+  targetStock: number;
+  suggestedQuantity: number;
+};
+
+export type InventoryValuationItem = {
+  productId: string;
+  sku: string;
+  name: string;
+  unit: string;
+  onHand: number;
+  unitCostMinor: number;
+  currency: string;
+  valueMinor: number;
+};
+
+export type InventoryValuationTotal = {
+  currency: string;
+  valueMinor: number;
+};
+
+export type InventoryValuationReport = {
+  items: InventoryValuationItem[];
+  totals: InventoryValuationTotal[];
 };
 
 export type PurchaseOrder = {
