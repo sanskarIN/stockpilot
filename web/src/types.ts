@@ -11,17 +11,44 @@ export type User = {
   lastLoginAt?: string;
 };
 
+export type Category = {
+  id: string;
+  name: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Supplier = {
+  id: string;
+  code: string;
+  name: string;
+  email?: string;
+  phone?: string;
+  notes?: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type Product = {
   id: string;
   sku: string;
   name: string;
+  description?: string;
+  categoryId?: string;
+  supplierId?: string;
   barcode?: string;
   unit: string;
   unitCostMinor: number;
   currency: string;
   reorderPoint: number;
   reorderQuantity: number;
+  trackLots: boolean;
+  trackExpiry: boolean;
   active: boolean;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type StockBalance = {
