@@ -18,10 +18,12 @@ This roadmap reflects the implemented repository state rather than the original 
 - [x] Inventory valuation grouped by currency.
 - [x] Exact barcode lookup API for scanner-driven workflows.
 - [x] Portable local PostgreSQL backup command with safe partial-file handling.
+- [x] Authenticated web product create/edit workflow with role-aware write controls.
 
 ## Next — operational workflows
 
-- [ ] Product/category/supplier create and edit screens in the web application.
+- [ ] Category management screens.
+- [ ] Supplier management screens.
 - [ ] Warehouse/location management screens.
 - [ ] Guided stock-in, stock-out, adjustment, and transfer forms with confirmation summaries.
 - [ ] Purchase-order creation, editing, approval-state controls, and receiving UI.
