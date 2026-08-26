@@ -77,6 +77,14 @@ Unreleased operational-insights milestone — move beyond the core MVP into reli
 - [x] Improved the Go formatting gate so a failure prints the exact files requiring `gofmt`.
 - [x] The PR formatting gate exposed existing drift in `internal/domain/catalog_test.go`, `internal/domain/purchasing_test.go`, and `internal/httpapi/access.go`, plus the updated `internal/httpapi/api_test.go`; all four files were normalized with `gofmt` without behavior changes.
 
+### CI and web entrypoint stabilization
+
+- [x] Added a verified `go.sum` so Go module downloads, vetting, tests, builds, and CodeQL can resolve the declared dependencies reproducibly.
+- [x] Added Vite client type declarations through `web/src/vite-env.d.ts`, fixing `ImportMeta.env` TypeScript resolution in CI.
+- [x] Upgraded CodeQL workflow actions from v3 to v4 to remove the announced v3 deprecation path.
+- [x] Rewired `web/src/main.tsx` to use the existing secure login/session flow and the authenticated `Dashboard` component instead of the legacy unauthenticated dashboard implementation.
+- [x] Added initial session verification, sign-in, sign-out, and session-expiry handling at the web application entrypoint.
+
 ### Project documentation
 
 - [x] Added root `README.md` with architecture, setup, quality commands, security baseline, API insight endpoints, clients, support/contact, credit, and license information.
@@ -97,14 +105,16 @@ Unreleased operational-insights milestone — move beyond the core MVP into reli
 - PostgreSQL reporting integration test: `go test ./internal/postgres -run TestReportingIntegration -count=1`.
 - Backup script syntax: `sh -n scripts/backup.sh`.
 - Existing Android and extension workflows remain separate quality gates.
-- CodeQL remains an independent pull-request security gate.
+- CodeQL remains an independent pull-request security gate, now using CodeQL Action v4.
 
 ### PR validation status
 
 - PR `#10` is the validation surface for this continuation.
 - The first validation pass correctly failed the Go formatting gate, which revealed previously hidden formatting drift.
 - The formatting gate was made diagnostic and all reported files were then normalized.
-- Final merge must occur only after the latest PR head completes all required checks successfully.
+- The next validation pass exposed the missing Vite `ImportMeta.env` type declaration and missing Go checksums; both are now addressed.
+- The web entrypoint also had a stale unauthenticated implementation; it has now been replaced by the authenticated session flow already present in the repository.
+- The latest PR head has fresh GitHub Actions checks queued; final merge must occur only after the latest PR head completes all required checks successfully.
 
 ### Environment note
 
@@ -139,7 +149,7 @@ No schema migration is required for this continuation. The existing `products_ba
 
 ## Release notes draft
 
-Unreleased: add aggregate reorder recommendations that include stockouts, currency-safe inventory valuation, exact barcode lookup, dashboard reporting integration, real PostgreSQL reporting integration coverage, a repaired database-backup command, stronger CI diagnostics, Go formatting cleanup, and current root documentation.
+Unreleased: add aggregate reorder recommendations that include stockouts, currency-safe inventory valuation, exact barcode lookup, dashboard reporting integration, real PostgreSQL reporting integration coverage, a repaired database-backup command, stronger CI diagnostics, Go formatting cleanup, reproducible Go dependency checksums, CodeQL v4, and a secure authenticated web entrypoint.
 
 ## Continuation commits
 
@@ -173,3 +183,8 @@ Unreleased: add aggregate reorder recommendations that include stockouts, curren
 - `1c8c770` — `style(go): format purchasing tests`
 - `ebd7742` — `style(go): format access handler`
 - `6515956` — `style(go): format API tests`
+- `c198260` — `fix(deps): add verified Go module checksums`
+- `5bfe376` — `fix(web): load Vite import-meta environment types`
+- `7f1a057` — `ci(security): upgrade CodeQL actions to v4`
+- `6c8ab0b` — `fix(web): wire authenticated dashboard entrypoint`
+- `docs-current` — `docs: record CI and web entrypoint fixes`
