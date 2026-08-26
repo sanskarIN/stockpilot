@@ -76,7 +76,8 @@ Unreleased operational milestone — move from the core MVP into reliable replen
 - [x] Added Vite client type declarations through `web/src/vite-env.d.ts`, fixing `ImportMeta.env` TypeScript resolution in CI.
 - [x] Upgraded CodeQL workflow actions from v3 to v4 to remove the announced v3 deprecation path.
 - [x] Added the pgx transitive build dependencies to `go.mod` after GitHub Actions `go vet` correctly reported that `go mod tidy` was required.
-- [x] Web quality passed on the stabilized PR head before the remaining Go dependency declaration fix.
+- [x] Added `golang.org/x/text v0.24.0` as an indirect dependency after CI identified the `pgx/pgconn` SCRAM dependency.
+- [x] Refreshed CI and CodeQL checkout/setup action majors to current Node 24-compatible versions.
 
 ### Catalog management UI
 
@@ -121,7 +122,7 @@ Unreleased operational milestone — move from the core MVP into reliable replen
 - PostgreSQL reporting integration test: `go test ./internal/postgres -run TestReportingIntegration -count=1`.
 - Backup script syntax: `sh -n scripts/backup.sh`.
 - Existing Android and extension workflows remain separate quality gates.
-- CodeQL remains an independent pull-request security gate, now using CodeQL Action v4.
+- CodeQL remains an independent pull-request security gate, using CodeQL Action v4.
 
 ### PR validation status
 
@@ -129,9 +130,11 @@ Unreleased operational milestone — move from the core MVP into reliable replen
 - The first validation pass correctly failed the Go formatting gate, which revealed previously hidden formatting drift.
 - The formatting gate was made diagnostic and all reported files were then normalized.
 - A later pass exposed missing Vite `ImportMeta.env` types and missing Go checksums; both were addressed.
-- `go vet` then correctly reported that the Go module graph required the pgx transitive build dependencies to be declared; `go.mod` was updated accordingly and a fresh PR validation run was queued.
-- PR `#11` contains only the catalog-management milestone on top of PR #10 and is intentionally dependent on that branch.
-- PR #11 must be retargeted to `main` after PR #10 merges, then its web build/typecheck must pass before merge.
+- `go vet` then correctly reported that the Go module graph required the pgx transitive build dependencies to be declared; `go.mod` was updated accordingly.
+- A subsequent pass identified the `golang.org/x/text/secure/precis` dependency; `golang.org/x/text v0.24.0` was then declared as an indirect dependency.
+- The PostgreSQL smoke test failed for the same missing `x/text` dependency before that fix; the database container itself initialized and became healthy.
+- PR `#11` contains the catalog-management milestone on top of PR #10 and is intentionally dependent on that branch.
+- PR #11 must be retargeted to `main` after PR #10 merges, then its full web and security validation must pass before merge.
 
 ### Environment note
 
@@ -167,7 +170,7 @@ No schema migration is required for the replenishment/reporting or catalog-manag
 
 ## Release notes draft
 
-Unreleased: add aggregate reorder recommendations that include stockouts, currency-safe inventory valuation, exact barcode lookup, dashboard reporting integration, real PostgreSQL reporting integration coverage, a repaired database-backup command, stronger CI diagnostics, Go formatting cleanup, reproducible Go dependency checksums, CodeQL v4, a secure authenticated web entrypoint, and a first-class role-aware product catalog management workflow.
+Unreleased: add aggregate reorder recommendations that include stockouts, currency-safe inventory valuation, exact barcode lookup, dashboard reporting integration, real PostgreSQL reporting integration coverage, a repaired database-backup command, stronger CI diagnostics, Go formatting cleanup, reproducible Go dependency checksums, CodeQL v4, a secure authenticated web entrypoint, current Node 24-compatible GitHub Actions runtimes, and a first-class role-aware product catalog management workflow.
 
 ## Continuation commits
 
@@ -213,4 +216,8 @@ Unreleased: add aggregate reorder recommendations that include stockouts, curren
 - `74971a1` — `fix(web): make product editor state explicit`
 - `b074078` — `feat(web): connect dashboard to catalog screen`
 - `fd32af3` — `style(web): add catalog management layout`
-- `docs-next` — `docs: record catalog management milestone`
+- `9072967` — `docs: record catalog management milestone`
+- `dcbdcbd` — `fix(deps): declare pgx text dependency`
+- `8f51d4f` — `ci: refresh GitHub Actions runtimes`
+- `25e3044` — `ci(security): refresh action runtimes`
+- `docs-current` — `docs: record catalog CI dependency fixes`
