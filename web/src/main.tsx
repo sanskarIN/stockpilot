@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Dashboard } from "./Dashboard";
 import { LoginScreen } from "./LoginScreen";
+import { ProductsScreen } from "./ProductsScreen";
 import { APIError, stockpilotAPI } from "./api";
 import type { User } from "./types";
 import "./styles.css";
@@ -11,8 +12,11 @@ type SessionState =
   | { kind: "signed-out" }
   | { kind: "signed-in"; user: User };
 
+type View = "dashboard" | "products";
+
 function App() {
   const [session, setSession] = useState<SessionState>({ kind: "checking" });
+  const [view, setView] = useState<View>("dashboard");
 
   useEffect(() => {
     let active = true;
@@ -38,6 +42,7 @@ function App() {
 
   async function login(email: string, password: string) {
     const result = await stockpilotAPI.login(email, password);
+    setView("dashboard");
     setSession({ kind: "signed-in", user: result.user });
   }
 
@@ -45,8 +50,14 @@ function App() {
     try {
       await stockpilotAPI.logout();
     } finally {
+      setView("dashboard");
       setSession({ kind: "signed-out" });
     }
+  }
+
+  function expireSession() {
+    setView("dashboard");
+    setSession({ kind: "signed-out" });
   }
 
   if (session.kind === "checking") {
@@ -66,11 +77,16 @@ function App() {
     return <LoginScreen onLogin={login} />;
   }
 
+  if (view === "products") {
+    return <ProductsScreen user={session.user} onBack={() => setView("dashboard")} onSessionExpired={expireSession} />;
+  }
+
   return (
     <Dashboard
       user={session.user}
       onLogout={logout}
-      onSessionExpired={() => setSession({ kind: "signed-out" })}
+      onSessionExpired={expireSession}
+      onOpenProducts={() => setView("products")}
     />
   );
 }
