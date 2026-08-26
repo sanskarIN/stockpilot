@@ -33,6 +33,7 @@ export function ProductsScreen({ user, onBack, onSessionExpired }: { user: User;
   const [state, setState] = useState<LoadState>({ kind: "loading" });
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<Product | null>(null);
+  const [formOpen, setFormOpen] = useState(false);
   const [draft, setDraft] = useState<ProductDraft>(blankProduct);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
@@ -71,6 +72,7 @@ export function ProductsScreen({ user, onBack, onSessionExpired }: { user: User;
     setEditing(null);
     setDraft(blankProduct);
     setFormError("");
+    setFormOpen(true);
   }
 
   function startEdit(product: Product) {
@@ -92,10 +94,12 @@ export function ProductsScreen({ user, onBack, onSessionExpired }: { user: User;
       active: product.active
     });
     setFormError("");
+    setFormOpen(true);
   }
 
   function closeForm() {
     if (!saving) {
+      setFormOpen(false);
       setEditing(null);
       setFormError("");
     }
@@ -152,6 +156,7 @@ export function ProductsScreen({ user, onBack, onSessionExpired }: { user: User;
       } else {
         await stockpilotAPI.createProduct(normalized);
       }
+      setFormOpen(false);
       setEditing(null);
       await load();
     } catch (error) {
@@ -226,7 +231,7 @@ export function ProductsScreen({ user, onBack, onSessionExpired }: { user: User;
         )}
       </section>
 
-      {canWrite && (editing || draft !== blankProduct) && (
+      {canWrite && formOpen && (
         <div className="modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeForm(); }}>
           <section className="modal-card" role="dialog" aria-modal="true" aria-labelledby="product-form-title">
             <div className="panel-heading">
