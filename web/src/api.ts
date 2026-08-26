@@ -1,9 +1,11 @@
 import type {
+  Category,
   InventoryValuationReport,
   ListResponse,
   Product,
   PurchaseOrder,
   ReorderSuggestion,
+  Supplier,
   User
 } from "./types";
 
@@ -60,6 +62,14 @@ export const stockpilotAPI = {
       body: JSON.stringify({ email, password })
     }),
   logout: () => request<void>("/api/v1/auth/logout", { method: "POST" }),
+  listCategories: () => request<ListResponse<Category>>("/api/v1/categories"),
+  listSuppliers: () => request<ListResponse<Supplier>>("/api/v1/suppliers?active=true"),
+  listProducts: (query = "") =>
+    request<ListResponse<Product>>(`/api/v1/products?active=false&limit=100&q=${encodeURIComponent(query.trim())}`),
+  createProduct: (product: Omit<Product, "id" | "createdAt" | "updatedAt">) =>
+    request<Product>("/api/v1/products", { method: "POST", body: JSON.stringify(product) }),
+  updateProduct: (id: string, product: Omit<Product, "id" | "createdAt" | "updatedAt">) =>
+    request<Product>(`/api/v1/products/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify(product) }),
   productByBarcode: (barcode: string) => request<Product>(`/api/v1/products/by-barcode/${encodeURIComponent(barcode.trim())}`),
   dashboard: async (includeValuation = true) => {
     const valuationRequest = includeValuation
