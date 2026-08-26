@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Unreleased operational-insights milestone — move beyond the core MVP into reliable replenishment, valuation, scanner lookup, and release-quality project documentation.
+Unreleased operational-insights milestone — move beyond the core MVP into reliable replenishment, valuation, scanner lookup, secure web entrypoint, and release-quality project documentation.
 
 ## Repository state reviewed
 
@@ -12,7 +12,7 @@ Unreleased operational-insights milestone — move beyond the core MVP into reli
 - Base commit for this continuation: `09e90918e87f9c26a71acc4d103aa6a1f2c6d655`.
 - No open GitHub issues were present when this continuation started.
 - The original checklist in this file was stale: the repository already contained the Go/PostgreSQL core, web/PWA, authentication/RBAC, Android app, Manifest V3 extension, tests, CI, and security work.
-- The repository code and commit history are now treated as the source of truth for future continuations.
+- The repository code, CI results, and commit history are now treated as the source of truth for future continuations.
 
 ## Implemented foundation already present before this continuation
 
@@ -67,6 +67,18 @@ Unreleased operational-insights milestone — move beyond the core MVP into reli
 - [x] Preserved the existing RBAC boundary: operators do not receive `reports:read`; the dashboard skips valuation for that role instead of broadening privileges or failing the entire load.
 - [x] Added a typed web client method for exact barcode lookup.
 
+### CI and web entrypoint stabilization
+
+- [x] Added a verified `go.sum` so Go module downloads, vetting, tests, builds, and CodeQL can resolve declared dependencies reproducibly.
+- [x] Added Vite client type declarations through `web/src/vite-env.d.ts`, fixing `ImportMeta.env` TypeScript resolution in CI.
+- [x] Upgraded CodeQL workflow actions from v3 to v4.
+- [x] Rewired `web/src/main.tsx` to use the existing secure login/session flow and the authenticated `Dashboard` component instead of the legacy unauthenticated dashboard implementation.
+- [x] Added initial session verification, sign-in, sign-out, and session-expiry handling at the web application entrypoint.
+- [x] Added the pgx transitive build dependencies to `go.mod` after `go vet` correctly reported that the module graph required them.
+- [x] Added `golang.org/x/text v0.24.0` to the indirect Go dependency graph after CI correctly identified the `pgx/pgconn` SCRAM dependency.
+- [x] Refreshed CI actions to current Node 24-compatible major versions: `actions/checkout@v6`, `actions/setup-go@v7`, and `actions/setup-node@v6`.
+- [x] Refreshed the CodeQL workflow to the same current checkout/setup action majors while keeping CodeQL Action v4.
+
 ### Reliability and operations
 
 - [x] Added a real PostgreSQL integration test for barcode lookup, reorder suggestions, and valuation against the migrated schema.
@@ -75,15 +87,7 @@ Unreleased operational-insights milestone — move beyond the core MVP into reli
 - [x] Backup creation now uses restrictive file permissions, custom PostgreSQL dump format, partial-file cleanup, and empty-output protection.
 - [x] CI validates backup-script shell syntax.
 - [x] Improved the Go formatting gate so a failure prints the exact files requiring `gofmt`.
-- [x] The PR formatting gate exposed existing drift in `internal/domain/catalog_test.go`, `internal/domain/purchasing_test.go`, and `internal/httpapi/access.go`, plus the updated `internal/httpapi/api_test.go`; all four files were normalized with `gofmt` without behavior changes.
-
-### CI and web entrypoint stabilization
-
-- [x] Added a verified `go.sum` so Go module downloads, vetting, tests, builds, and CodeQL can resolve the declared dependencies reproducibly.
-- [x] Added Vite client type declarations through `web/src/vite-env.d.ts`, fixing `ImportMeta.env` TypeScript resolution in CI.
-- [x] Upgraded CodeQL workflow actions from v3 to v4 to remove the announced v3 deprecation path.
-- [x] Rewired `web/src/main.tsx` to use the existing secure login/session flow and the authenticated `Dashboard` component instead of the legacy unauthenticated dashboard implementation.
-- [x] Added initial session verification, sign-in, sign-out, and session-expiry handling at the web application entrypoint.
+- [x] The PR formatting gate exposed existing drift in `internal/domain/catalog_test.go`, `internal/domain/purchasing_test.go`, `internal/httpapi/access.go`, and `internal/httpapi/api_test.go`; all four files were normalized with `gofmt` without behavior changes.
 
 ### Project documentation
 
@@ -105,24 +109,27 @@ Unreleased operational-insights milestone — move beyond the core MVP into reli
 - PostgreSQL reporting integration test: `go test ./internal/postgres -run TestReportingIntegration -count=1`.
 - Backup script syntax: `sh -n scripts/backup.sh`.
 - Existing Android and extension workflows remain separate quality gates.
-- CodeQL remains an independent pull-request security gate, now using CodeQL Action v4.
+- CodeQL remains an independent pull-request security gate, using CodeQL Action v4 with current checkout/setup runtimes.
 
 ### PR validation status
 
-- PR `#10` is the validation surface for this continuation.
+- PR `#10` remains the validation surface for the replenishment/reporting milestone.
 - The first validation pass correctly failed the Go formatting gate, which revealed previously hidden formatting drift.
 - The formatting gate was made diagnostic and all reported files were then normalized.
-- The next validation pass exposed the missing Vite `ImportMeta.env` type declaration and missing Go checksums; both are now addressed.
-- The web entrypoint also had a stale unauthenticated implementation; it has now been replaced by the authenticated session flow already present in the repository.
-- The latest PR head has fresh GitHub Actions checks queued; final merge must occur only after the latest PR head completes all required checks successfully.
+- A later pass exposed missing Vite `ImportMeta.env` types and missing Go checksums; both were addressed.
+- `go vet` then identified the pgx transitive build dependencies; those were declared in `go.mod`.
+- The following pass identified the `golang.org/x/text/secure/precis` dependency used by pgx SCRAM; `golang.org/x/text v0.24.0` was then declared as an indirect dependency.
+- The PostgreSQL smoke test failed for the same missing `x/text` dependency before the module-graph fix; the database container itself initialized and became healthy, so the failure was dependency resolution rather than PostgreSQL startup.
+- CI and CodeQL were refreshed to current Node 24-compatible action majors, eliminating the earlier forced-Node-24 deprecation warnings from checkout/setup actions.
+- The latest PR head has fresh CI and CodeQL runs queued; final merge must occur only after the latest required checks complete successfully.
 
 ### Environment note
 
-The connected GitHub environment does not provide a local checkout with dependency/network access for an independent full build. This continuation therefore adds/updates executable GitHub Actions gates and uses the pull-request workflow as the authoritative validation environment. Final workflow results are checked before merge.
+The connected GitHub environment does not provide a local checkout with dependency/network access for an independent full build. The executable GitHub Actions gates therefore remain the authoritative validation environment for repository-wide CI, while the code and commit history provide the implementation source of truth.
 
 ## Known limitations / remaining product work
 
-- Product/category/supplier/warehouse/location management is still primarily API-backed; full web CRUD screens remain.
+- Product/category/supplier/warehouse/location management is still primarily API-backed; full web catalog CRUD is the next client milestone.
 - Stock movement, transfer, purchase-order creation, and receiving need guided first-class web workflows.
 - Exact barcode lookup is now available, but camera-based barcode/QR scanning UI is not yet implemented.
 - Audit permissions exist, but a first-class append-only audit event store/viewer still remains.
@@ -133,8 +140,8 @@ The connected GitHub environment does not provide a local checkout with dependen
 
 ## Next exact tasks
 
-1. Complete and merge this replenishment/reporting branch only after all required CI checks pass.
-2. Build web catalog management screens with validation, loading/error states, and role-aware write controls.
+1. Complete PR `#10` CI validation and merge the replenishment/reporting milestone.
+2. Build web product/category/supplier management screens with validation, loading/error states, and role-aware write controls.
 3. Add guided stock movement and transfer workflows.
 4. Add purchase-order creation/editing/receiving UI and an action to seed draft orders from reorder recommendations without bypassing approvals.
 5. Add camera barcode/QR scanning on supported clients backed by the exact barcode endpoint.
@@ -149,7 +156,7 @@ No schema migration is required for this continuation. The existing `products_ba
 
 ## Release notes draft
 
-Unreleased: add aggregate reorder recommendations that include stockouts, currency-safe inventory valuation, exact barcode lookup, dashboard reporting integration, real PostgreSQL reporting integration coverage, a repaired database-backup command, stronger CI diagnostics, Go formatting cleanup, reproducible Go dependency checksums, CodeQL v4, and a secure authenticated web entrypoint.
+Unreleased: add aggregate reorder recommendations that include stockouts, currency-safe inventory valuation, exact barcode lookup, dashboard reporting integration, real PostgreSQL reporting integration coverage, a repaired database-backup command, stronger CI diagnostics, Go formatting cleanup, reproducible Go dependency checksums, CodeQL v4, a secure authenticated web entrypoint, and current Node 24-compatible GitHub Actions runtimes.
 
 ## Continuation commits
 
@@ -187,4 +194,9 @@ Unreleased: add aggregate reorder recommendations that include stockouts, curren
 - `5bfe376` — `fix(web): load Vite import-meta environment types`
 - `7f1a057` — `ci(security): upgrade CodeQL actions to v4`
 - `6c8ab0b` — `fix(web): wire authenticated dashboard entrypoint`
-- `docs-current` — `docs: record CI and web entrypoint fixes`
+- `94659eb` — `docs: record CI and web entrypoint fixes`
+- `e5c17d4` — `fix(deps): declare pgx transitive build dependencies`
+- `cf1f409` — `fix(deps): declare pgx text dependency`
+- `9879f1c` — `ci: refresh GitHub Actions runtimes`
+- `ef24f05` — `ci(security): refresh action runtimes`
+- `docs-current` — `docs: refresh operational validation status`
