@@ -2,17 +2,19 @@
 
 ## Current milestone
 
-Unreleased operational-insights milestone — move beyond the core MVP into reliable replenishment, valuation, scanner lookup, and release-quality project documentation.
+Unreleased operational milestone — move from the core MVP into reliable replenishment, valuation, scanner lookup, and first-class web catalog operations.
 
 ## Repository state reviewed
 
 - Default branch: `main`.
-- Continuation branch: `feat/replenishment-reporting`.
-- Pull request: `#10` — `feat: add replenishment and inventory reporting`.
-- Base commit for this continuation: `09e90918e87f9c26a71acc4d103aa6a1f2c6d655`.
-- No open GitHub issues were present when this continuation started.
+- Replenishment/reporting continuation branch: `feat/replenishment-reporting`.
+- Pull request `#10`: `feat: add replenishment and inventory reporting`.
+- Catalog UI branch: `feat/catalog-management-ui`.
+- Pull request `#11`: `feat(web): add catalog product management`, currently based on PR #10's branch so the two milestones can merge independently without duplicating the earlier diff.
+- Base commit for the original operational-insights continuation: `09e90918e87f9c26a71acc4d103aa6a1f2c6d655`.
+- No open GitHub issues were present when the continuation work began.
 - The original checklist in this file was stale: the repository already contained the Go/PostgreSQL core, web/PWA, authentication/RBAC, Android app, Manifest V3 extension, tests, CI, and security work.
-- The repository code and commit history are now treated as the source of truth for future continuations.
+- The repository code, pull requests, CI results, and commit history are now treated as the source of truth for future continuations.
 
 ## Implemented foundation already present before this continuation
 
@@ -66,6 +68,28 @@ Unreleased operational-insights milestone — move beyond the core MVP into reli
 - [x] Added inventory valuation display grouped by currency.
 - [x] Preserved the existing RBAC boundary: operators do not receive `reports:read`; the dashboard skips valuation for that role instead of broadening privileges or failing the entire load.
 - [x] Added a typed web client method for exact barcode lookup.
+- [x] Replaced the stale unauthenticated entrypoint with the existing secure login/session flow.
+
+### CI and web entrypoint stabilization
+
+- [x] Added a verified `go.sum` so Go module downloads, vetting, tests, builds, and CodeQL can resolve the declared dependencies reproducibly.
+- [x] Added Vite client type declarations through `web/src/vite-env.d.ts`, fixing `ImportMeta.env` TypeScript resolution in CI.
+- [x] Upgraded CodeQL workflow actions from v3 to v4 to remove the announced v3 deprecation path.
+- [x] Added the pgx transitive build dependencies to `go.mod` after GitHub Actions `go vet` correctly reported that `go mod tidy` was required.
+- [x] Web quality passed on the stabilized PR head before the remaining Go dependency declaration fix.
+
+### Catalog management UI
+
+- [x] Added typed `Category`, `Supplier`, and complete `Product` client models.
+- [x] Added web API methods for listing categories, listing active suppliers, searching products, creating products, and updating products.
+- [x] Added an authenticated Products screen with product search, responsive catalog table, barcode visibility, category/supplier names, pricing, reorder settings, and active/inactive status.
+- [x] Added role-aware write controls: only admin and manager roles receive create/edit controls, while operator/viewer roles remain read-only.
+- [x] Added client-side validation for SKU, product name, unit, currency, non-negative cost/reorder values, and the lot/expiry dependency.
+- [x] Added a modal product editor with category and supplier selectors, description, barcode, costing, reorder settings, lot/expiry flags, and active state.
+- [x] Added session-expiry handling to the catalog workflow.
+- [x] Connected the dashboard Products navigation and catalog panel to the new screen.
+- [x] Added responsive catalog, form, modal, and navigation-button styling for light and dark themes.
+- [x] Fixed the product editor to use explicit form-open state rather than object-identity checks.
 
 ### Reliability and operations
 
@@ -75,15 +99,7 @@ Unreleased operational-insights milestone — move beyond the core MVP into reli
 - [x] Backup creation now uses restrictive file permissions, custom PostgreSQL dump format, partial-file cleanup, and empty-output protection.
 - [x] CI validates backup-script shell syntax.
 - [x] Improved the Go formatting gate so a failure prints the exact files requiring `gofmt`.
-- [x] The PR formatting gate exposed existing drift in `internal/domain/catalog_test.go`, `internal/domain/purchasing_test.go`, and `internal/httpapi/access.go`, plus the updated `internal/httpapi/api_test.go`; all four files were normalized with `gofmt` without behavior changes.
-
-### CI and web entrypoint stabilization
-
-- [x] Added a verified `go.sum` so Go module downloads, vetting, tests, builds, and CodeQL can resolve the declared dependencies reproducibly.
-- [x] Added Vite client type declarations through `web/src/vite-env.d.ts`, fixing `ImportMeta.env` TypeScript resolution in CI.
-- [x] Upgraded CodeQL workflow actions from v3 to v4 to remove the announced v3 deprecation path.
-- [x] Rewired `web/src/main.tsx` to use the existing secure login/session flow and the authenticated `Dashboard` component instead of the legacy unauthenticated dashboard implementation.
-- [x] Added initial session verification, sign-in, sign-out, and session-expiry handling at the web application entrypoint.
+- [x] The PR formatting gate exposed existing drift in `internal/domain/catalog_test.go`, `internal/domain/purchasing_test.go`, `internal/httpapi/access.go`, and `internal/httpapi/api_test.go`; all four files were normalized with `gofmt` without behavior changes.
 
 ### Project documentation
 
@@ -109,22 +125,23 @@ Unreleased operational-insights milestone — move beyond the core MVP into reli
 
 ### PR validation status
 
-- PR `#10` is the validation surface for this continuation.
+- PR `#10` remains the validation surface for the replenishment/reporting milestone.
 - The first validation pass correctly failed the Go formatting gate, which revealed previously hidden formatting drift.
 - The formatting gate was made diagnostic and all reported files were then normalized.
-- The next validation pass exposed the missing Vite `ImportMeta.env` type declaration and missing Go checksums; both are now addressed.
-- The web entrypoint also had a stale unauthenticated implementation; it has now been replaced by the authenticated session flow already present in the repository.
-- The latest PR head has fresh GitHub Actions checks queued; final merge must occur only after the latest PR head completes all required checks successfully.
+- A later pass exposed missing Vite `ImportMeta.env` types and missing Go checksums; both were addressed.
+- `go vet` then correctly reported that the Go module graph required the pgx transitive build dependencies to be declared; `go.mod` was updated accordingly and a fresh PR validation run was queued.
+- PR `#11` contains only the catalog-management milestone on top of PR #10 and is intentionally dependent on that branch.
+- PR #11 must be retargeted to `main` after PR #10 merges, then its web build/typecheck must pass before merge.
 
 ### Environment note
 
-The connected GitHub environment does not provide a local checkout with dependency/network access for an independent full build. This continuation therefore adds/updates executable GitHub Actions gates and uses the pull-request workflow as the authoritative validation environment. Final workflow results are checked before merge.
+The connected GitHub environment does not provide a local checkout with dependency/network access for an independent full build. The executable GitHub Actions gates therefore remain the authoritative validation environment for repository-wide CI, while the code and commit history provide the implementation source of truth.
 
 ## Known limitations / remaining product work
 
-- Product/category/supplier/warehouse/location management is still primarily API-backed; full web CRUD screens remain.
+- Category/supplier/warehouse/location management is still primarily API-backed; dedicated management screens beyond product selection remain.
 - Stock movement, transfer, purchase-order creation, and receiving need guided first-class web workflows.
-- Exact barcode lookup is now available, but camera-based barcode/QR scanning UI is not yet implemented.
+- Exact barcode lookup is available, but camera-based barcode/QR scanning UI is not yet implemented.
 - Audit permissions exist, but a first-class append-only audit event store/viewer still remains.
 - CSV import/export remains.
 - Backup creation now works; restore drill tooling, retention, and scheduled deployment examples remain.
@@ -133,23 +150,24 @@ The connected GitHub environment does not provide a local checkout with dependen
 
 ## Next exact tasks
 
-1. Complete and merge this replenishment/reporting branch only after all required CI checks pass.
-2. Build web catalog management screens with validation, loading/error states, and role-aware write controls.
-3. Add guided stock movement and transfer workflows.
-4. Add purchase-order creation/editing/receiving UI and an action to seed draft orders from reorder recommendations without bypassing approvals.
-5. Add camera barcode/QR scanning on supported clients backed by the exact barcode endpoint.
-6. Add append-only audit events and an audit viewer.
-7. Add CSV import/export with dry-run validation and row-level errors.
-8. Add restore tooling, retention hooks, and scheduled-backup deployment examples.
-9. Add end-to-end browser tests and continue stable-release acceptance work.
+1. Finish PR `#10` CI validation and merge the replenishment/reporting milestone.
+2. Retarget PR `#11` to `main`, complete its web CI validation, and merge the catalog product-management milestone.
+3. Build dedicated category and supplier management screens.
+4. Add guided stock movement and transfer workflows.
+5. Add purchase-order creation/editing/receiving UI and an action to seed draft orders from reorder recommendations without bypassing approvals.
+6. Add camera barcode/QR scanning on supported clients backed by the exact barcode endpoint.
+7. Add append-only audit events and an audit viewer.
+8. Add CSV import/export with dry-run validation and row-level errors.
+9. Add restore tooling, retention hooks, and scheduled-backup deployment examples.
+10. Add end-to-end browser tests and continue stable-release acceptance work.
 
 ## Migration notes
 
-No schema migration is required for this continuation. The existing `products_barcode_uq` partial unique index already guarantees uniqueness for non-empty barcodes. Replenishment and valuation are computed from the current `products` and `inventory_balances` schema.
+No schema migration is required for the replenishment/reporting or catalog-management milestones. The existing `products_barcode_uq` partial unique index already guarantees uniqueness for non-empty barcodes. Replenishment and valuation are computed from the current `products` and `inventory_balances` schema.
 
 ## Release notes draft
 
-Unreleased: add aggregate reorder recommendations that include stockouts, currency-safe inventory valuation, exact barcode lookup, dashboard reporting integration, real PostgreSQL reporting integration coverage, a repaired database-backup command, stronger CI diagnostics, Go formatting cleanup, reproducible Go dependency checksums, CodeQL v4, and a secure authenticated web entrypoint.
+Unreleased: add aggregate reorder recommendations that include stockouts, currency-safe inventory valuation, exact barcode lookup, dashboard reporting integration, real PostgreSQL reporting integration coverage, a repaired database-backup command, stronger CI diagnostics, Go formatting cleanup, reproducible Go dependency checksums, CodeQL v4, a secure authenticated web entrypoint, and a first-class role-aware product catalog management workflow.
 
 ## Continuation commits
 
@@ -187,4 +205,12 @@ Unreleased: add aggregate reorder recommendations that include stockouts, curren
 - `5bfe376` — `fix(web): load Vite import-meta environment types`
 - `7f1a057` — `ci(security): upgrade CodeQL actions to v4`
 - `6c8ab0b` — `fix(web): wire authenticated dashboard entrypoint`
-- `docs-current` — `docs: record CI and web entrypoint fixes`
+- `94659eb` — `docs: record CI and web entrypoint fixes`
+- `e5c17d4` — `fix(deps): declare pgx transitive build dependencies`
+- `b1bfe50` — `feat(web): model catalog management data`
+- `03a1f59` — `feat(web): add catalog CRUD API methods`
+- `f12f6cd` — `feat(web): add product catalog management screen`
+- `74971a1` — `fix(web): make product editor state explicit`
+- `b074078` — `feat(web): connect dashboard to catalog screen`
+- `fd32af3` — `style(web): add catalog management layout`
+- `docs-next` — `docs: record catalog management milestone`
