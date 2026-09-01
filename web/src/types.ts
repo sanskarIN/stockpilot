@@ -5,6 +5,7 @@ export type Supplier = { id:string; code:string; name:string; email?:string; pho
 export type Product = { id:string; sku:string; name:string; description?:string; categoryId?:string; supplierId?:string; barcode?:string; unit:string; unitCostMinor:number; currency:string; reorderPoint:number; reorderQuantity:number; trackLots:boolean; trackExpiry:boolean; active:boolean; createdAt:string; updatedAt:string };
 export type Warehouse = { id:string; code:string; name:string; timezone:string; active:boolean };
 export type Location = { id:string; warehouseId:string; code:string; name:string; active:boolean };
+export type Lot = { id:string; productId:string; lotNumber:string; manufacturedAt?:string; expiresAt?:string; createdAt:string };
 export type StockBalance = { productId:string; locationId:string; lotId?:string; quantity:number; updatedAt:string };
 export type ReorderSuggestion = { productId:string; sku:string; name:string; supplierId?:string; unit:string; onHand:number; reorderPoint:number; reorderQuantity:number; targetStock:number; suggestedQuantity:number };
 export type InventoryValuationItem = { productId:string; sku:string; name:string; unit:string; onHand:number; unitCostMinor:number; currency:string; valueMinor:number };
