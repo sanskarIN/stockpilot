@@ -2,57 +2,51 @@
 
 ## Current milestone
 
-Phase 2 — reporting/replenishment integration and release-readiness hardening.
+Phase 3 — operational inventory workflows.
 
 ## Repository state
 
 - Default branch: `main`.
-- `ci: verify Android and browser companion quality gates` was merged as PR #9.
-- PR #10 remains open because its original branch predates PR #9 and now conflicts with the updated `main`; its functionality is being reconciled on `feat/replenishment-reporting-v2` without rewriting the published branch.
-- The current work intentionally uses small, reviewable commits rather than squashing feature history.
+- PR #9 (Android/browser quality gates), PR #15 (replenishment/reporting/release-readiness), and PR #16 (catalog management) are merged.
+- Superseded PRs #10 and #11 were closed after their functionality was reconciled into the current mainline.
+- Active branch: `feat/inventory-operations-ui`.
+- The current continuation intentionally uses small, reviewable commits instead of squashing feature history.
 
-## Completed in the current continuation
+## Completed in this continuation
 
-- [x] Added a security policy covering reporting, secrets, TLS, authorization, and dependency review.
-- [x] Added contributor workflow and focused-commit guidance.
-- [x] Added pull-request and issue templates.
-- [x] Added API compatibility policy.
-- [x] Added layered architecture documentation.
-- [x] Added reproducible release checklist.
-- [x] Added PostgreSQL restore-drill procedure.
-- [x] Added replenishment and valuation domain read models.
-- [x] Added repository contracts for barcode lookup, replenishment suggestions, and inventory valuation.
-- [x] Added exact barcode persistence lookup and HTTP handler.
-- [x] Added replenishment and valuation PostgreSQL queries with checked numeric conversion.
-- [x] Added HTTP routes for barcode lookup, reorder suggestions, and inventory valuation.
-- [x] Added unit and PostgreSQL integration tests for reporting calculations and data flow.
-- [x] Added web API support for barcode lookup and reporting.
-- [x] Added typed web models for replenishment and valuation data.
-- [x] Added dashboard presentation of reorder recommendations and valuation totals with role-aware reporting behavior.
-- [x] Added current `CHANGELOG.md` and `ROADMAP.md`.
+- [x] Added warehouse and location web models.
+- [x] Added typed web API methods for warehouse/location reads, stock-in, stock-out, adjustments, and transfers.
+- [x] Added guided inventory operations screen with stock-in, stock-out, signed adjustment, and transfer modes.
+- [x] Added role-aware write/read-only presentation.
+- [x] Added pre-submit operation review and explicit different-location transfer validation.
+- [x] Added defensive handling for CSRF/session expiry and server-side stock validation failures.
+- [x] Added responsive operation-tab and inventory-review styling.
+- [x] Updated dashboard navigation to expose the inventory operations workflow.
+- [x] Updated roadmap status to mark guided inventory operations complete.
 
 ## Verification status
 
-The GitHub connector does not expose a local shell, so this continuation did not claim to execute the Go, web, Android, or extension test commands locally. The branch contains the requested automated tests and is intended to be validated by GitHub Actions when the pull request is opened.
+The GitHub connector does not expose a local shell, so this continuation does not claim local Go/web/Android/extension command execution. The implementation is structured for the existing GitHub Actions quality gates.
 
 ## Known limitations
 
-- PR #10 still needs to be reconciled/closed after its functionality is superseded by the new integration branch.
-- Web product-management UI remains in PR #11 and depends on the replenishment branch lineage.
-- Operational UI workflows (inventory mutations, purchasing, warehouse/location administration, lot/expiry flows) remain on the roadmap.
-- Stable-release end-to-end browser and Android instrumentation coverage is still pending.
+- Purchase-order workflow UI is still pending.
+- Warehouse/location administration UI is still pending.
+- Lot/expiry receiving workflows are still pending.
+- Append-only audit writes and audit viewer are still pending.
+- CSV import/export and advanced reporting remain pending.
+- Browser E2E and Android instrumentation coverage remain pending.
 
 ## Next exact tasks
 
-1. Review and merge the replenishment/reporting integration PR.
-2. Reconcile the catalog-management UI on top of the updated `main`.
-3. Add guided inventory and purchase-order workflows to the web client.
-4. Add append-only audit writes for sensitive mutations and expose the audit viewer.
-5. Add CSV import/export and backup-retention deployment examples.
-6. Add aging, expiry-risk, movement-velocity, and supplier analytics.
-7. Add browser E2E and Android instrumentation suites.
-8. Run the full release checklist and restore drill before first stable tagging.
+1. Open and validate the inventory operations PR.
+2. Add warehouse/location management screens.
+3. Add purchase-order creation, approval, and receiving UI.
+4. Add lot and expiry receiving flow with warnings.
+5. Add append-only audit writes for sensitive mutations and an audit viewer.
+6. Add CSV import/export and restore/backup deployment hooks.
+7. Add analytics and release-grade E2E/instrumentation coverage.
 
 ## Commit discipline
 
-Each functional boundary is intentionally represented by an individual commit where practical: documentation, repository contracts, persistence, HTTP handlers/routes, tests, and client integration are kept separately reviewable. GitHub's available connector does not provide an author-email override, so commits use the authenticated GitHub connection identity rather than forcing a specific email address.
+Each functional boundary is intentionally represented by an individual commit where practical: types, API methods, UI screens, navigation, styling, fixes, and documentation are kept separately reviewable. The available GitHub connector does not provide an author-email override, so commits use the authenticated GitHub connection identity.
