@@ -109,7 +109,7 @@ func (s *Store) ListOrders(ctx context.Context, status domain.PurchaseOrderStatu
 	return items, rows.Err()
 }
 
-func (s *Store) ReceiveLine(ctx context.Context, orderID, lineID string, quantity int64, locationID, lotID string) error {
+func (s *Store) ReceiveLine(ctx context.Context, orderID, lineID string, quantity int64, locationID, lotID, actorID string) error {
 	if strings.TrimSpace(orderID) == "" || strings.TrimSpace(lineID) == "" || strings.TrimSpace(locationID) == "" || quantity <= 0 {
 		return fmt.Errorf("%w: order, line, location, and positive quantity are required", domain.ErrInvalid)
 	}
@@ -151,7 +151,7 @@ func (s *Store) ReceiveLine(ctx context.Context, orderID, lineID string, quantit
 	}
 	movement := domain.StockMovement{
 		ID: movementID, ProductID: productID, LocationID: locationID, LotID: lotID, Type: domain.MovementReceive,
-		QuantityDelta: quantity, Reference: "PO:" + orderID, OccurredAt: time.Now().UTC(),
+		QuantityDelta: quantity, Reference: "PO:" + orderID, ActorID: strings.TrimSpace(actorID), OccurredAt: time.Now().UTC(),
 	}
 	if _, err := applyMovementTx(ctx, tx, movement); err != nil {
 		return err

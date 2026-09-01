@@ -28,6 +28,7 @@ func (a *API) createOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	order.ID = id
+	order.CreatedBy = authenticatedActorID(r)
 	if order.Status == "" {
 		order.Status = domain.PurchaseOrderDraft
 	}
@@ -73,7 +74,15 @@ func (a *API) receiveOrderLine(w http.ResponseWriter, r *http.Request) {
 	if !decodeJSON(w, r, &body) {
 		return
 	}
-	if err := a.orders.ReceiveLine(r.Context(), r.PathValue("orderID"), r.PathValue("lineID"), body.Quantity, body.LocationID, body.LotID); err != nil {
+	if err := a.orders.ReceiveLine(
+		r.Context(),
+		r.PathValue("orderID"),
+		r.PathValue("lineID"),
+		body.Quantity,
+		body.LocationID,
+		body.LotID,
+		authenticatedActorID(r),
+	); err != nil {
 		writeDomainError(w, err)
 		return
 	}

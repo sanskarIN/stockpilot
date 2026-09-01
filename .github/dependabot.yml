@@ -30,12 +30,27 @@ updates:
       prefix: build
       include: scope
 
+  - package-ecosystem: gradle
+    directory: /android
+    schedule:
+      interval: weekly
+      day: monday
+      time: "04:30"
+      timezone: Asia/Kolkata
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - android
+    commit-message:
+      prefix: build
+      include: scope
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
       day: monday
-      time: "04:30"
+      time: "04:45"
       timezone: Asia/Kolkata
     open-pull-requests-limit: 5
     labels:

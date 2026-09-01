@@ -1,4 +1,4 @@
-package in.sanskar.stockpilot
+package `in`.sanskar.stockpilot
 
 import org.json.JSONArray
 import org.json.JSONObject

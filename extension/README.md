@@ -70,6 +70,10 @@ Chrome match-pattern host permissions are host-scoped rather than port-scoped. T
 - `src/url.js` — server-origin validation and host-pattern generation.
 - `test/url.test.mjs` — URL and permission-scope unit tests.
 
+## CI
+
+`.github/workflows/extension.yml` validates the manifest and JavaScript syntax and runs the zero-dependency Node test suite. Pull requests that touch `extension/**` run this quality gate before merge.
+
 ## Next authenticated version
 
 The recommended next step is a dedicated extension credential flow with independently revocable credentials, explicit scopes, expiry, and server-side auditability. That work should be implemented together in the backend and extension instead of reusing or scraping the normal web session cookie.

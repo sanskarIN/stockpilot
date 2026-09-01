@@ -1,4 +1,4 @@
-package in.sanskar.stockpilot
+package `in`.sanskar.stockpilot
 
 import android.content.Context
 

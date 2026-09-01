@@ -65,7 +65,7 @@ The Android application includes:
 gradle :app:lintDebug :app:testDebugUnitTest :app:assembleDebug --stacktrace
 ```
 
-A successful CI run uploads the debug APK as the `stockpilot-android-debug` artifact.
+A successful CI run uploads the debug APK as the `stockpilot-android-debug` artifact. Pull requests that touch `android/**` run the same quality gate before merge.
 
 ## Production release notes
 

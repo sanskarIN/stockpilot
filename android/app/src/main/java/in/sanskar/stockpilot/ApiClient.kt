@@ -1,4 +1,4 @@
-package in.sanskar.stockpilot
+package `in`.sanskar.stockpilot
 
 import org.json.JSONObject
 import java.io.IOException
@@ -129,14 +129,26 @@ class ApiClient(private val sessionStore: SecureSessionStore) {
         private const val READ_TIMEOUT_MS = 15_000
 
         fun normalizeBaseUrl(value: String): String {
-            val normalized = value.trim().trimEnd('/')
-            val url = runCatching { URL(normalized) }
+            val candidate = value.trim()
+            val url = runCatching { URL(candidate) }
                 .getOrElse { throw IllegalArgumentException("Enter a valid http:// or https:// server URL.") }
+
             require(url.protocol == "http" || url.protocol == "https") {
                 "Server URL must use http:// or https://."
             }
             require(url.host.isNotBlank()) { "Server URL must include a host." }
-            return normalized
+            require(url.userInfo == null) { "Do not put credentials in the server URL." }
+            require(url.path.isEmpty() || url.path == "/") {
+                "Use the StockPilot server origin without a path."
+            }
+            require(url.query == null && url.ref == null) {
+                "Use the StockPilot server origin without a query or fragment."
+            }
+            require(url.port == -1 || url.port in 1..65_535) {
+                "Server URL port must be between 1 and 65535."
+            }
+
+            return "${url.protocol}://${url.authority}"
         }
     }
 

@@ -145,7 +145,9 @@ func (a *accessHandler) usersAPI(w http.ResponseWriter, r *http.Request, princip
 		writeJSON(w, http.StatusCreated, user)
 	case strings.HasSuffix(r.URL.Path, "/role") && r.Method == http.MethodPut:
 		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/api/v1/users/"), "/role")
-		var body struct { Role domain.Role `json:"role"` }
+		var body struct {
+			Role domain.Role `json:"role"`
+		}
 		if !decodeJSON(w, r, &body) {
 			return
 		}
@@ -165,7 +167,9 @@ func (a *accessHandler) usersAPI(w http.ResponseWriter, r *http.Request, princip
 		writeJSON(w, http.StatusOK, user)
 	case strings.HasSuffix(r.URL.Path, "/active") && r.Method == http.MethodPut:
 		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/api/v1/users/"), "/active")
-		var body struct { Active bool `json:"active"` }
+		var body struct {
+			Active bool `json:"active"`
+		}
 		if !decodeJSON(w, r, &body) {
 			return
 		}
@@ -193,13 +197,19 @@ func permissionFor(r *http.Request) (domain.Permission, bool) {
 	read := r.Method == http.MethodGet || r.Method == http.MethodHead
 	switch {
 	case strings.HasPrefix(path, "/api/v1/categories"), strings.HasPrefix(path, "/api/v1/suppliers"), strings.HasPrefix(path, "/api/v1/products"):
-		if read { return domain.PermissionCatalogRead, true }
+		if read {
+			return domain.PermissionCatalogRead, true
+		}
 		return domain.PermissionCatalogWrite, true
 	case strings.HasPrefix(path, "/api/v1/warehouses"), strings.HasPrefix(path, "/api/v1/locations"), strings.HasPrefix(path, "/api/v1/lots"), strings.HasPrefix(path, "/api/v1/inventory"):
-		if read { return domain.PermissionInventoryRead, true }
+		if read {
+			return domain.PermissionInventoryRead, true
+		}
 		return domain.PermissionInventoryWrite, true
 	case strings.HasPrefix(path, "/api/v1/orders"):
-		if read { return domain.PermissionOrdersRead, true }
+		if read {
+			return domain.PermissionOrdersRead, true
+		}
 		return domain.PermissionOrdersWrite, true
 	case strings.HasPrefix(path, "/api/v1/reports"):
 		return domain.PermissionReportsRead, read
