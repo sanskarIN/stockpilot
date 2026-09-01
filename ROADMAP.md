@@ -25,11 +25,11 @@ This roadmap reflects the current repository state.
 - [x] Purchase-order lifecycle controls for draft submission and cancellation.
 - [x] Append-only audit event write path for sensitive web mutations.
 - [x] Audit viewer with actor, action, entity, request ID, metadata, and pagination filters.
+- [x] Reorder-suggestion actions that seed reviewed draft purchase orders without auto-submitting them.
 
 ## Next — operational workflows
 
 - [ ] Barcode/QR camera scanning UI for supported clients.
-- [ ] Reorder suggestion actions that can seed draft purchase orders without bypassing approval rules.
 - [ ] Warehouse/location edit and archive workflows.
 - [ ] Lot inventory view with quantity by lot/location and expiry sorting.
 
