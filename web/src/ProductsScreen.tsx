@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { APIError, stockpilotAPI } from "./api";
+import { BarcodeScanner } from "./BarcodeScanner";
 import type { Category, Product, Supplier, User } from "./types";
 import "./catalog.css";
+import "./barcodeScanner.css";
 
 type ProductDraft = Omit<Product, "id" | "createdAt" | "updatedAt">;
 
@@ -35,6 +37,7 @@ export function ProductsScreen({ user, onBack, onSessionExpired }: { user: User;
   const [query, setQuery] = useState("");
   const [editing, setEditing] = useState<Product | null>(null);
   const [formOpen, setFormOpen] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
   const [draft, setDraft] = useState<ProductDraft>(blankProduct);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
@@ -102,6 +105,7 @@ export function ProductsScreen({ user, onBack, onSessionExpired }: { user: User;
     if (!saving) {
       setFormOpen(false);
       setEditing(null);
+      setScannerOpen(false);
       setFormError("");
     }
   }
@@ -249,7 +253,7 @@ export function ProductsScreen({ user, onBack, onSessionExpired }: { user: User;
                 <label><span>SKU</span><input value={draft.sku} onChange={(event) => updateDraft("sku", event.target.value)} required maxLength={64} /></label>
                 <label><span>Product name</span><input value={draft.name} onChange={(event) => updateDraft("name", event.target.value)} required maxLength={200} /></label>
                 <label><span>Unit</span><input value={draft.unit} onChange={(event) => updateDraft("unit", event.target.value)} required maxLength={32} /></label>
-                <label><span>Barcode</span><input value={draft.barcode ?? ""} onChange={(event) => updateDraft("barcode", event.target.value)} maxLength={128} /></label>
+                <label className="scanner-field"><span>Barcode</span><div className="scanner-input-row"><input value={draft.barcode ?? ""} onChange={(event) => updateDraft("barcode", event.target.value)} maxLength={128} /><button className="secondary-button compact-button" type="button" onClick={() => setScannerOpen(true)} disabled={saving}>Scan</button></div></label>
                 <label><span>Unit cost (minor units)</span><input type="number" min="0" step="1" value={draft.unitCostMinor} onChange={(event) => updateDraft("unitCostMinor", Number(event.target.value))} required /></label>
                 <label><span>Currency</span><input value={draft.currency} onChange={(event) => updateDraft("currency", event.target.value)} maxLength={3} required /></label>
                 <label><span>Reorder point</span><input type="number" min="0" step="1" value={draft.reorderPoint} onChange={(event) => updateDraft("reorderPoint", Number(event.target.value))} required /></label>
@@ -273,6 +277,7 @@ export function ProductsScreen({ user, onBack, onSessionExpired }: { user: User;
               </div>
             </form>
           </section>
+          {scannerOpen && <BarcodeScanner onDetected={(value) => { updateDraft("barcode", value); setScannerOpen(false); }} onClose={() => setScannerOpen(false)} />}
         </div>
       )}
     </main>
