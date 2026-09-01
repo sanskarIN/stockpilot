@@ -51,6 +51,22 @@ export type Product = {
   updatedAt: string;
 };
 
+export type Warehouse = {
+  id: string;
+  code: string;
+  name: string;
+  timezone: string;
+  active: boolean;
+};
+
+export type Location = {
+  id: string;
+  warehouseId: string;
+  code: string;
+  name: string;
+  active: boolean;
+};
+
 export type StockBalance = {
   productId: string;
   locationId: string;
@@ -99,6 +115,16 @@ export type PurchaseOrder = {
   status: string;
   currency: string;
   createdAt: string;
+};
+
+export type InventoryMutationResult = {
+  movementId: string;
+  balance: StockBalance;
+};
+
+export type TransferResult = {
+  transferId: string;
+  status: string;
 };
 
 export type ListResponse<T> = { items: T[] };
