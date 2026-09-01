@@ -4,13 +4,14 @@ import { Dashboard } from "./Dashboard";
 import { InventoryOperationsScreen } from "./InventoryOperationsScreen";
 import { LoginScreen } from "./LoginScreen";
 import { ProductsScreen } from "./ProductsScreen";
+import { PurchaseOrdersScreen } from "./PurchaseOrdersScreen";
 import { WarehouseLocationScreen } from "./WarehouseLocationScreen";
 import { stockpilotAPI } from "./api";
 import type { User } from "./types";
 import "./styles.css";
 
 type SessionState = { kind: "checking" } | { kind: "signed-out" } | { kind: "signed-in"; user: User };
-type View = "dashboard" | "products" | "inventory" | "warehouses";
+type View = "dashboard" | "products" | "inventory" | "orders" | "warehouses";
 
 function App() {
   const [session, setSession] = useState<SessionState>({ kind: "checking" });
@@ -23,8 +24,9 @@ function App() {
   if (session.kind === "signed-out") return <LoginScreen onLogin={login} />;
   if (view === "products") return <ProductsScreen user={session.user} onBack={() => setView("dashboard")} onSessionExpired={expireSession} />;
   if (view === "inventory") return <InventoryOperationsScreen user={session.user} onBack={() => setView("dashboard")} onSessionExpired={expireSession} />;
+  if (view === "orders") return <PurchaseOrdersScreen user={session.user} onBack={() => setView("dashboard")} onSessionExpired={expireSession} />;
   if (view === "warehouses") return <WarehouseLocationScreen user={session.user} onBack={() => setView("dashboard")} onSessionExpired={expireSession} />;
-  return <Dashboard user={session.user} onLogout={logout} onSessionExpired={expireSession} onOpenProducts={() => setView("products")} onOpenInventory={() => setView("inventory")} onOpenWarehouses={() => setView("warehouses")} />;
+  return <Dashboard user={session.user} onLogout={logout} onSessionExpired={expireSession} onOpenProducts={() => setView("products")} onOpenInventory={() => setView("inventory")} onOpenWarehouses={() => setView("warehouses")} onOpenOrders={() => setView("orders")} />;
 }
 const root = document.getElementById("root");
 if (!root) throw new Error("StockPilot root element was not found.");
