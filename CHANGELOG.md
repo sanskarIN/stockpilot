@@ -18,13 +18,15 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Currency-safe inventory valuation by product and grouped currency total.
 - Exact barcode lookup API for scanner-driven clients.
 - PostgreSQL and HTTP regression coverage for the reporting capabilities.
-- Security policy, contributor workflow, API compatibility policy, architecture guide, restore drill, release checklist, and issue/PR templates.
+- Product catalog create/edit/search workflow, guided inventory operations, and warehouse/location administration.
+- Purchase-order draft creation, order register, order detail, and controlled inventory receiving workflow.
 
 ### Changed
 
 - Dashboard stock health now uses product-level reorder recommendations instead of counting every low-stock location independently.
 - Dashboard reporting now includes replenishment and inventory valuation insights.
 - Repository contracts expose barcode lookup, replenishment, and valuation capabilities.
+- Web navigation now exposes catalog, inventory, warehouse/location, and purchasing workflows.
 
 ### Security
 
@@ -33,6 +35,7 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Production Android networking requires TLS.
 - Browser companion permissions remain scoped to the configured StockPilot origin.
 - Valuation arithmetic is calculated with PostgreSQL numeric values before checked conversion to `int64`.
+- Purchase receiving continues to flow through the server-side transaction and permission boundary.
 
 ## Release discipline
 
