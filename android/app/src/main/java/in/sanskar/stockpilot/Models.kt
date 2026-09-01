@@ -51,6 +51,36 @@ data class Product(
     }
 }
 
+data class LotInventoryRow(
+    val productId: String,
+    val sku: String,
+    val productName: String,
+    val lotId: String,
+    val lotNumber: String,
+    val locationId: String,
+    val location: String,
+    val warehouseId: String,
+    val warehouse: String,
+    val onHand: Long,
+    val expiresAt: String?,
+) {
+    companion object {
+        fun fromJson(json: JSONObject) = LotInventoryRow(
+            productId = json.optString("productId"),
+            sku = json.optString("sku"),
+            productName = json.optString("productName"),
+            lotId = json.optString("lotId"),
+            lotNumber = json.optString("lotNumber"),
+            locationId = json.optString("locationId"),
+            location = json.optString("location"),
+            warehouseId = json.optString("warehouseId"),
+            warehouse = json.optString("warehouse"),
+            onHand = json.optLong("onHand"),
+            expiresAt = json.nullableString("expiresAt"),
+        )
+    }
+}
+
 data class StockBalance(
     val productId: String,
     val locationId: String,
