@@ -13,6 +13,7 @@ import java.util.Currency
 class DashboardView(context: Context) : ScrollView(context) {
     var onRefresh: (() -> Unit)? = null
     var onLogout: (() -> Unit)? = null
+    var onScanBarcode: (() -> Unit)? = null
 
     private val content = LinearLayout(context).apply {
         orientation = LinearLayout.VERTICAL
@@ -24,6 +25,7 @@ class DashboardView(context: Context) : ScrollView(context) {
         accessibilityLiveRegion = View.ACCESSIBILITY_LIVE_REGION_POLITE
     }
     private val refreshButton = context.stockButton(context.getString(R.string.refresh_action), primary = true)
+    private val scanButton = context.stockButton(context.getString(R.string.scan_barcode_action), primary = false)
     private val logoutButton = context.stockButton(context.getString(R.string.sign_out_action), primary = false)
     private val dynamicContent = LinearLayout(context).apply {
         orientation = LinearLayout.VERTICAL
@@ -45,6 +47,10 @@ class DashboardView(context: Context) : ScrollView(context) {
             addView(refreshButton, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
                 marginEnd = context.dp(6)
             })
+            addView(scanButton, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
+                marginStart = context.dp(6)
+                marginEnd = context.dp(6)
+            })
             addView(logoutButton, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply {
                 marginStart = context.dp(6)
             })
@@ -54,6 +60,7 @@ class DashboardView(context: Context) : ScrollView(context) {
         content.addView(dynamicContent, fullWidth())
 
         refreshButton.setOnClickListener { onRefresh?.invoke() }
+        scanButton.setOnClickListener { onScanBarcode?.invoke() }
         logoutButton.setOnClickListener { onLogout?.invoke() }
     }
 
@@ -130,6 +137,7 @@ class DashboardView(context: Context) : ScrollView(context) {
 
     fun setLoading(loading: Boolean) {
         refreshButton.isEnabled = !loading
+        scanButton.isEnabled = !loading
         logoutButton.isEnabled = !loading
         if (loading) {
             statusText.setTextColor(context.getColor(R.color.stockpilot_muted))
