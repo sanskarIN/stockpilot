@@ -12,6 +12,7 @@ type Inventory interface {
 	CreateLocation(context.Context, domain.Location) error
 	ListLocations(context.Context, string, bool) ([]domain.Location, error)
 	CreateLot(context.Context, domain.Lot) error
+	ListLots(context.Context, string, int) ([]domain.Lot, error)
 	ApplyMovement(context.Context, domain.StockMovement) (domain.StockBalance, error)
 	Transfer(context.Context, domain.TransferRequest) error
 	GetBalance(context.Context, string, string, string) (domain.StockBalance, error)
