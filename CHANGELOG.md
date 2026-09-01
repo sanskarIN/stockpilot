@@ -29,6 +29,7 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Reorder-suggestion actions that seed reviewed draft purchase orders without auto-submitting them.
 - Warehouse/location edit, archive, and reactivation workflows with server-side integrity guards.
 - Lot inventory visibility with product, warehouse, location, lot, quantity, and expiry-risk filters.
+- Browser camera barcode/QR scanning in product forms, with manual entry fallback.
 
 ### Changed
 
@@ -42,6 +43,7 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Reorder alerts can open the standard purchasing editor with a reviewed product/quantity proposal; persistence still requires explicit user confirmation.
 - Warehouse/location administration can edit active records, archive historical records instead of deleting them, and reactivate archived records when safe.
 - Lot inventory ordering prioritizes soonest-expiring stock and supports bounded pagination and expiry cutoffs.
+- Product barcode entry can use the device camera when the browser exposes `BarcodeDetector` and camera access; unsupported browsers retain manual entry.
 
 ### Security
 
@@ -56,7 +58,8 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Draft purchase-order edits are limited to draft state and protected by a row lock.
 - Reorder shortcuts do not bypass purchase-order creation or approval controls.
 - Warehouses with active locations cannot be archived, and locations with non-zero inventory cannot be archived.
-- Locations cannot be activated under an archived warehouse.
+- Locations cannot be activated under archived warehouses.
+- Camera scanning requests audio-free, rear-facing video where available and stop all camera tracks when the scanner closes.
 
 ## Release discipline
 
