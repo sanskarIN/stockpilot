@@ -18,12 +18,12 @@ This roadmap reflects the current repository state.
 - [x] Exact barcode lookup API for scanner-driven workflows.
 - [x] Reporting arithmetic, HTTP contract, and PostgreSQL integration coverage.
 - [x] Security, contributor, architecture, restore, release, and API compatibility documentation.
+- [x] Product catalog create/edit/search web workflow with role-aware controls.
+- [x] Guided web inventory operations for stock-in, stock-out, signed adjustments, and transfers.
+- [x] Warehouse and location administration screen with role-aware creation workflow.
 
 ## Next — operational workflows
 
-- [ ] Product/category/supplier create and edit screens in the web application.
-- [ ] Warehouse/location management screens.
-- [ ] Guided stock-in, stock-out, adjustment, and transfer forms with confirmation summaries.
 - [ ] Purchase-order creation, editing, approval-state controls, and receiving UI.
 - [ ] Barcode/QR camera scanning UI for supported clients.
 - [ ] Lot and expiry receiving workflows with expiry warnings.
