@@ -19,11 +19,16 @@ type accessHandler struct {
 	next         http.Handler
 	auth         *auth.Service
 	users        repository.Access
+	audit        repository.Audit
 	secureCookie bool
 }
 
 func WithAccess(next http.Handler, authService *auth.Service, users repository.Access, secureCookie bool) http.Handler {
-	return &accessHandler{next: next, auth: authService, users: users, secureCookie: secureCookie}
+	var audit repository.Audit
+	if candidate, ok := users.(repository.Audit); ok {
+		audit = candidate
+	}
+	return &accessHandler{next: next, auth: authService, users: users, audit: audit, secureCookie: secureCookie}
 }
 
 func (a *accessHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -38,12 +43,14 @@ func (a *accessHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	cookie, err := r.Cookie(sessionCookieName)
 	if err != nil || cookie.Value == "" {
+		a.recordAudit(r.Context(), "", "auth.session.missing", "session", "", map[string]any{"outcome": "rejected"})
 		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "authentication required"})
 		return
 	}
 	principal, err := a.auth.Resolve(r.Context(), cookie.Value)
 	if err != nil {
 		a.clearCookie(w)
+		a.recordAudit(r.Context(), "", "auth.session.invalid", "session", "", map[string]any{"outcome": "rejected"})
 		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "authentication required"})
 		return
 	}
@@ -88,6 +95,7 @@ func (a *accessHandler) login(w http.ResponseWriter, r *http.Request) {
 	}
 	result, err := a.auth.Login(r.Context(), body.Email, body.Password)
 	if err != nil {
+		a.recordAudit(r.Context(), "", "auth.login.failure", "session", "", map[string]any{"outcome": "rejected"})
 		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "invalid email or password"})
 		return
 	}
@@ -99,14 +107,18 @@ func (a *accessHandler) login(w http.ResponseWriter, r *http.Request) {
 		Name: sessionCookieName, Value: result.Token, Path: "/", HttpOnly: true, Secure: a.secureCookie,
 		SameSite: http.SameSiteStrictMode, Expires: result.ExpiresAt, MaxAge: maxAge,
 	})
+	a.recordAudit(r.Context(), result.User.ID, "auth.login.success", "user", result.User.ID, map[string]any{"outcome": "accepted"})
 	writeJSON(w, http.StatusOK, map[string]any{"user": result.User, "expiresAt": result.ExpiresAt})
 }
 
 func (a *accessHandler) logout(w http.ResponseWriter, r *http.Request, rawToken string) {
+	principal, _ := PrincipalFromContext(r.Context())
 	if err := a.auth.Logout(r.Context(), rawToken); err != nil {
+		a.recordAudit(r.Context(), principal.User.ID, "auth.logout.failure", "session", principal.SessionID, map[string]any{"outcome": "failed"})
 		writeDomainError(w, err)
 		return
 	}
+	a.recordAudit(r.Context(), principal.User.ID, "auth.logout.success", "session", principal.SessionID, map[string]any{"outcome": "accepted"})
 	a.clearCookie(w)
 	w.WriteHeader(http.StatusNoContent)
 }
@@ -142,6 +154,7 @@ func (a *accessHandler) usersAPI(w http.ResponseWriter, r *http.Request, princip
 			writeDomainError(w, err)
 			return
 		}
+		a.recordAudit(r.Context(), principal.User.ID, "auth.user.created", "user", user.ID, map[string]any{"role": string(user.Role)})
 		writeJSON(w, http.StatusCreated, user)
 	case strings.HasSuffix(r.URL.Path, "/role") && r.Method == http.MethodPut:
 		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/api/v1/users/"), "/role")
@@ -164,6 +177,7 @@ func (a *accessHandler) usersAPI(w http.ResponseWriter, r *http.Request, princip
 			writeDomainError(w, err)
 			return
 		}
+		a.recordAudit(r.Context(), principal.User.ID, "auth.user.role_changed", "user", id, map[string]any{"role": string(user.Role)})
 		writeJSON(w, http.StatusOK, user)
 	case strings.HasSuffix(r.URL.Path, "/active") && r.Method == http.MethodPut:
 		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/api/v1/users/"), "/active")
@@ -186,10 +200,31 @@ func (a *accessHandler) usersAPI(w http.ResponseWriter, r *http.Request, princip
 			writeDomainError(w, err)
 			return
 		}
+		action := "auth.user.deactivated"
+		if body.Active {
+			action = "auth.user.activated"
+		}
+		a.recordAudit(r.Context(), principal.User.ID, action, "user", id, map[string]any{"active": body.Active})
 		writeJSON(w, http.StatusOK, user)
 	default:
 		writeJSON(w, http.StatusNotFound, map[string]string{"error": "not found"})
 	}
+}
+
+func (a *accessHandler) recordAudit(ctx context.Context, actorID, action, entityType, entityID string, metadata map[string]any) {
+	if a.audit == nil {
+		return
+	}
+	event := domain.AuditEvent{
+		OccurredAt: time.Now().UTC(),
+		ActorID: actorID,
+		Action: action,
+		EntityType: entityType,
+		EntityID: entityID,
+		RequestID: requestIDFromContext(ctx),
+		Metadata: metadata,
+	}
+	_ = a.audit.AppendAuditEvent(ctx, event)
 }
 
 func permissionFor(r *http.Request) (domain.Permission, bool) {
