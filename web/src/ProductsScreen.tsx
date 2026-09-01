@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { APIError, stockpilotAPI } from "./api";
 import type { Category, Product, Supplier, User } from "./types";
+import "./catalog.css";
 
 type ProductDraft = Omit<Product, "id" | "createdAt" | "updatedAt">;
 
@@ -140,6 +141,10 @@ export function ProductsScreen({ user, onBack, onSessionExpired }: { user: User;
       setFormError("Currency must be a three-letter code such as INR.");
       return;
     }
+    if (!Number.isSafeInteger(normalized.unitCostMinor) || !Number.isSafeInteger(normalized.reorderPoint) || !Number.isSafeInteger(normalized.reorderQuantity)) {
+      setFormError("Cost and reorder values must be whole numbers within the safe numeric range.");
+      return;
+    }
     if (normalized.unitCostMinor < 0 || normalized.reorderPoint < 0 || normalized.reorderQuantity < 0) {
       setFormError("Cost and reorder values cannot be negative.");
       return;
@@ -244,7 +249,7 @@ export function ProductsScreen({ user, onBack, onSessionExpired }: { user: User;
                 <label><span>SKU</span><input value={draft.sku} onChange={(event) => updateDraft("sku", event.target.value)} required maxLength={64} /></label>
                 <label><span>Product name</span><input value={draft.name} onChange={(event) => updateDraft("name", event.target.value)} required maxLength={200} /></label>
                 <label><span>Unit</span><input value={draft.unit} onChange={(event) => updateDraft("unit", event.target.value)} required maxLength={32} /></label>
-                <label><span>Barcode</span><input value={draft.barcode ?? ""} onChange={(event) => updateDraft("barcode", event.target.value)} maxLength={128} inputMode="numeric" /></label>
+                <label><span>Barcode</span><input value={draft.barcode ?? ""} onChange={(event) => updateDraft("barcode", event.target.value)} maxLength={128} /></label>
                 <label><span>Unit cost (minor units)</span><input type="number" min="0" step="1" value={draft.unitCostMinor} onChange={(event) => updateDraft("unitCostMinor", Number(event.target.value))} required /></label>
                 <label><span>Currency</span><input value={draft.currency} onChange={(event) => updateDraft("currency", event.target.value)} maxLength={3} required /></label>
                 <label><span>Reorder point</span><input type="number" min="0" step="1" value={draft.reorderPoint} onChange={(event) => updateDraft("reorderPoint", Number(event.target.value))} required /></label>
