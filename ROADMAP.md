@@ -27,10 +27,12 @@ This roadmap reflects the current repository state.
 - [x] Audit viewer with actor, action, entity, request ID, metadata, and pagination filters.
 - [x] Reorder-suggestion actions that seed reviewed draft purchase orders without auto-submitting them.
 - [x] Lot inventory view with product, warehouse, location, lot, quantity, and expiry-risk filtering.
+- [x] Browser camera barcode/QR scanning for product-form barcode entry, with manual fallback.
 
 ## Next — operational workflows
 
-- [ ] Barcode/QR camera scanning UI for supported clients.
+- [ ] Android camera barcode/QR scanning UI and inventory workflow handoff.
+- [ ] Browser companion scan-to-product/inventory action.
 
 ## Next — auditability and data operations
 
