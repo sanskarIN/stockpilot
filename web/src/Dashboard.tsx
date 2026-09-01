@@ -2,227 +2,30 @@ import { useCallback, useEffect, useState } from "react";
 import { APIError, stockpilotAPI } from "./api";
 import type { InventoryValuationReport, Product, PurchaseOrder, ReorderSuggestion, User } from "./types";
 
-type LoadState =
-  | { kind: "loading" }
-  | { kind: "ready" }
-  | { kind: "error"; message: string };
-
+type LoadState = { kind: "loading" } | { kind: "ready" } | { kind: "error"; message: string };
 const navigation = ["Overview", "Products", "Inventory", "Purchase orders", "Warehouses", "Reports"];
 const emptyValuation: InventoryValuationReport = { items: [], totals: [] };
 
-export function Dashboard({ user, onLogout, onSessionExpired, onOpenProducts }: { user: User; onLogout: () => Promise<void>; onSessionExpired: () => void; onOpenProducts: () => void }) {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [reorderSuggestions, setReorderSuggestions] = useState<ReorderSuggestion[]>([]);
-  const [valuation, setValuation] = useState<InventoryValuationReport>(emptyValuation);
-  const [orders, setOrders] = useState<PurchaseOrder[]>([]);
-  const [state, setState] = useState<LoadState>({ kind: "loading" });
-  const [theme, setTheme] = useState<"light" | "dark">(() => {
-    const stored = localStorage.getItem("stockpilot-theme");
-    if (stored === "light" || stored === "dark") return stored;
-    return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  });
-  const [loggingOut, setLoggingOut] = useState(false);
-  const canViewReports = user.role !== "operator";
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    localStorage.setItem("stockpilot-theme", theme);
-  }, [theme]);
-
-  const load = useCallback(async () => {
-    setState({ kind: "loading" });
-    try {
-      const data = await stockpilotAPI.dashboard(canViewReports);
-      setProducts(data.products);
-      setReorderSuggestions(data.reorderSuggestions);
-      setValuation(data.valuation);
-      setOrders(data.orders);
-      setState({ kind: "ready" });
-    } catch (error) {
-      if (error instanceof APIError && error.status === 401) {
-        onSessionExpired();
-        return;
-      }
-      setState({ kind: "error", message: error instanceof Error ? error.message : "StockPilot could not load dashboard data." });
-    }
-  }, [canViewReports, onSessionExpired]);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
-
-  const openOrders = orders.filter((order) => !["received", "cancelled"].includes(order.status));
-  const healthyProducts = Math.max(products.length - reorderSuggestions.length, 0);
-  const healthPercent = products.length === 0 ? 100 : Math.round((healthyProducts / products.length) * 100);
-
-  async function logout() {
-    setLoggingOut(true);
-    try {
-      await onLogout();
-    } finally {
-      setLoggingOut(false);
-    }
-  }
-
-  return (
-    <div className="app-shell">
-      <aside className="sidebar" aria-label="Primary navigation">
-        <a className="brand" href="#main" aria-label="StockPilot home">
-          <span className="brand-mark" aria-hidden="true">SP</span>
-          <span><strong>StockPilot</strong><small>Inventory control</small></span>
-        </a>
-        <nav>
-          {navigation.map((item, index) => (
-            item === "Products" ? (
-              <button className="nav-link nav-button" type="button" onClick={onOpenProducts} key={item}>
-                <span aria-hidden="true" className="nav-dot" />{item}
-              </button>
-            ) : (
-              <a className={index === 0 ? "nav-link active" : "nav-link"} href={index === 0 ? "#main" : `#${item.toLowerCase().replaceAll(" ", "-")}`} key={item}>
-                <span aria-hidden="true" className="nav-dot" />{item}
-              </a>
-            )
-          ))}
-        </nav>
-        <div className="sidebar-footer">
-          <span>Made by the Sanskar</span>
-          <a href="https://github.com/sanskarIN" rel="noreferrer">GitHub</a>
-        </div>
-      </aside>
-
-      <main id="main" className="content" tabIndex={-1}>
-        <header className="topbar">
-          <div>
-            <p className="eyebrow">Operations control center</p>
-            <h1>Inventory overview</h1>
-            <p className="muted">Live stock health, replenishment recommendations, valuation, and purchasing activity.</p>
-          </div>
-          <div className="topbar-actions account-actions">
-            <span className="account-chip"><strong>{user.displayName}</strong><small>{user.role}</small></span>
-            <button className="secondary-button" type="button" onClick={() => setTheme((value) => value === "light" ? "dark" : "light")}>
-              {theme === "light" ? "Dark mode" : "Light mode"}
-            </button>
-            <button className="secondary-button" type="button" onClick={() => void logout()} disabled={loggingOut}>
-              {loggingOut ? "Signing out…" : "Sign out"}
-            </button>
-            <button className="primary-button" type="button" onClick={() => void load()} disabled={state.kind === "loading"}>Refresh</button>
-          </div>
-        </header>
-
-        <div className="status-region" aria-live="polite">
-          {state.kind === "loading" && <p className="notice">Refreshing inventory data…</p>}
-          {state.kind === "error" && (
-            <div className="notice error" role="alert">
-              <span>{state.message}</span>
-              <button type="button" onClick={() => void load()}>Try again</button>
-            </div>
-          )}
-        </div>
-
-        <section className="metrics" aria-label="Inventory summary">
-          <Metric label="Active products" value={products.length.toLocaleString()} detail="Tracked catalog items" />
-          <Metric label="Reorder alerts" value={reorderSuggestions.length.toLocaleString()} detail="Products at or below reorder point" tone={reorderSuggestions.length > 0 ? "warning" : "good"} />
-          <Metric label="Open purchase orders" value={openOrders.length.toLocaleString()} detail="Draft, ordered, or partial" />
-          <Metric label="Stock health" value={`${healthPercent}%`} detail={`${healthyProducts} products above threshold`} tone={healthPercent >= 90 ? "good" : "warning"} />
-        </section>
-
-        <section className="dashboard-grid">
-          <article className="panel wide" aria-labelledby="reorder-title">
-            <div className="panel-heading">
-              <div><p className="eyebrow">Replenishment</p><h2 id="reorder-title">Recommended reorders</h2></div>
-              <span className="count-pill">{reorderSuggestions.length}</span>
-            </div>
-            {reorderSuggestions.length === 0 && state.kind !== "loading" ? (
-              <EmptyState title="No reorder alerts" body="All active products are currently above their configured reorder points." />
-            ) : (
-              <div className="table-wrap">
-                <table>
-                  <thead><tr><th>Product</th><th>SKU</th><th className="numeric">On hand</th><th className="numeric">Reorder point</th><th className="numeric">Suggested order</th></tr></thead>
-                  <tbody>
-                    {reorderSuggestions.slice(0, 10).map((suggestion) => (
-                      <tr key={suggestion.productId}>
-                        <td><strong>{suggestion.name}</strong><br /><span className="compact">Target {suggestion.targetStock.toLocaleString()} {suggestion.unit}</span></td>
-                        <td className="mono">{suggestion.sku}</td>
-                        <td className="numeric"><span className="status-badge warning">{suggestion.onHand.toLocaleString()}</span></td>
-                        <td className="numeric">{suggestion.reorderPoint.toLocaleString()}</td>
-                        <td className="numeric"><strong>{suggestion.suggestedQuantity.toLocaleString()}</strong> {suggestion.unit}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </article>
-
-          <article className="panel" aria-labelledby="valuation-title">
-            <div className="panel-heading"><div><p className="eyebrow">Reporting</p><h2 id="valuation-title">Inventory valuation</h2></div></div>
-            {!canViewReports ? (
-              <EmptyState title="Reporting permission required" body="Inventory valuation is available to roles with reporting access." />
-            ) : valuation.totals.length === 0 && state.kind !== "loading" ? (
-              <EmptyState title="No inventory value yet" body="Valuation totals will appear after products and stock balances are available." />
-            ) : (
-              <ul className="activity-list">
-                {valuation.totals.map((total) => (
-                  <li key={total.currency}><span><strong>{total.currency}</strong><small>Current on-hand value</small></span><strong>{formatMoney(total.valueMinor, total.currency)}</strong></li>
-                ))}
-                {valuation.items.slice(0, 3).map((item) => (
-                  <li key={item.productId}><span><strong>{item.name}</strong><small>{item.onHand.toLocaleString()} {item.unit} on hand</small></span><span>{formatMoney(item.valueMinor, item.currency)}</span></li>
-                ))}
-              </ul>
-            )}
-          </article>
-
-          <article className="panel" aria-labelledby="orders-title">
-            <div className="panel-heading"><div><p className="eyebrow">Purchasing</p><h2 id="orders-title">Open orders</h2></div></div>
-            {openOrders.length === 0 && state.kind !== "loading" ? (
-              <EmptyState title="No open purchase orders" body="New orders will appear here as soon as they are created." />
-            ) : (
-              <ul className="activity-list">
-                {openOrders.slice(0, 6).map((order) => (
-                  <li key={order.id}><span><strong>{order.number}</strong><small>{formatDate(order.createdAt)}</small></span><span className="status-badge">{order.status.replaceAll("_", " ")}</span></li>
-                ))}
-              </ul>
-            )}
-          </article>
-
-          <article className="panel" aria-labelledby="catalog-title">
-            <div className="panel-heading">
-              <div><p className="eyebrow">Catalog</p><h2 id="catalog-title">Recent products</h2></div>
-              <button className="secondary-button compact-button" type="button" onClick={onOpenProducts}>Manage catalog</button>
-            </div>
-            {products.length === 0 && state.kind !== "loading" ? (
-              <EmptyState title="Catalog is empty" body="Create the first product to begin tracking inventory." />
-            ) : (
-              <ul className="activity-list">
-                {products.slice(0, 6).map((product) => (
-                  <li key={product.id}><span><strong>{product.name}</strong><small className="mono">{product.sku}</small></span><span>{formatMoney(product.unitCostMinor, product.currency)}</span></li>
-                ))}
-              </ul>
-            )}
-          </article>
-        </section>
-      </main>
-    </div>
-  );
+type Props = { user: User; onLogout: () => Promise<void>; onSessionExpired: () => void; onOpenProducts: () => void; onOpenInventory: () => void; onOpenWarehouses: () => void };
+export function Dashboard({ user, onLogout, onSessionExpired, onOpenProducts, onOpenInventory, onOpenWarehouses }: Props) {
+  const [products, setProducts] = useState<Product[]>([]); const [reorderSuggestions, setReorderSuggestions] = useState<ReorderSuggestion[]>([]); const [valuation, setValuation] = useState<InventoryValuationReport>(emptyValuation); const [orders, setOrders] = useState<PurchaseOrder[]>([]); const [state, setState] = useState<LoadState>({ kind: "loading" });
+  const [theme, setTheme] = useState<"light" | "dark">(() => { const stored = localStorage.getItem("stockpilot-theme"); if (stored === "light" || stored === "dark") return stored; return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light"; }); const [loggingOut, setLoggingOut] = useState(false); const canViewReports = user.role !== "operator";
+  useEffect(() => { document.documentElement.dataset.theme = theme; localStorage.setItem("stockpilot-theme", theme); }, [theme]);
+  const load = useCallback(async () => { setState({ kind: "loading" }); try { const data = await stockpilotAPI.dashboard(canViewReports); setProducts(data.products); setReorderSuggestions(data.reorderSuggestions); setValuation(data.valuation); setOrders(data.orders); setState({ kind: "ready" }); } catch (error) { if (error instanceof APIError && error.status === 401) { onSessionExpired(); return; } setState({ kind: "error", message: error instanceof Error ? error.message : "StockPilot could not load dashboard data." }); } }, [canViewReports, onSessionExpired]);
+  useEffect(() => { void load(); }, [load]);
+  const openOrders = orders.filter((order) => !["received", "cancelled"].includes(order.status)); const healthyProducts = Math.max(products.length - reorderSuggestions.length, 0); const healthPercent = products.length === 0 ? 100 : Math.round((healthyProducts / products.length) * 100);
+  async function logout() { setLoggingOut(true); try { await onLogout(); } finally { setLoggingOut(false); } }
+  return <div className="app-shell"><aside className="sidebar" aria-label="Primary navigation"><a className="brand" href="#main" aria-label="StockPilot home"><span className="brand-mark" aria-hidden="true">SP</span><span><strong>StockPilot</strong><small>Inventory control</small></span></a><nav>{navigation.map((item, index) => item === "Products" ? <button className="nav-link nav-button" type="button" onClick={onOpenProducts} key={item}><span aria-hidden="true" className="nav-dot" />{item}</button> : item === "Inventory" ? <button className="nav-link nav-button" type="button" onClick={onOpenInventory} key={item}><span aria-hidden="true" className="nav-dot" />{item}</button> : item === "Warehouses" ? <button className="nav-link nav-button" type="button" onClick={onOpenWarehouses} key={item}><span aria-hidden="true" className="nav-dot" />{item}</button> : <a className={index === 0 ? "nav-link active" : "nav-link"} href={index === 0 ? "#main" : `#${item.toLowerCase().replaceAll(" ", "-")}`} key={item}><span aria-hidden="true" className="nav-dot" />{item}</a>)}</nav><div className="sidebar-footer"><span>Made by the Sanskar</span><a href="https://github.com/sanskarIN" rel="noreferrer">GitHub</a></div></aside>
+    <main id="main" className="content" tabIndex={-1}><header className="topbar"><div><p className="eyebrow">Operations control center</p><h1>Inventory overview</h1><p className="muted">Live stock health, replenishment recommendations, valuation, and purchasing activity.</p></div><div className="topbar-actions account-actions"><span className="account-chip"><strong>{user.displayName}</strong><small>{user.role}</small></span><button className="secondary-button" type="button" onClick={() => setTheme((value) => value === "light" ? "dark" : "light")}>{theme === "light" ? "Dark mode" : "Light mode"}</button><button className="secondary-button" type="button" onClick={() => void logout()} disabled={loggingOut}>{loggingOut ? "Signing out…" : "Sign out"}</button><button className="primary-button" type="button" onClick={() => void load()} disabled={state.kind === "loading"}>Refresh</button></div></header>
+      <div className="status-region" aria-live="polite">{state.kind === "loading" && <p className="notice">Refreshing inventory data…</p>}{state.kind === "error" && <div className="notice error" role="alert"><span>{state.message}</span><button type="button" onClick={() => void load()}>Try again</button></div>}</div>
+      <section className="metrics"><Metric label="Active products" value={products.length.toLocaleString()} detail="Tracked catalog items" /><Metric label="Reorder alerts" value={reorderSuggestions.length.toLocaleString()} detail="Products at or below reorder point" tone={reorderSuggestions.length > 0 ? "warning" : "good"} /><Metric label="Open purchase orders" value={openOrders.length.toLocaleString()} detail="Draft, ordered, or partial" /><Metric label="Stock health" value={`${healthPercent}%`} detail={`${healthyProducts} products above threshold`} tone={healthPercent >= 90 ? "good" : "warning"} /></section>
+      <section className="dashboard-grid"><article className="panel wide" aria-labelledby="reorder-title"><div className="panel-heading"><div><p className="eyebrow">Replenishment</p><h2 id="reorder-title">Recommended reorders</h2></div><span className="count-pill">{reorderSuggestions.length}</span></div>{reorderSuggestions.length === 0 && state.kind !== "loading" ? <EmptyState title="No reorder alerts" body="All active products are currently above their configured reorder points." /> : <div className="table-wrap"><table><thead><tr><th>Product</th><th>SKU</th><th className="numeric">On hand</th><th className="numeric">Reorder point</th><th className="numeric">Suggested order</th></tr></thead><tbody>{reorderSuggestions.slice(0, 10).map((s) => <tr key={s.productId}><td><strong>{s.name}</strong><br /><span className="compact">Target {s.targetStock.toLocaleString()} {s.unit}</span></td><td className="mono">{s.sku}</td><td className="numeric"><span className="status-badge warning">{s.onHand.toLocaleString()}</span></td><td className="numeric">{s.reorderPoint.toLocaleString()}</td><td className="numeric"><strong>{s.suggestedQuantity.toLocaleString()}</strong> {s.unit}</td></tr>)}</tbody></table></div>}</article>
+        <article className="panel"><div className="panel-heading"><div><p className="eyebrow">Reporting</p><h2>Inventory valuation</h2></div></div>{!canViewReports ? <EmptyState title="Reporting permission required" body="Inventory valuation is available to roles with reporting access." /> : valuation.totals.length === 0 && state.kind !== "loading" ? <EmptyState title="No inventory value yet" body="Valuation totals will appear after products and stock balances are available." /> : <ul className="activity-list">{valuation.totals.map((t) => <li key={t.currency}><span><strong>{t.currency}</strong><small>Current on-hand value</small></span><strong>{formatMoney(t.valueMinor,t.currency)}</strong></li>)}{valuation.items.slice(0,3).map((i)=><li key={i.productId}><span><strong>{i.name}</strong><small>{i.onHand.toLocaleString()} {i.unit} on hand</small></span><span>{formatMoney(i.valueMinor,i.currency)}</span></li>)}</ul>}</article>
+        <article className="panel"><div className="panel-heading"><div><p className="eyebrow">Purchasing</p><h2>Open orders</h2></div></div>{openOrders.length === 0 && state.kind !== "loading" ? <EmptyState title="No open purchase orders" body="New orders will appear here as soon as they are created." /> : <ul className="activity-list">{openOrders.slice(0,6).map((o)=><li key={o.id}><span><strong>{o.number}</strong><small>{formatDate(o.createdAt)}</small></span><span className="status-badge">{o.status.replaceAll("_"," ")}</span></li>)}</ul>}</article>
+        <article className="panel"><div className="panel-heading"><div><p className="eyebrow">Catalog</p><h2>Recent products</h2></div><button className="secondary-button compact-button" type="button" onClick={onOpenProducts}>Manage catalog</button></div>{products.length === 0 && state.kind !== "loading" ? <EmptyState title="Catalog is empty" body="Create the first product to begin tracking inventory." /> : <ul className="activity-list">{products.slice(0,6).map((p)=><li key={p.id}><span><strong>{p.name}</strong><small className="mono">{p.sku}</small></span><span>{formatMoney(p.unitCostMinor,p.currency)}</span></li>)}</ul>}</article>
+      </section></main></div>;
 }
-
-function Metric({ label, value, detail, tone = "neutral" }: { label: string; value: string; detail: string; tone?: "neutral" | "good" | "warning" }) {
-  return <article className={`metric ${tone}`}><p>{label}</p><strong>{value}</strong><span>{detail}</span></article>;
-}
-
-function EmptyState({ title, body }: { title: string; body: string }) {
-  return <div className="empty-state"><strong>{title}</strong><p>{body}</p></div>;
-}
-
-function formatDate(value: string) {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? "—" : new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" }).format(date);
-}
-
-function formatMoney(minor: number, currency: string) {
-  try {
-    return new Intl.NumberFormat("en-IN", { style: "currency", currency: currency || "INR", maximumFractionDigits: 2 }).format(minor / 100);
-  } catch {
-    return `${currency || "INR"} ${(minor / 100).toFixed(2)}`;
-  }
-}
+function Metric({label,value,detail,tone="neutral"}:{label:string;value:string;detail:string;tone?:"neutral"|"good"|"warning"}){return <article className={`metric ${tone}`}><p>{label}</p><strong>{value}</strong><span>{detail}</span></article>}
+function EmptyState({title,body}:{title:string;body:string}){return <div className="empty-state"><strong>{title}</strong><p>{body}</p></div>}
+function formatDate(value:string){const date=new Date(value);return Number.isNaN(date.getTime())?"—":new Intl.DateTimeFormat("en-IN",{dateStyle:"medium"}).format(date)}
+function formatMoney(minor:number,currency:string){try{return new Intl.NumberFormat("en-IN",{style:"currency",currency:currency||"INR",maximumFractionDigits:2}).format(minor/100)}catch{return `${currency||"INR"} ${(minor/100).toFixed(2)}`}}
