@@ -2,51 +2,50 @@
 
 ## Current milestone
 
-Phase 3 — operational inventory workflows.
+Phase 4 — purchasing and receiving workflows.
 
 ## Repository state
 
 - Default branch: `main`.
-- PR #9 (Android/browser quality gates), PR #15 (replenishment/reporting/release-readiness), and PR #16 (catalog management) are merged.
-- Superseded PRs #10 and #11 were closed after their functionality was reconciled into the current mainline.
-- Active branch: `feat/inventory-operations-ui`.
-- The current continuation intentionally uses small, reviewable commits instead of squashing feature history.
+- PR #9 (Android/browser quality gates), PR #15 (replenishment/reporting/release-readiness), PR #16 (catalog management), PR #17 (guided inventory operations), and PR #19 (warehouse/location administration) are merged.
+- Superseded PRs #10, #11, and #18 were closed after their functionality was reconciled into clean current-mainline branches.
+- Active branch: `feat/purchase-order-workflow`.
+- The continuation intentionally preserves small, reviewable commits instead of squashing feature history.
 
 ## Completed in this continuation
 
-- [x] Added warehouse and location web models.
-- [x] Added typed web API methods for warehouse/location reads, stock-in, stock-out, adjustments, and transfers.
-- [x] Added guided inventory operations screen with stock-in, stock-out, signed adjustment, and transfer modes.
-- [x] Added role-aware write/read-only presentation.
-- [x] Added pre-submit operation review and explicit different-location transfer validation.
-- [x] Added defensive handling for CSRF/session expiry and server-side stock validation failures.
-- [x] Added responsive operation-tab and inventory-review styling.
-- [x] Updated dashboard navigation to expose the inventory operations workflow.
-- [x] Updated roadmap status to mark guided inventory operations complete.
+- [x] Added purchase-order line and status types to the web client.
+- [x] Added purchase-order list, create, and receiving API methods.
+- [x] Added purchase-order register with supplier, warehouse, status, and creation metadata.
+- [x] Added purchase-order detail view with received-versus-ordered quantities.
+- [x] Added receiving workflow that posts a controlled quantity into a selected inventory location.
+- [x] Added draft-order creation validation for supplier, warehouse, product, quantity, cost, currency, and order number.
+- [x] Added dashboard navigation into purchasing.
+- [x] Added responsive purchasing and receiving styles.
+- [x] Updated roadmap status to reflect completed purchasing workflow scope.
 
 ## Verification status
 
-The GitHub connector does not expose a local shell, so this continuation does not claim local Go/web/Android/extension command execution. The implementation is structured for the existing GitHub Actions quality gates.
+The connected GitHub environment does not expose a local project shell, so this continuation does not claim local Go/web/Android/extension command execution. Existing GitHub Actions remain the authoritative automated validation path.
 
 ## Known limitations
 
-- Purchase-order workflow UI is still pending.
-- Warehouse/location administration UI is still pending.
-- Lot/expiry receiving workflows are still pending.
-- Append-only audit writes and audit viewer are still pending.
-- CSV import/export and advanced reporting remain pending.
-- Browser E2E and Android instrumentation coverage remain pending.
+- Purchase-order creation currently creates one product line per draft; multi-line editing remains a later enhancement.
+- Explicit ordered/cancelled state-transition controls remain pending.
+- Lot/expiry-aware receiving remains pending.
+- Append-only audit writes and audit viewer remain pending.
+- CSV import/export and advanced analytics remain pending.
+- Browser E2E and Android instrumentation suites remain pending.
 
 ## Next exact tasks
 
-1. Open and validate the inventory operations PR.
-2. Add warehouse/location management screens.
-3. Add purchase-order creation, approval, and receiving UI.
-4. Add lot and expiry receiving flow with warnings.
-5. Add append-only audit writes for sensitive mutations and an audit viewer.
-6. Add CSV import/export and restore/backup deployment hooks.
-7. Add analytics and release-grade E2E/instrumentation coverage.
+1. Add lot and expiry-aware purchase receiving with expiry warnings.
+2. Add explicit purchase-order lifecycle/approval controls and multi-line editing.
+3. Add append-only audit writes to sensitive mutations and an audit viewer.
+4. Add CSV import/export workflows with dry-run validation.
+5. Add inventory aging, expiry-risk, movement-velocity, and supplier analytics.
+6. Add browser E2E, Android instrumentation, accessibility, restore, and release-artifact checks.
 
 ## Commit discipline
 
-Each functional boundary is intentionally represented by an individual commit where practical: types, API methods, UI screens, navigation, styling, fixes, and documentation are kept separately reviewable. The available GitHub connector does not provide an author-email override, so commits use the authenticated GitHub connection identity.
+Each functional boundary is intentionally represented by an individual commit where practical: models, API methods, screen UI, dashboard integration, routing, styling, fixes, and documentation are kept separately reviewable. GitHub commits produced through the connected repository identity continue to use `sanskarin@outlook.in` for the author where the API supports it.
