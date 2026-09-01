@@ -32,6 +32,7 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Browser camera barcode/QR scanning in product forms, with manual entry fallback.
 - Android barcode/QR scanning with Google Code Scanner and product/lot-inventory handoff.
 - Browser companion barcode/QR scanning with manual fallback and safe handoff to the authenticated StockPilot web origin.
+- Authentication/session audit documentation and audit events for login, session rejection, logout, and account lifecycle mutations.
 
 ### Changed
 
@@ -48,6 +49,7 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Product barcode entry can use the device camera when the browser exposes `BarcodeDetector` and camera access; unsupported browsers retain manual entry.
 - The Android client can scan codes through Google Code Scanner and resolve product/lot inventory using its own authenticated session.
 - The browser companion can scan codes locally and hand them back to the normal StockPilot web origin without copying session cookies.
+- Authentication audit metadata remains intentionally minimal and never contains passwords, raw session tokens, or cookie values.
 
 ### Security
 
@@ -65,6 +67,7 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Locations cannot be activated under archived warehouses.
 - Camera scanning requests audio-free, rear-facing video where available and stop all camera tracks when the scanner closes.
 - The Android and browser companion scan flows do not copy StockPilot session credentials into scanner state.
+- Authentication audit events deliberately exclude passwords, raw session tokens, cookie values, and credential-bearing metadata.
 
 ## Release discipline
 
