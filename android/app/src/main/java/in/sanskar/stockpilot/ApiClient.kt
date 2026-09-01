@@ -5,6 +5,7 @@ import java.io.IOException
 import java.net.HttpCookie
 import java.net.HttpURLConnection
 import java.net.URL
+import java.net.URLEncoder
 
 class ApiClient(private val sessionStore: SecureSessionStore) {
     fun login(baseUrl: String, email: String, password: String): User {
@@ -37,9 +38,18 @@ class ApiClient(private val sessionStore: SecureSessionStore) {
         val normalized = barcode.trim()
         require(normalized.isNotEmpty()) { "Barcode value cannot be empty." }
         require(normalized.length <= 128) { "Barcode value is too long." }
+        val encoded = URLEncoder.encode(normalized, Charsets.UTF_8).replace("+", "%20")
         return Product.fromJson(
-            JSONObject(request(baseUrl, "GET", "/api/v1/products/by-barcode/${java.net.URLEncoder.encode(normalized, Charsets.UTF_8).replace("+", "%20")}").body),
+            JSONObject(request(baseUrl, "GET", "/api/v1/products/by-barcode/$encoded").body),
         )
+    }
+
+    fun lotInventoryForProduct(baseUrl: String, productId: String): List<LotInventoryRow> {
+        val encoded = URLEncoder.encode(productId.trim(), Charsets.UTF_8).replace("+", "%20")
+        val response = JSONObject(
+            request(baseUrl, "GET", "/api/v1/inventory/lots?productId=$encoded&limit=100").body,
+        )
+        return response.optJSONArray("items")?.mapObjects(LotInventoryRow::fromJson).orEmpty()
     }
 
     fun dashboard(baseUrl: String): DashboardSnapshot {
