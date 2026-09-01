@@ -26,11 +26,11 @@ This roadmap reflects the current repository state.
 - [x] Append-only audit event write path for sensitive web mutations.
 - [x] Audit viewer with actor, action, entity, request ID, metadata, and pagination filters.
 - [x] Reorder-suggestion actions that seed reviewed draft purchase orders without auto-submitting them.
+- [x] Lot inventory view with product, warehouse, location, lot, quantity, and expiry-risk filtering.
 
 ## Next — operational workflows
 
 - [ ] Barcode/QR camera scanning UI for supported clients.
-- [ ] Lot inventory view with quantity by lot/location and expiry sorting.
 
 ## Next — auditability and data operations
 
