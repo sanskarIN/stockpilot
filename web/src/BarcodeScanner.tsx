@@ -1,9 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 
 interface DetectedCode { rawValue?: string }
 type Detector = { detect: (source: HTMLVideoElement) => Promise<DetectedCode[]> };
 type DetectorCtor = new (options?: { formats?: string[] }) => Detector;
-
 type Props = { onDetected: (value: string) => void; onClose: () => void };
 
 export function BarcodeScanner({ onDetected, onClose }: Props) {
@@ -38,16 +37,13 @@ export function BarcodeScanner({ onDetected, onClose }: Props) {
           void videoRef.current.play();
         }
         setStatus("Point the camera at a barcode or QR code.");
-
         const scan = async () => {
           if (!active || !videoRef.current) return;
           try {
             const results = await detector.detect(videoRef.current);
             const value = results.map((item) => item.rawValue?.trim()).find((item) => item);
             if (value) { onDetected(value); return; }
-          } catch {
-            setStatus("Camera is active. Move closer or improve the lighting.");
-          }
+          } catch { setStatus("Camera is active. Move closer or improve the lighting."); }
           rafRef.current = window.requestAnimationFrame(() => { void scan(); });
         };
         rafRef.current = window.requestAnimationFrame(() => { void scan(); });
@@ -64,7 +60,7 @@ export function BarcodeScanner({ onDetected, onClose }: Props) {
     };
   }, [onDetected]);
 
-  function submitManual(event: React.FormEvent<HTMLFormElement>) {
+  function submitManual(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const value = manual.trim();
     if (value) onDetected(value);
