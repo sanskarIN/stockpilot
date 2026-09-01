@@ -1,0 +1,74 @@
+import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { APIError, stockpilotAPI } from "./api";
+import type { Location, User, Warehouse } from "./types";
+
+type Props = { user: User; onBack: () => void; onSessionExpired: () => void };
+
+type Mode = "warehouse" | "location";
+
+type Draft = {
+  code: string;
+  name: string;
+  timezone: string;
+  warehouseId: string;
+};
+
+const blank: Draft = { code: "", name: "", timezone: "UTC", warehouseId: "" };
+
+export function WarehouseLocationScreen({ user, onBack, onSessionExpired }: Props) {
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [mode, setMode] = useState<Mode>("warehouse");
+  const [draft, setDraft] = useState<Draft>(blank);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const canWrite = user.role === "admin" || user.role === "manager";
+
+  async function load() {
+    setLoading(true);
+    try {
+      const [w, l] = await Promise.all([stockpilotAPI.listWarehouses(), stockpilotAPI.listLocations()]);
+      setWarehouses(w.items ?? []); setLocations(l.items ?? []);
+      if (!draft.warehouseId && w.items?.[0]) setDraft((current) => ({ ...current, warehouseId: w.items[0].id }));
+      setMessage("");
+    } catch (error: unknown) {
+      if (error instanceof APIError && error.status === 401) { onSessionExpired(); return; }
+      setMessage(error instanceof Error ? error.message : "Could not load warehouse data.");
+    } finally { setLoading(false); }
+  }
+
+  useEffect(() => { void load(); }, []);
+  const warehouseName = useMemo(() => new Map(warehouses.map((item) => [item.id, item.name])), [warehouses]);
+
+  async function submit(event: FormEvent) {
+    event.preventDefault(); setMessage("");
+    if (!canWrite) { setMessage("Your role cannot change warehouse or location data."); return; }
+    const code = draft.code.trim(); const name = draft.name.trim();
+    if (code.length < 2 || code.length > 32) { setMessage("Code must be 2-32 characters."); return; }
+    if (name.length < 2 || name.length > 120) { setMessage("Name must be 2-120 characters."); return; }
+    if (mode === "location" && !draft.warehouseId) { setMessage("Choose a warehouse for the location."); return; }
+    setSaving(true);
+    try {
+      if (mode === "warehouse") await stockpilotAPI.createWarehouse({ code, name, timezone: draft.timezone.trim() || "UTC", active: true });
+      else await stockpilotAPI.createLocation({ code, name, warehouseId: draft.warehouseId, active: true });
+      setDraft(blank); setMessage(`${mode === "warehouse" ? "Warehouse" : "Location"} created successfully.`); await load();
+    } catch (error: unknown) {
+      if (error instanceof APIError && error.status === 401) { onSessionExpired(); return; }
+      setMessage(error instanceof Error ? error.message : "Could not create the record.");
+    } finally { setSaving(false); }
+  }
+
+  return <main className="catalog-page" aria-labelledby="warehouse-location-title">
+    <header className="catalog-header"><div><button className="secondary-button" type="button" onClick={onBack}>← Overview</button><p className="eyebrow">Warehouse management</p><h1 id="warehouse-location-title">Warehouses & locations</h1><p className="muted">Create operational storage points that can be used by inventory movements and transfers.</p></div><button className="secondary-button" type="button" onClick={() => void load()} disabled={loading}>Refresh</button></header>
+    {!canWrite && <p className="notice">You have read-only access to warehouse and location administration.</p>}
+    <section className="dashboard-grid">
+      <article className="panel"><div className="panel-heading"><div><p className="eyebrow">Create</p><h2>New {mode}</h2></div></div>
+        <div className="operation-tabs" role="tablist"><button className={mode === "warehouse" ? "operation-tab active" : "operation-tab"} type="button" onClick={() => setMode("warehouse")}>Warehouse</button><button className={mode === "location" ? "operation-tab active" : "operation-tab"} type="button" onClick={() => setMode("location")}>Location</button></div>
+        <form className="catalog-form" onSubmit={submit}><div className="form-grid"><label><span>Code</span><input value={draft.code} onChange={(event) => setDraft((x) => ({ ...x, code: event.target.value }))} maxLength={32} required /></label><label><span>Name</span><input value={draft.name} onChange={(event) => setDraft((x) => ({ ...x, name: event.target.value }))} maxLength={120} required /></label>{mode === "warehouse" ? <label><span>Timezone</span><input value={draft.timezone} onChange={(event) => setDraft((x) => ({ ...x, timezone: event.target.value }))} maxLength={64} /></label> : <label><span>Warehouse</span><select value={draft.warehouseId} onChange={(event) => setDraft((x) => ({ ...x, warehouseId: event.target.value }))} required><option value="">Select warehouse</option>{warehouses.map((warehouse) => <option value={warehouse.id} key={warehouse.id}>{warehouse.name} ({warehouse.code})</option>)}</select></label>}</div>{message && <p className="form-error" role="status">{message}</p>}<div className="form-actions"><button className="primary-button" type="submit" disabled={!canWrite || saving}>{saving ? "Creating…" : `Create ${mode}`}</button></div></form>
+      </article>
+      <article className="panel"><div className="panel-heading"><div><p className="eyebrow">Current setup</p><h2>Warehouses</h2></div><span className="count-pill">{warehouses.length}</span></div>{warehouses.length ? <ul className="activity-list">{warehouses.map((warehouse) => <li key={warehouse.id}><span><strong>{warehouse.name}</strong><small>{warehouse.code} · {warehouse.timezone}</small></span><span className={`status-badge ${warehouse.active ? "good" : ""}`}>{warehouse.active ? "Active" : "Inactive"}</span></li>)}</ul> : <div className="empty-state"><strong>No warehouses</strong><p>Create a warehouse before adding storage locations.</p></div>}</article>
+      <article className="panel wide"><div className="panel-heading"><div><p className="eyebrow">Storage points</p><h2>Locations</h2></div><span className="count-pill">{locations.length}</span></div>{locations.length ? <div className="table-wrap"><table><thead><tr><th>Location</th><th>Code</th><th>Warehouse</th><th>Status</th></tr></thead><tbody>{locations.map((location) => <tr key={location.id}><td><strong>{location.name}</strong></td><td className="mono">{location.code}</td><td>{warehouseName.get(location.warehouseId) ?? "Unknown"}</td><td><span className={`status-badge ${location.active ? "good" : ""}`}>{location.active ? "Active" : "Inactive"}</span></td></tr>)}</tbody></table></div> : <div className="empty-state"><strong>No locations</strong><p>Create storage locations and use them in guided inventory operations.</p></div>}</article>
+    </section>
+  </main>;
+}
