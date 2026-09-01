@@ -12,5 +12,6 @@ type Reports interface {
 }
 
 type Audit interface {
+	AppendAuditEvent(context.Context, domain.AuditEvent) error
 	ListAuditEvents(context.Context, domain.AuditFilter) ([]domain.AuditEvent, error)
 }

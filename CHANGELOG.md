@@ -23,14 +23,17 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Lot-aware receiving with reusable lots, new-lot creation, manufacturing/expiry metadata, and near-expiry warnings.
 - Atomic new-lot receipt transactions that roll back lot creation when receipt processing fails.
 - Explicit purchase-order lifecycle transitions for deliberate draft submission and cancellation.
+- Append-only audit-event persistence for completed sensitive catalog, inventory, warehouse/location/lot, and purchasing mutations.
+- Web audit history viewer with actor, action, entity, request ID, metadata, and pagination filters.
 
 ### Changed
 
 - Dashboard stock health now uses product-level reorder recommendations instead of counting every low-stock location independently.
 - Dashboard reporting now includes replenishment and inventory valuation insights.
-- Repository contracts expose barcode lookup, replenishment, valuation, lot listing, and order lifecycle capabilities.
-- Purchasing now supports deliberate `draft → ordered/cancelled` transitions; partial/received states remain receipt-controlled.
+- Repository contracts expose barcode lookup, replenishment, valuation, lot listing, order lifecycle, and audit capabilities.
+- Purchasing supports deliberate `draft → ordered/cancelled` transitions; partial/received states remain receipt-controlled.
 - Receiving reuses existing lots for partial receipts and creates new lots atomically when required.
+- Sensitive successful mutations now emit auditable actor/action/entity/request records.
 
 ### Security
 
@@ -41,6 +44,7 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Valuation arithmetic is calculated with PostgreSQL numeric values before checked conversion to `int64`.
 - Lot ownership and product tracking policy remain enforced server-side during inventory mutations.
 - Purchase-order status transitions are row-locked and validated by the domain state machine.
+- Audit history is read-only from the web client and audit storage exposes append/list operations without an update/delete API.
 
 ## Release discipline
 

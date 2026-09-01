@@ -23,19 +23,20 @@ This roadmap reflects the current repository state.
 - [x] Warehouse/location administration workflow with timezone and warehouse association support.
 - [x] Purchase-order creation, register, receiving, lot/expiry handling, and atomic new-lot receiving.
 - [x] Purchase-order lifecycle controls for draft submission and cancellation.
+- [x] Append-only audit event write path for sensitive web mutations.
+- [x] Audit viewer with actor, action, entity, request ID, metadata, and pagination filters.
 
 ## Next — operational workflows
 
 - [ ] Barcode/QR camera scanning UI for supported clients.
 - [ ] Reorder suggestion actions that can seed draft purchase orders without bypassing approval rules.
-- [ ] Purchase-order multi-line editing.
+- [ ] Purchase-order multi-line editing and receiving.
 - [ ] Warehouse/location edit and archive workflows.
 - [ ] Lot inventory view with quantity by lot/location and expiry sorting.
 
 ## Next — auditability and data operations
 
-- [ ] First-class audit event append-only write path for every sensitive mutation.
-- [ ] Audit viewer with actor, action, target, request ID, and timestamp filters.
+- [ ] Extend audit coverage to every remaining mutation path, including authentication/session and future import/export operations.
 - [ ] CSV product import with dry-run validation and row-level error reports.
 - [ ] CSV inventory and report export.
 - [ ] Documented automated backup retention deployment examples.
