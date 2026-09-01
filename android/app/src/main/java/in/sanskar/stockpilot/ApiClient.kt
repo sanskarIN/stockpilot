@@ -33,6 +33,15 @@ class ApiClient(private val sessionStore: SecureSessionStore) {
     fun currentUser(baseUrl: String): User =
         User.fromJson(JSONObject(request(baseUrl, "GET", "/api/v1/auth/me").body))
 
+    fun productByBarcode(baseUrl: String, barcode: String): Product {
+        val normalized = barcode.trim()
+        require(normalized.isNotEmpty()) { "Barcode value cannot be empty." }
+        require(normalized.length <= 128) { "Barcode value is too long." }
+        return Product.fromJson(
+            JSONObject(request(baseUrl, "GET", "/api/v1/products/by-barcode/${java.net.URLEncoder.encode(normalized, Charsets.UTF_8).replace("+", "%20")}").body),
+        )
+    }
+
     fun dashboard(baseUrl: String): DashboardSnapshot {
         val user = currentUser(baseUrl)
         val products = JSONObject(request(baseUrl, "GET", "/api/v1/products?active=true&limit=50").body)
