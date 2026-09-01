@@ -23,7 +23,7 @@ This roadmap reflects the current repository state.
 - [x] Warehouse/location administration workflow with timezone and warehouse association support.
 - [x] Purchase-order draft creation, order register, detail view, and controlled inventory receiving workflow.
 - [x] Lot-aware receiving with reusable existing lots, new-lot creation, manufacturing/expiry dates, and expiry-risk warnings.
-- [x] Reusable product lot listing API and PostgreSQL repository contract.
+- [x] Atomic new-lot receiving inside the purchase/inventory transaction.
 
 ## Next — operational workflows
 
