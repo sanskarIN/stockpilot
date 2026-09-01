@@ -29,14 +29,15 @@ This roadmap reflects the current repository state.
 - [x] Lot inventory view with product, warehouse, location, lot, quantity, and expiry-risk filtering.
 - [x] Browser camera barcode/QR scanning for product-form barcode entry, with manual fallback.
 - [x] Android barcode/QR scanning with Google Code Scanner and product/lot-inventory handoff.
+- [x] Browser companion barcode/QR scanning with safe handoff to the authenticated StockPilot web origin.
 
 ## Next — operational workflows
 
-- [ ] Browser companion scan-to-product/inventory action.
+- [ ] Extend browser companion handoff from product lookup to direct inventory workflow selection.
 
 ## Next — auditability and data operations
 
-- [ ] Extend audit coverage to every remaining mutation path, including authentication/session and future import/export operations.
+- [ ] Extend audit coverage to every remaining mutation path, including authentication/session and import/export operations.
 - [ ] CSV product import with dry-run validation and row-level error reports.
 - [ ] CSV inventory and report export.
 - [ ] Documented automated backup retention deployment examples.

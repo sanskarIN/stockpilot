@@ -16,7 +16,7 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Aggregate product-level reorder recommendations, including products with zero balance rows.
 - Suggested replenishment quantities targeting reorder point plus reorder quantity.
 - Currency-safe inventory valuation by product and grouped currency total.
-- Exact barcode lookup API for scanner-driven clients.
+- Exact barcode lookup API for scanner-driven workflows.
 - PostgreSQL and HTTP regression coverage for reporting capabilities.
 - Security policy, contributor workflow, API compatibility policy, architecture guide, restore drill, release checklist, and issue/PR templates.
 - Product catalog management, guided inventory operations, warehouse/location administration, and purchase-order creation/receiving workflows.
@@ -30,6 +30,8 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Warehouse/location edit, archive, and reactivation workflows with server-side integrity guards.
 - Lot inventory visibility with product, warehouse, location, lot, quantity, and expiry-risk filters.
 - Browser camera barcode/QR scanning in product forms, with manual entry fallback.
+- Android barcode/QR scanning with Google Code Scanner and product/lot-inventory handoff.
+- Browser companion barcode/QR scanning with manual fallback and safe handoff to the authenticated StockPilot web origin.
 
 ### Changed
 
@@ -44,6 +46,8 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Warehouse/location administration can edit active records, archive historical records instead of deleting them, and reactivate archived records when safe.
 - Lot inventory ordering prioritizes soonest-expiring stock and supports bounded pagination and expiry cutoffs.
 - Product barcode entry can use the device camera when the browser exposes `BarcodeDetector` and camera access; unsupported browsers retain manual entry.
+- The Android client can scan codes through Google Code Scanner and resolve product/lot inventory using its own authenticated session.
+- The browser companion can scan codes locally and hand them back to the normal StockPilot web origin without copying session cookies.
 
 ### Security
 
@@ -60,6 +64,7 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Warehouses with active locations cannot be archived, and locations with non-zero inventory cannot be archived.
 - Locations cannot be activated under archived warehouses.
 - Camera scanning requests audio-free, rear-facing video where available and stop all camera tracks when the scanner closes.
+- The Android and browser companion scan flows do not copy StockPilot session credentials into scanner state.
 
 ## Release discipline
 

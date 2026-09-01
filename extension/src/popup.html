@@ -8,41 +8,16 @@
   </head>
   <body>
     <main class="shell">
-      <header class="brand">
-        <div class="brand-mark" aria-hidden="true">SP</div>
-        <div>
-          <h1>StockPilot</h1>
-          <p>Browser companion</p>
-        </div>
-      </header>
-
+      <header class="brand"><div class="brand-mark" aria-hidden="true">SP</div><div><h1>StockPilot</h1><p>Browser companion</p></div></header>
       <form id="server-form" novalidate>
         <label for="server-url">Server URL</label>
-        <input
-          id="server-url"
-          name="serverUrl"
-          type="url"
-          inputmode="url"
-          autocomplete="url"
-          placeholder="https://stockpilot.example.com"
-          required
-        />
+        <input id="server-url" name="serverUrl" type="url" inputmode="url" autocomplete="url" placeholder="https://stockpilot.example.com" required />
         <button class="primary" type="submit">Save &amp; connect</button>
       </form>
-
-      <section class="status-card" aria-live="polite">
-        <span id="status-dot" class="status-dot" aria-hidden="true"></span>
-        <div>
-          <strong id="status-title">Not connected</strong>
-          <p id="status-detail">Configure your StockPilot server.</p>
-        </div>
-      </section>
-
-      <div class="actions">
-        <button id="refresh-button" type="button">Check status</button>
-        <button id="open-button" class="primary" type="button" disabled>Open StockPilot</button>
-      </div>
-
+      <section class="status-card" aria-live="polite"><span id="status-dot" class="status-dot" aria-hidden="true"></span><div><strong id="status-title">Not connected</strong><p id="status-detail">Configure your StockPilot server.</p></div></section>
+      <div class="actions"><button id="refresh-button" type="button">Check status</button><button id="scan-button" type="button">Scan code</button><button id="open-button" class="primary" type="button" disabled>Open StockPilot</button></div>
+      <section id="scanner" class="scanner" hidden aria-label="Barcode scanner"><video id="scanner-video" playsinline muted></video><p id="scanner-status" aria-live="polite">Starting scanner…</p><button id="close-scanner" type="button">Close scanner</button><form id="manual-form" novalidate><label for="manual-code">Barcode / QR value</label><input id="manual-code" autocomplete="off" inputmode="numeric" maxlength="128" placeholder="Enter code manually" /><button class="primary" type="submit">Use code</button></form></section>
+      <section id="scan-result" class="result-card" aria-live="polite" hidden><strong id="result-title">Scan result</strong><p id="result-detail"></p><button id="open-result" class="primary" type="button">Open in StockPilot</button></section>
       <p id="error" class="error" role="alert" hidden></p>
       <footer>Made by the Sanskar</footer>
     </main>
