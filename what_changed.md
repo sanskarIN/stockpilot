@@ -2,28 +2,26 @@
 
 ## Current milestone
 
-Phase 12 — lot inventory visibility.
+Phase 13 — browser camera barcode/QR scanning.
 
 ## Repository state
 
 - Default branch: `main`.
-- Merged mainline includes Android/browser quality gates, reporting/replenishment, catalog management, guided inventory operations, warehouse/location lifecycle management, multi-line purchasing and receiving, lot/expiry-aware receiving, atomic new-lot receiving, purchase-order lifecycle controls, append-only auditability with a web viewer, and reorder-to-draft assistance.
-- Active branch: `feat/lot-inventory-view`.
+- Merged mainline includes Android/browser quality gates, reporting/replenishment, catalog management, guided inventory operations, warehouse/location lifecycle management, multi-line purchasing and receiving, lot/expiry-aware receiving, atomic new-lot receiving, purchase-order lifecycle controls, append-only auditability with a web viewer, reorder-to-draft assistance, and lot inventory visibility.
+- Active branch: `feat/barcode-camera-scanner`.
 - The continuation intentionally preserves focused commits instead of squashing feature history.
 
 ## Completed in this continuation
 
-- [x] Added a lot-inventory domain read model covering product, lot, location, warehouse, quantity, and expiry.
-- [x] Added filtered lot inventory repository support with bounded pagination.
-- [x] Added PostgreSQL lot inventory projection from authoritative `inventory_balances` lot rows.
-- [x] Added product, warehouse, location, lot, and expiry-cutoff filters.
-- [x] Added strict `YYYY-MM-DD` expiry query validation.
-- [x] Added web lot inventory API client and typed row model.
-- [x] Added dedicated web lot inventory screen with expiry-risk classification.
-- [x] Added dashboard/navigation entry for lot inventory.
-- [x] Added responsive lot-inventory styling and pagination controls.
-- [x] Added HTTP regression coverage for lot inventory retrieval and expiry-date validation.
-- [x] Updated roadmap and changelog for the lot inventory milestone.
+- [x] Added a reusable web barcode/QR scanner using `BarcodeDetector` when the browser provides it.
+- [x] Requested audio-free, rear-facing camera video where supported.
+- [x] Added deterministic scanner cleanup that stops camera tracks when the scanner closes or unmounts.
+- [x] Added graceful fallback for browsers without camera detection support or without granted camera access.
+- [x] Added manual barcode entry so product management remains usable without camera APIs.
+- [x] Connected scanning to the existing product barcode field without auto-saving.
+- [x] Preserved the normal product validation and save flow after scanning.
+- [x] Added responsive scanner presentation and compact mobile controls.
+- [x] Updated roadmap and changelog for the browser scanning milestone.
 
 ## Verification status
 
@@ -31,22 +29,23 @@ The connected GitHub environment does not expose a local project shell, so this 
 
 ## Known limitations
 
-- The lot inventory endpoint currently returns positive on-hand lot balances only.
-- Expiry-risk labels are computed in the web client from the current browser date.
+- Camera scanning is currently implemented in the web product form; Android inventory scanning remains pending.
+- Browser support depends on `BarcodeDetector` availability and camera permissions.
+- Scanned values populate an unsaved draft; users must explicitly save a product.
+- Browser companion scan-to-product/inventory actions remain pending.
 - Authentication/session audit events are not yet emitted.
 - CSV import/export and advanced analytics remain pending.
 - Browser E2E, Android instrumentation, accessibility, restore, and release-artifact checks remain pending.
-- Barcode/QR camera scanning UI remains pending.
 
 ## Next exact tasks
 
-1. Extend audit coverage to authentication/session and future import/export mutations.
-2. Add CSV product import with dry-run validation and row-level errors.
-3. Add CSV inventory/report export.
-4. Add inventory aging, configurable expiry-risk, movement-velocity, supplier, and replenishment analytics.
-5. Add barcode/QR camera scanning UI for supported clients.
-6. Add browser E2E, Android instrumentation, accessibility, restore, and release-artifact checks.
-7. Add automated backup retention examples and concurrent database integration coverage.
+1. Add Android camera barcode/QR scanning and inventory/product handoff.
+2. Add browser companion scan-to-product/inventory action.
+3. Extend audit coverage to authentication/session and future import/export mutations.
+4. Add CSV product import with dry-run validation and row-level errors.
+5. Add CSV inventory/report export.
+6. Add inventory aging, expiry-risk, movement-velocity, supplier, and replenishment analytics.
+7. Add browser E2E, Android instrumentation, accessibility, restore, and release-artifact checks.
 
 ## Commit discipline
 
