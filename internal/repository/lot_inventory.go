@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/sanskarIN/stockpilot/internal/domain"
 )
@@ -11,7 +12,7 @@ type LotInventoryFilter struct {
 	WarehouseID string
 	LocationID string
 	LotID      string
-	ExpiringBy *string
+	ExpiringBy *time.Time
 	Limit      int
 	Offset     int
 }
