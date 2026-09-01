@@ -28,18 +28,20 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Multi-line purchase-order creation, draft editing, per-line receiving, and draft-order total calculation.
 - Reorder-suggestion actions that seed reviewed draft purchase orders without auto-submitting them.
 - Warehouse/location edit, archive, and reactivation workflows with server-side integrity guards.
+- Lot inventory visibility with product, warehouse, location, lot, quantity, and expiry-risk filters.
 
 ### Changed
 
 - Dashboard stock health now uses product-level reorder recommendations instead of counting every low-stock location independently.
 - Dashboard reporting now includes replenishment and inventory valuation insights.
-- Repository contracts expose barcode lookup, replenishment, valuation, lot listing, order lifecycle, audit, draft-order update, reorder workflow, and warehouse/location lifecycle capabilities.
+- Repository contracts expose barcode lookup, replenishment, valuation, lot listing, order lifecycle, audit, draft-order update, reorder workflow, warehouse/location lifecycle, and lot inventory capabilities.
 - Purchasing supports deliberate `draft → ordered/cancelled` transitions; partial/received states remain receipt-controlled.
 - Receiving reuses existing lots for partial receipts and creates new lots atomically when required.
 - Sensitive successful mutations now emit auditable actor/action/entity/request records.
 - Draft purchase orders can now be edited transactionally until submission.
 - Reorder alerts can open the standard purchasing editor with a reviewed product/quantity proposal; persistence still requires explicit user confirmation.
 - Warehouse/location administration can edit active records, archive historical records instead of deleting them, and reactivate archived records when safe.
+- Lot inventory ordering prioritizes soonest-expiring stock and supports bounded pagination and expiry cutoffs.
 
 ### Security
 

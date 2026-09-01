@@ -2,29 +2,28 @@
 
 ## Current milestone
 
-Phase 11 — warehouse/location lifecycle.
+Phase 12 — lot inventory visibility.
 
 ## Repository state
 
 - Default branch: `main`.
-- Merged mainline includes Android/browser quality gates, reporting/replenishment, catalog management, guided inventory operations, warehouse/location administration, multi-line purchasing and receiving, lot/expiry-aware receiving, atomic new-lot receiving, purchase-order lifecycle controls, append-only auditability with a web viewer, and reorder-to-draft assistance.
-- Active branch: `feat/warehouse-location-lifecycle`.
+- Merged mainline includes Android/browser quality gates, reporting/replenishment, catalog management, guided inventory operations, warehouse/location lifecycle management, multi-line purchasing and receiving, lot/expiry-aware receiving, atomic new-lot receiving, purchase-order lifecycle controls, append-only auditability with a web viewer, and reorder-to-draft assistance.
+- Active branch: `feat/lot-inventory-view`.
 - The continuation intentionally preserves focused commits instead of squashing feature history.
 
 ## Completed in this continuation
 
-- [x] Added repository contracts for warehouse and location updates.
-- [x] Added transactional PostgreSQL warehouse/location update persistence.
-- [x] Added server-side archive guards for warehouses with active locations.
-- [x] Added server-side archive guards for locations with non-zero inventory.
-- [x] Prevented activation of locations under archived warehouses.
-- [x] Added authenticated PUT endpoints for warehouse and location updates.
-- [x] Added audit events for warehouse and location updates.
-- [x] Added warehouse/location web edit, archive, and reactivation controls.
-- [x] Added management visibility for inactive records.
-- [x] Added HTTP regression coverage for warehouse editing and location archival.
-- [x] Added dedicated responsive lifecycle styling.
-- [x] Updated roadmap and changelog for the lifecycle milestone.
+- [x] Added a lot-inventory domain read model covering product, lot, location, warehouse, quantity, and expiry.
+- [x] Added filtered lot inventory repository support with bounded pagination.
+- [x] Added PostgreSQL lot inventory projection from authoritative `inventory_balances` lot rows.
+- [x] Added product, warehouse, location, lot, and expiry-cutoff filters.
+- [x] Added strict `YYYY-MM-DD` expiry query validation.
+- [x] Added web lot inventory API client and typed row model.
+- [x] Added dedicated web lot inventory screen with expiry-risk classification.
+- [x] Added dashboard/navigation entry for lot inventory.
+- [x] Added responsive lot-inventory styling and pagination controls.
+- [x] Added HTTP regression coverage for lot inventory retrieval and expiry-date validation.
+- [x] Updated roadmap and changelog for the lot inventory milestone.
 
 ## Verification status
 
@@ -32,22 +31,22 @@ The connected GitHub environment does not expose a local project shell, so this 
 
 ## Known limitations
 
-- Warehouse edits do not yet expose per-field conflict/version detection beyond row locking.
-- Lot inventory views by location/quantity/expiry remain pending.
+- The lot inventory endpoint currently returns positive on-hand lot balances only.
+- Expiry-risk labels are computed in the web client from the current browser date.
 - Authentication/session audit events are not yet emitted.
 - CSV import/export and advanced analytics remain pending.
-- Barcode/QR camera scanning UI remains pending.
 - Browser E2E, Android instrumentation, accessibility, restore, and release-artifact checks remain pending.
+- Barcode/QR camera scanning UI remains pending.
 
 ## Next exact tasks
 
-1. Add lot inventory views by location, quantity, and expiry sorting.
-2. Extend audit coverage to authentication/session and future import/export mutations.
-3. Add CSV product import with dry-run validation and row-level errors.
-4. Add CSV inventory/report export.
-5. Add inventory aging, expiry-risk, movement-velocity, supplier, and replenishment analytics.
+1. Extend audit coverage to authentication/session and future import/export mutations.
+2. Add CSV product import with dry-run validation and row-level errors.
+3. Add CSV inventory/report export.
+4. Add inventory aging, configurable expiry-risk, movement-velocity, supplier, and replenishment analytics.
+5. Add barcode/QR camera scanning UI for supported clients.
 6. Add browser E2E, Android instrumentation, accessibility, restore, and release-artifact checks.
-7. Add barcode/QR camera scanning UI for supported clients.
+7. Add automated backup retention examples and concurrent database integration coverage.
 
 ## Commit discipline
 

@@ -2,9 +2,20 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/sanskarIN/stockpilot/internal/domain"
 )
+
+type LotInventoryFilter struct {
+	ProductID  string
+	WarehouseID string
+	LocationID string
+	LotID      string
+	ExpiringBy *time.Time
+	Limit      int
+	Offset     int
+}
 
 type Inventory interface {
 	CreateWarehouse(context.Context, domain.Warehouse) error
@@ -21,4 +32,5 @@ type Inventory interface {
 	ListLowStock(context.Context, int) ([]domain.StockBalance, error)
 	ListReorderSuggestions(context.Context, int) ([]domain.ReorderSuggestion, error)
 	GetInventoryValuation(context.Context, int) (domain.InventoryValuationReport, error)
+	ListLotInventory(context.Context, LotInventoryFilter) ([]domain.LotInventoryRow, error)
 }
