@@ -10,7 +10,7 @@ type LoadState =
 const navigation = ["Overview", "Products", "Inventory", "Purchase orders", "Warehouses", "Reports"];
 const emptyValuation: InventoryValuationReport = { items: [], totals: [] };
 
-export function Dashboard({ user, onLogout, onSessionExpired }: { user: User; onLogout: () => Promise<void>; onSessionExpired: () => void }) {
+export function Dashboard({ user, onLogout, onSessionExpired, onOpenProducts }: { user: User; onLogout: () => Promise<void>; onSessionExpired: () => void; onOpenProducts: () => void }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [reorderSuggestions, setReorderSuggestions] = useState<ReorderSuggestion[]>([]);
   const [valuation, setValuation] = useState<InventoryValuationReport>(emptyValuation);
@@ -73,9 +73,15 @@ export function Dashboard({ user, onLogout, onSessionExpired }: { user: User; on
         </a>
         <nav>
           {navigation.map((item, index) => (
-            <a className={index === 0 ? "nav-link active" : "nav-link"} href={index === 0 ? "#main" : `#${item.toLowerCase().replaceAll(" ", "-")}`} key={item}>
-              <span aria-hidden="true" className="nav-dot" />{item}
-            </a>
+            item === "Products" ? (
+              <button className="nav-link nav-button" type="button" onClick={onOpenProducts} key={item}>
+                <span aria-hidden="true" className="nav-dot" />{item}
+              </button>
+            ) : (
+              <a className={index === 0 ? "nav-link active" : "nav-link"} href={index === 0 ? "#main" : `#${item.toLowerCase().replaceAll(" ", "-")}`} key={item}>
+                <span aria-hidden="true" className="nav-dot" />{item}
+              </a>
+            )
           ))}
         </nav>
         <div className="sidebar-footer">
@@ -180,9 +186,12 @@ export function Dashboard({ user, onLogout, onSessionExpired }: { user: User; on
           </article>
 
           <article className="panel" aria-labelledby="catalog-title">
-            <div className="panel-heading"><div><p className="eyebrow">Catalog</p><h2 id="catalog-title">Recent products</h2></div></div>
+            <div className="panel-heading">
+              <div><p className="eyebrow">Catalog</p><h2 id="catalog-title">Recent products</h2></div>
+              <button className="secondary-button compact-button" type="button" onClick={onOpenProducts}>Manage catalog</button>
+            </div>
             {products.length === 0 && state.kind !== "loading" ? (
-              <EmptyState title="Catalog is empty" body="Create the first product through the API to begin tracking inventory." />
+              <EmptyState title="Catalog is empty" body="Create the first product to begin tracking inventory." />
             ) : (
               <ul className="activity-list">
                 {products.slice(0, 6).map((product) => (
