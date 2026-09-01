@@ -30,6 +30,7 @@ This roadmap reflects the current repository state.
 - [x] Browser camera barcode/QR scanning for product-form barcode entry, with manual fallback.
 - [x] Android barcode/QR scanning with Google Code Scanner and product/lot-inventory handoff.
 - [x] Browser companion barcode/QR scanning with safe handoff to the authenticated StockPilot web origin.
+- [x] Authentication/session audit events for login, session rejection, logout, and account lifecycle mutations.
 
 ## Next — operational workflows
 
@@ -37,7 +38,7 @@ This roadmap reflects the current repository state.
 
 ## Next — auditability and data operations
 
-- [ ] Extend audit coverage to every remaining mutation path, including authentication/session and import/export operations.
+- [ ] Extend audit coverage to import/export operations.
 - [ ] CSV product import with dry-run validation and row-level error reports.
 - [ ] CSV inventory and report export.
 - [ ] Documented automated backup retention deployment examples.
