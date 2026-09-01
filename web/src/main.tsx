@@ -5,7 +5,6 @@ import { Dashboard } from "./Dashboard";
 import { InventoryOperationsScreen } from "./InventoryOperationsScreen";
 import { LoginScreen } from "./LoginScreen";
 import { ProductsScreen } from "./ProductsScreen";
-import { PurchaseOrdersScreen } from "./PurchaseOrdersScreen";
 import { WarehouseLocationScreen } from "./WarehouseLocationScreen";
 import { stockpilotAPI } from "./api";
 import type { User } from "./types";
