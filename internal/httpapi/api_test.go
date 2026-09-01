@@ -14,11 +14,13 @@ import (
 )
 
 type fakeStore struct {
-	createdProduct domain.Product
-	movementActor  string
-	transferActor  string
-	createdOrder   domain.PurchaseOrder
-	receiptActor   string
+	createdProduct     domain.Product
+	movementActor      string
+	transferActor      string
+	createdOrder       domain.PurchaseOrder
+	receiptActor       string
+	reorderSuggestions []domain.ReorderSuggestion
+	valuation          domain.InventoryValuationReport
 }
 
 func (f *fakeStore) CreateCategory(context.Context, domain.Category) error { return nil }
@@ -32,6 +34,12 @@ func (f *fakeStore) CreateProduct(_ context.Context, product domain.Product) err
 func (f *fakeStore) UpdateProduct(context.Context, domain.Product) error { return nil }
 func (f *fakeStore) GetProduct(_ context.Context, id string) (domain.Product, error) {
 	if f.createdProduct.ID == id {
+		return f.createdProduct, nil
+	}
+	return domain.Product{}, domain.ErrNotFound
+}
+func (f *fakeStore) GetProductByBarcode(_ context.Context, barcode string) (domain.Product, error) {
+	if f.createdProduct.Barcode != "" && f.createdProduct.Barcode == barcode {
 		return f.createdProduct, nil
 	}
 	return domain.Product{}, domain.ErrNotFound
@@ -58,6 +66,12 @@ func (f *fakeStore) GetBalance(context.Context, string, string, string) (domain.
 	return domain.StockBalance{}, nil
 }
 func (f *fakeStore) ListLowStock(context.Context, int) ([]domain.StockBalance, error) { return nil, nil }
+func (f *fakeStore) ListReorderSuggestions(context.Context, int) ([]domain.ReorderSuggestion, error) {
+	return f.reorderSuggestions, nil
+}
+func (f *fakeStore) GetInventoryValuation(context.Context, int) (domain.InventoryValuationReport, error) {
+	return f.valuation, nil
+}
 func (f *fakeStore) CreateOrder(_ context.Context, order domain.PurchaseOrder) error {
 	f.createdOrder = order
 	return nil
@@ -223,6 +237,51 @@ func TestReceiveOrderLineUsesAuthenticatedActor(t *testing.T) {
 	}
 	if store.receiptActor != "usr_session" {
 		t.Fatalf("receipt actor = %q, want authenticated user", store.receiptActor)
+	}
+}
+
+func TestBarcodeLookupReturnsMatchingProduct(t *testing.T) {
+	store := &fakeStore{createdProduct: domain.Product{ID: "prd_1", SKU: "SKU-1", Name: "Widget", Barcode: "8901234567890", Unit: "piece", Currency: "INR", Active: true}}
+	handler := New(store, store, store, func(context.Context) error { return nil }, nil, nil)
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/api/v1/products/by-barcode/8901234567890", nil))
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d; body=%s", recorder.Code, http.StatusOK, recorder.Body.String())
+	}
+	if !strings.Contains(recorder.Body.String(), `"sku":"SKU-1"`) {
+		t.Fatalf("body = %q, want matching SKU", recorder.Body.String())
+	}
+}
+
+func TestReorderSuggestionsEndpoint(t *testing.T) {
+	store := &fakeStore{reorderSuggestions: []domain.ReorderSuggestion{{ProductID: "prd_1", SKU: "SKU-1", Name: "Widget", OnHand: 3, ReorderPoint: 5, ReorderQuantity: 10, TargetStock: 15, SuggestedQuantity: 12}}}
+	handler := New(store, store, store, func(context.Context) error { return nil }, nil, nil)
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/api/v1/inventory/reorder-suggestions?limit=10", nil))
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d; body=%s", recorder.Code, http.StatusOK, recorder.Body.String())
+	}
+	if !strings.Contains(recorder.Body.String(), `"suggestedQuantity":12`) {
+		t.Fatalf("body = %q, want suggested quantity", recorder.Body.String())
+	}
+}
+
+func TestInventoryValuationEndpoint(t *testing.T) {
+	store := &fakeStore{valuation: domain.InventoryValuationReport{
+		Items:  []domain.InventoryValuationItem{{ProductID: "prd_1", SKU: "SKU-1", Name: "Widget", Unit: "piece", OnHand: 4, UnitCostMinor: 2500, Currency: "INR", ValueMinor: 10000}},
+		Totals: []domain.InventoryValuationTotal{{Currency: "INR", ValueMinor: 10000}},
+	}}
+	handler := New(store, store, store, func(context.Context) error { return nil }, nil, nil)
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/api/v1/reports/inventory-valuation", nil))
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d; body=%s", recorder.Code, http.StatusOK, recorder.Body.String())
+	}
+	if !strings.Contains(recorder.Body.String(), `"valueMinor":10000`) || !strings.Contains(recorder.Body.String(), `"currency":"INR"`) {
+		t.Fatalf("body = %q, want INR valuation", recorder.Body.String())
 	}
 }
 
