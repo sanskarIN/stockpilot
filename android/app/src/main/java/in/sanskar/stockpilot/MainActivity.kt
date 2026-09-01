@@ -1,6 +1,7 @@
 package `in`.sanskar.stockpilot
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -16,14 +17,17 @@ class MainActivity : Activity() {
     private lateinit var preferences: AppPreferences
     private lateinit var sessionStore: SecureSessionStore
     private lateinit var apiClient: ApiClient
+    private lateinit var barcodeScanner: BarcodeScanCoordinator
     private var loginView: LoginView? = null
     private var dashboardView: DashboardView? = null
+    private var scanInProgress = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         preferences = AppPreferences(this)
         sessionStore = SecureSessionStore(this)
         apiClient = ApiClient(sessionStore)
+        barcodeScanner = BarcodeScanCoordinator(this)
 
         if (apiClient.hasSession() && preferences.serverUrl().isNotBlank()) {
             showDashboard()
@@ -53,10 +57,73 @@ class MainActivity : Activity() {
         val view = DashboardView(this).apply {
             onRefresh = ::refreshDashboard
             onLogout = ::signOut
+            onScanBarcode = ::scanBarcode
         }
         dashboardView = view
         loginView = null
         installContent(view)
+    }
+
+    private fun scanBarcode() {
+        if (scanInProgress || preferences.serverUrl().isBlank()) return
+        scanInProgress = true
+        dashboardView?.showError(null)
+        barcodeScanner.start(
+            onDetected = { rawValue ->
+                scanInProgress = false
+                lookupScannedProduct(rawValue)
+            },
+            onCancelled = {
+                scanInProgress = false
+                dashboardView?.showError(null)
+            },
+            onFailure = { error ->
+                scanInProgress = false
+                dashboardView?.showError("Scanner unavailable: ${error.message ?: "Please try again."}")
+            },
+        )
+    }
+
+    private fun lookupScannedProduct(rawValue: String) {
+        val serverUrl = preferences.serverUrl()
+        dashboardView?.showError(null)
+        dashboardView?.setLoading(true)
+        executor.execute {
+            runCatching { apiClient.productByBarcode(serverUrl, rawValue) }
+                .onSuccess { product ->
+                    postToUi {
+                        dashboardView?.setLoading(false)
+                        showProductDialog(rawValue, product)
+                    }
+                }
+                .onFailure { error ->
+                    postToUi {
+                        dashboardView?.setLoading(false)
+                        when {
+                            error is AuthenticationRequiredException || (error is ApiException && error.statusCode == 401) ->
+                                showLogin("Your session expired. Sign in again.")
+                            error is ApiException && error.statusCode == 404 ->
+                                dashboardView?.showError("No product matches barcode $rawValue.")
+                            else ->
+                                dashboardView?.showError(error.userMessage())
+                        }
+                    }
+                }
+        }
+    }
+
+    private fun showProductDialog(barcode: String, product: Product) {
+        AlertDialog.Builder(this)
+            .setTitle(product.name.ifBlank { "Product found" })
+            .setMessage(
+                "SKU: ${product.sku}\n" +
+                    "Barcode: $barcode\n" +
+                    "Unit: ${product.unit}\n" +
+                    "Unit cost: ${formatMoney(product.unitCostMinor, product.currency)}\n" +
+                    "Status: ${if (product.active) "Active" else "Inactive"}",
+            )
+            .setPositiveButton("Done", null)
+            .show()
     }
 
     private fun signIn(rawServerUrl: String, email: String, password: String) {
@@ -174,4 +241,10 @@ class MainActivity : Activity() {
         is ApiException -> message
         else -> message ?: "Something went wrong. Please try again."
     }
+
+    private fun formatMoney(minor: Long, currencyCode: String): String = runCatching {
+        java.text.NumberFormat.getCurrencyInstance().apply {
+            currency = java.util.Currency.getInstance(currencyCode)
+        }.format(minor / 100.0)
+    }.getOrElse { "$currencyCode ${minor / 100.0}" }
 }
