@@ -44,5 +44,3 @@ LIMIT ` + limitArg + ` OFFSET ` + offsetArg
 	if err := rows.Err(); err != nil { return nil, err }
 	return items, nil
 }
-
-var _ repository.LotInventory = (*Store)(nil)
