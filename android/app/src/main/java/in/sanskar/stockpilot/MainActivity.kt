@@ -89,11 +89,15 @@ class MainActivity : Activity() {
         dashboardView?.showError(null)
         dashboardView?.setLoading(true)
         executor.execute {
-            runCatching { apiClient.productByBarcode(serverUrl, rawValue) }
-                .onSuccess { product ->
+            runCatching {
+                val product = apiClient.productByBarcode(serverUrl, rawValue)
+                val inventory = runCatching { apiClient.lotInventoryForProduct(serverUrl, product.id) }.getOrDefault(emptyList())
+                product to inventory
+            }
+                .onSuccess { (product, inventory) ->
                     postToUi {
                         dashboardView?.setLoading(false)
-                        showProductDialog(rawValue, product)
+                        showProductDialog(rawValue, product, inventory)
                     }
                 }
                 .onFailure { error ->
@@ -112,7 +116,19 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun showProductDialog(barcode: String, product: Product) {
+    private fun showProductDialog(barcode: String, product: Product, inventory: List<LotInventoryRow>) {
+        val total = inventory.sumOf { it.onHand }
+        val inventoryLines = inventory
+            .take(8)
+            .joinToString("\n") { row ->
+                "${row.warehouse} / ${row.location} · ${row.lotNumber}: ${row.onHand} on hand" +
+                    (row.expiresAt?.let { " · expires ${it.take(10)}" } ?: "")
+            }
+        val stockSummary = when {
+            inventory.isEmpty() -> "On hand: no lot inventory found"
+            inventory.size <= 8 -> "On hand: $total ${product.unit}\n$inventoryLines"
+            else -> "On hand: $total ${product.unit}\n$inventoryLines\n…and ${inventory.size - 8} more rows"
+        }
         AlertDialog.Builder(this)
             .setTitle(product.name.ifBlank { "Product found" })
             .setMessage(
@@ -120,7 +136,8 @@ class MainActivity : Activity() {
                     "Barcode: $barcode\n" +
                     "Unit: ${product.unit}\n" +
                     "Unit cost: ${formatMoney(product.unitCostMinor, product.currency)}\n" +
-                    "Status: ${if (product.active) "Active" else "Inactive"}",
+                    "Status: ${if (product.active) "Active" else "Inactive"}\n\n" +
+                    stockSummary,
             )
             .setPositiveButton("Done", null)
             .show()
