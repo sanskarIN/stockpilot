@@ -17,19 +17,20 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Suggested replenishment quantities targeting reorder point plus reorder quantity.
 - Currency-safe inventory valuation by product and grouped currency total.
 - Exact barcode lookup API for scanner-driven clients.
-- PostgreSQL and HTTP regression coverage for the reporting capabilities.
+- PostgreSQL and HTTP regression coverage for reporting capabilities.
 - Security policy, contributor workflow, API compatibility policy, architecture guide, restore drill, release checklist, and issue/PR templates.
 - Product catalog management, guided inventory operations, warehouse/location administration, and purchase-order creation/receiving workflows.
-- Lot-aware receiving with reusable existing lots, new-lot creation, manufacturing/expiry metadata, and configurable near-expiry warnings.
-- Atomic new-lot receipt transactions that roll back lot creation when inventory receiving fails.
+- Lot-aware receiving with reusable lots, new-lot creation, manufacturing/expiry metadata, and near-expiry warnings.
+- Atomic new-lot receipt transactions that roll back lot creation when receipt processing fails.
+- Explicit purchase-order lifecycle transitions for deliberate draft submission and cancellation.
 
 ### Changed
 
 - Dashboard stock health now uses product-level reorder recommendations instead of counting every low-stock location independently.
 - Dashboard reporting now includes replenishment and inventory valuation insights.
-- Repository contracts expose barcode lookup, replenishment, valuation, and lot-listing capabilities.
-- Receiving now distinguishes existing lots from new lots, preventing duplicate batches during partial receipts.
-- New-lot receipts are committed atomically with the purchase-order receipt and inventory movement.
+- Repository contracts expose barcode lookup, replenishment, valuation, lot listing, and order lifecycle capabilities.
+- Purchasing now supports deliberate `draft → ordered/cancelled` transitions; partial/received states remain receipt-controlled.
+- Receiving reuses existing lots for partial receipts and creates new lots atomically when required.
 
 ### Security
 
@@ -39,7 +40,7 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Browser companion permissions remain scoped to the configured StockPilot origin.
 - Valuation arithmetic is calculated with PostgreSQL numeric values before checked conversion to `int64`.
 - Lot ownership and product tracking policy remain enforced server-side during inventory mutations.
-- Atomic receiving prevents a failed stock transaction from leaving an uncommitted new lot.
+- Purchase-order status transitions are row-locked and validated by the domain state machine.
 
 ## Release discipline
 
