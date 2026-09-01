@@ -4,16 +4,17 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
-	"time"
 
 	"github.com/sanskarIN/stockpilot/internal/domain"
 )
 
 func (f *fakeStore) ReceiveLineWithNewLot(_ context.Context, _ string, _ string, _ int64, _ string, lot domain.Lot, actorID string) error {
+	lot.ProductID = "prd_test"
+	if err := lot.Validate(); err != nil {
+		return err
+	}
 	f.receiptActor = actorID
-	f.createdOrder.Lines = append(f.createdOrder.Lines, domain.PurchaseOrderLine{ProductID: lot.ProductID, ID: lot.ID})
 	return nil
 }
 
@@ -39,13 +40,7 @@ func TestReceiveOrderLineNewLotRejectsInvalidDateOrdering(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	handler.ServeHTTP(recorder, request)
 
-	if recorder.Code != http.StatusOK {
-		// The fake repository intentionally accepts the payload; domain-level date
-		// validation belongs to the real transactional implementation.
-		t.Fatalf("unexpected handler failure: status=%d body=%s", recorder.Code, recorder.Body.String())
-	}
-	_ = time.Time{}
-	if strings.TrimSpace(recorder.Body.String()) == "" {
-		t.Fatal("expected a JSON response")
+	if recorder.Code != http.StatusBadRequest {
+		t.Fatalf("status = %d, want %d; body=%s", recorder.Code, http.StatusBadRequest, recorder.Body.String())
 	}
 }
