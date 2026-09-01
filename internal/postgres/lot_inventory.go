@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/sanskarIN/stockpilot/internal/domain"
 	"github.com/sanskarIN/stockpilot/internal/repository"
 )
@@ -14,7 +13,7 @@ func (s *Store) ListLotInventory(ctx context.Context, filter repository.LotInven
 	if filter.Limit <= 0 { filter.Limit = 100 }
 	if filter.Limit > 500 { filter.Limit = 500 }
 	if filter.Offset < 0 { filter.Offset = 0 }
-	conditions := []string{"b.lot_id IS NOT NULL", "b.quantity > 0", "l.active = true", "w.active = true"}
+	conditions := []string{"b.lot_id IS NOT NULL", "b.quantity > 0", "loc.active = true", "w.active = true"}
 	args := make([]any, 0, 8)
 	arg := func(value any) string { args = append(args, value); return fmt.Sprintf("$%d", len(args)) }
 	if strings.TrimSpace(filter.ProductID) != "" { conditions = append(conditions, "b.product_id="+arg(strings.TrimSpace(filter.ProductID))) }
@@ -47,4 +46,3 @@ LIMIT ` + limitArg + ` OFFSET ` + offsetArg
 }
 
 var _ repository.LotInventory = (*Store)(nil)
-var _ = pgx.ErrNoRows
