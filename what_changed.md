@@ -2,26 +2,26 @@
 
 ## Current milestone
 
-Phase 13 — browser camera barcode/QR scanning.
+Phase 14 — Android and browser companion barcode/QR handoff.
 
 ## Repository state
 
 - Default branch: `main`.
-- Merged mainline includes Android/browser quality gates, reporting/replenishment, catalog management, guided inventory operations, warehouse/location lifecycle management, multi-line purchasing and receiving, lot/expiry-aware receiving, atomic new-lot receiving, purchase-order lifecycle controls, append-only auditability with a web viewer, reorder-to-draft assistance, and lot inventory visibility.
-- Active branch: `feat/barcode-camera-scanner`.
+- Merged mainline includes Android/browser quality gates, reporting/replenishment, catalog management, guided inventory operations, warehouse/location lifecycle management, multi-line purchasing and receiving, lot/expiry-aware receiving, atomic new-lot receiving, purchase-order lifecycle controls, append-only auditability with a web viewer, reorder-to-draft assistance, lot inventory visibility, browser camera scanning, and Android scanner handoff.
+- Active branch: `feat/extension-scan-handoff`.
 - The continuation intentionally preserves focused commits instead of squashing feature history.
 
 ## Completed in this continuation
 
-- [x] Added a reusable web barcode/QR scanner using `BarcodeDetector` when the browser provides it.
-- [x] Requested audio-free, rear-facing camera video where supported.
-- [x] Added deterministic scanner cleanup that stops camera tracks when the scanner closes or unmounts.
-- [x] Added graceful fallback for browsers without camera detection support or without granted camera access.
-- [x] Added manual barcode entry so product management remains usable without camera APIs.
-- [x] Connected scanning to the existing product barcode field without auto-saving.
-- [x] Preserved the normal product validation and save flow after scanning.
-- [x] Added responsive scanner presentation and compact mobile controls.
-- [x] Updated roadmap and changelog for the browser scanning milestone.
+- [x] Added Android barcode/QR scanning with Google Code Scanner.
+- [x] Added QR, EAN, UPC, Code 39, and Code 128 scanning configuration.
+- [x] Added authenticated exact-barcode product lookup from Android.
+- [x] Added scanned product detail and current lot/location inventory handoff.
+- [x] Added Android scanner integration documentation.
+- [x] Added browser companion barcode/QR scanner with manual fallback.
+- [x] Added safe scanner handoff to the authenticated StockPilot web origin without copying session cookies.
+- [x] Added extension scanner styling and dedicated documentation.
+- [x] Updated roadmap and changelog for both client scanning milestones.
 
 ## Verification status
 
@@ -29,23 +29,20 @@ The connected GitHub environment does not expose a local project shell, so this 
 
 ## Known limitations
 
-- Camera scanning is currently implemented in the web product form; Android inventory scanning remains pending.
-- Browser support depends on `BarcodeDetector` availability and camera permissions.
-- Scanned values populate an unsaved draft; users must explicitly save a product.
-- Browser companion scan-to-product/inventory actions remain pending.
+- Browser companion handoff currently opens the StockPilot web origin with a barcode query; direct inventory workflow selection remains pending.
 - Authentication/session audit events are not yet emitted.
 - CSV import/export and advanced analytics remain pending.
 - Browser E2E, Android instrumentation, accessibility, restore, and release-artifact checks remain pending.
 
 ## Next exact tasks
 
-1. Add Android camera barcode/QR scanning and inventory/product handoff.
-2. Add browser companion scan-to-product/inventory action.
-3. Extend audit coverage to authentication/session and future import/export mutations.
-4. Add CSV product import with dry-run validation and row-level errors.
-5. Add CSV inventory/report export.
-6. Add inventory aging, expiry-risk, movement-velocity, supplier, and replenishment analytics.
-7. Add browser E2E, Android instrumentation, accessibility, restore, and release-artifact checks.
+1. Extend authentication and session events into the append-only audit trail.
+2. Add CSV product import with dry-run validation and row-level errors.
+3. Add CSV inventory/report export with audit events.
+4. Add inventory aging, configurable expiry-risk, movement-velocity, supplier, and replenishment analytics.
+5. Extend companion barcode handoff to direct inventory workflow selection.
+6. Add browser E2E, Android instrumentation, accessibility, restore, and release-artifact checks.
+7. Add automated backup retention examples and concurrent database integration coverage.
 
 ## Commit discipline
 
