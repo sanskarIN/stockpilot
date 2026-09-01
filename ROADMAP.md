@@ -22,14 +22,16 @@ This roadmap reflects the current repository state.
 - [x] Guided web inventory operations for stock-in, stock-out, signed adjustments, and transfers.
 - [x] Warehouse/location administration workflow with timezone and warehouse association support.
 - [x] Purchase-order draft creation, order register, detail view, and controlled inventory receiving workflow.
+- [x] Lot-aware receiving with reusable existing lots, new-lot creation, manufacturing/expiry dates, and expiry-risk warnings.
+- [x] Reusable product lot listing API and PostgreSQL repository contract.
 
 ## Next — operational workflows
 
 - [ ] Barcode/QR camera scanning UI for supported clients.
-- [ ] Lot and expiry-aware receiving with expiry warnings.
 - [ ] Reorder suggestion actions that can seed draft purchase orders without bypassing approval rules.
 - [ ] Purchase-order multi-line editing and explicit approval-state controls.
 - [ ] Warehouse/location edit and archive workflows.
+- [ ] Lot inventory view with quantity by lot/location and expiry sorting.
 
 ## Next — auditability and data operations
 
