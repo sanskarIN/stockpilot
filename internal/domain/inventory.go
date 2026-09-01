@@ -56,6 +56,40 @@ type StockBalance struct {
 	UpdatedAt  time.Time `json:"updatedAt"`
 }
 
+type ReorderSuggestion struct {
+	ProductID         string `json:"productId"`
+	SKU               string `json:"sku"`
+	Name              string `json:"name"`
+	SupplierID        string `json:"supplierId,omitempty"`
+	Unit              string `json:"unit"`
+	OnHand            int64  `json:"onHand"`
+	ReorderPoint      int64  `json:"reorderPoint"`
+	ReorderQuantity   int64  `json:"reorderQuantity"`
+	TargetStock       int64  `json:"targetStock"`
+	SuggestedQuantity int64  `json:"suggestedQuantity"`
+}
+
+type InventoryValuationItem struct {
+	ProductID     string `json:"productId"`
+	SKU           string `json:"sku"`
+	Name          string `json:"name"`
+	Unit          string `json:"unit"`
+	OnHand        int64  `json:"onHand"`
+	UnitCostMinor int64  `json:"unitCostMinor"`
+	Currency      string `json:"currency"`
+	ValueMinor    int64  `json:"valueMinor"`
+}
+
+type InventoryValuationTotal struct {
+	Currency   string `json:"currency"`
+	ValueMinor int64  `json:"valueMinor"`
+}
+
+type InventoryValuationReport struct {
+	Items  []InventoryValuationItem  `json:"items"`
+	Totals []InventoryValuationTotal `json:"totals"`
+}
+
 type StockMovement struct {
 	ID            string       `json:"id"`
 	ProductID     string       `json:"productId"`

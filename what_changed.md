@@ -2,61 +2,57 @@
 
 ## Current milestone
 
-Phase 1 — clean end-to-end MVP foundation.
+Phase 2 — reporting/replenishment integration and release-readiness hardening.
 
-## Repository state reviewed
+## Repository state
 
 - Default branch: `main`.
-- Existing history before this continuation: repository initialization plus development/Docker foundation.
-- No open GitHub issues were present at the start of this continuation.
-- The repository did not yet contain application source directories, migrations, web source, tests, or this continuity log.
+- `ci: verify Android and browser companion quality gates` was merged as PR #9.
+- PR #10 remains open because its original branch predates PR #9 and now conflicts with the updated `main`; its functionality is being reconciled on `feat/replenishment-reporting-v2` without rewriting the published branch.
+- The current work intentionally uses small, reviewable commits rather than squashing feature history.
 
-## Completed work
+## Completed in the current continuation
 
-- [x] Repository metadata and existing development foundation reviewed.
-- [x] Master development prompt re-read and used as the requirements baseline.
-- [ ] Domain model for catalog, warehouses/locations, inventory, purchasing, and auditability.
-- [ ] PostgreSQL schema and first migration.
-- [ ] Backend configuration, database connection, HTTP server, health/readiness endpoints.
-- [ ] Initial React/TypeScript web shell and responsive dashboard foundation.
-- [ ] Domain/service tests for high-risk inventory rules.
-- [ ] Documentation and CI baseline.
+- [x] Added a security policy covering reporting, secrets, TLS, authorization, and dependency review.
+- [x] Added contributor workflow and focused-commit guidance.
+- [x] Added pull-request and issue templates.
+- [x] Added API compatibility policy.
+- [x] Added layered architecture documentation.
+- [x] Added reproducible release checklist.
+- [x] Added PostgreSQL restore-drill procedure.
+- [x] Added replenishment and valuation domain read models.
+- [x] Added repository contracts for barcode lookup, replenishment suggestions, and inventory valuation.
+- [x] Added exact barcode persistence lookup and HTTP handler.
+- [x] Added replenishment and valuation PostgreSQL queries with checked numeric conversion.
+- [x] Added HTTP routes for barcode lookup, reorder suggestions, and inventory valuation.
+- [x] Added unit and PostgreSQL integration tests for reporting calculations and data flow.
+- [x] Added web API support for barcode lookup and reporting.
+- [x] Added typed web models for replenishment and valuation data.
+- [x] Added dashboard presentation of reorder recommendations and valuation totals with role-aware reporting behavior.
+- [x] Added current `CHANGELOG.md` and `ROADMAP.md`.
 
-## Files/modules added or changed in this continuation
+## Verification status
 
-This section is updated as commits land.
-
-## Verification commands and results
-
-- Repository/API inspection: completed through the connected GitHub repository.
-- Local full build is not available from the GitHub connector environment; validation that can be performed without fetching dependencies will be recorded here.
+The GitHub connector does not expose a local shell, so this continuation did not claim to execute the Go, web, Android, or extension test commands locally. The branch contains the requested automated tests and is intended to be validated by GitHub Actions when the pull request is opened.
 
 ## Known limitations
 
-- GitHub connector commit operations do not expose an author-email field. Commits are made through the authenticated GitHub connection; the requested `sanskarin@outlook.in` author email cannot be forced through the available write API.
-- The current `Dockerfile` references backend/frontend paths that were not yet present before this continuation; Phase 1 fills these paths.
+- PR #10 still needs to be reconciled/closed after its functionality is superseded by the new integration branch.
+- Web product-management UI remains in PR #11 and depends on the replenishment branch lineage.
+- Operational UI workflows (inventory mutations, purchasing, warehouse/location administration, lot/expiry flows) remain on the roadmap.
+- Stable-release end-to-end browser and Android instrumentation coverage is still pending.
 
-## Open issues / next exact tasks
+## Next exact tasks
 
-1. Add validated catalog domain entities.
-2. Add warehouses, locations, inventory movements, transfers, and lot tracking.
-3. Add purchase-order domain rules.
-4. Add repository contracts and application services.
-5. Add the initial PostgreSQL migration with constraints and indexes.
-6. Add configuration, pgx pool wiring, and HTTP health/readiness API.
-7. Add the React/TypeScript application shell.
-8. Add tests, documentation, CI, security baseline, and update this log.
+1. Review and merge the replenishment/reporting integration PR.
+2. Reconcile the catalog-management UI on top of the updated `main`.
+3. Add guided inventory and purchase-order workflows to the web client.
+4. Add append-only audit writes for sensitive mutations and expose the audit viewer.
+5. Add CSV import/export and backup-retention deployment examples.
+6. Add aging, expiry-risk, movement-velocity, and supplier analytics.
+7. Add browser E2E and Android instrumentation suites.
+8. Run the full release checklist and restore drill before first stable tagging.
 
-## Migration notes
+## Commit discipline
 
-No database migration had been committed before this continuation.
-
-## Release notes draft
-
-Unreleased Phase 1 foundation: establish the first real StockPilot domain, persistence schema, API process, and web application shell.
-
-## Recent meaningful commits
-
-- `c1da19a` — `build: establish StockPilot development foundation`
-- `b28093c` — `chore: initialize StockPilot repository`
-- `78c6f5a` — `Initial commit`
+Each functional boundary is intentionally represented by an individual commit where practical: documentation, repository contracts, persistence, HTTP handlers/routes, tests, and client integration are kept separately reviewable. GitHub's available connector does not provide an author-email override, so commits use the authenticated GitHub connection identity rather than forcing a specific email address.
