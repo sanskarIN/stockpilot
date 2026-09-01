@@ -1,4 +1,11 @@
-import type { ListResponse, Product, PurchaseOrder, StockBalance, User } from "./types";
+import type {
+  InventoryValuationReport,
+  ListResponse,
+  Product,
+  PurchaseOrder,
+  ReorderSuggestion,
+  User
+} from "./types";
 
 export class APIError extends Error {
   readonly status: number;
@@ -43,6 +50,8 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   return (await response.json()) as T;
 }
 
+const emptyValuation: InventoryValuationReport = { items: [], totals: [] };
+
 export const stockpilotAPI = {
   me: () => request<User>("/api/v1/auth/me"),
   login: (email: string, password: string) =>
@@ -51,15 +60,24 @@ export const stockpilotAPI = {
       body: JSON.stringify({ email, password })
     }),
   logout: () => request<void>("/api/v1/auth/logout", { method: "POST" }),
-  dashboard: async () => {
-    const [products, lowStock, orders] = await Promise.all([
+  productByBarcode: (barcode: string) => request<Product>(`/api/v1/products/by-barcode/${encodeURIComponent(barcode.trim())}`),
+  dashboard: async (includeValuation = true) => {
+    const valuationRequest = includeValuation
+      ? request<InventoryValuationReport>("/api/v1/reports/inventory-valuation?limit=100")
+      : Promise.resolve(emptyValuation);
+    const [products, reorderSuggestions, valuation, orders] = await Promise.all([
       request<ListResponse<Product>>("/api/v1/products?active=true&limit=100"),
-      request<ListResponse<StockBalance>>("/api/v1/inventory/low-stock?limit=100"),
+      request<ListResponse<ReorderSuggestion>>("/api/v1/inventory/reorder-suggestions?limit=100"),
+      valuationRequest,
       request<ListResponse<PurchaseOrder>>("/api/v1/orders?limit=100")
     ]);
     return {
       products: products.items ?? [],
-      lowStock: lowStock.items ?? [],
+      reorderSuggestions: reorderSuggestions.items ?? [],
+      valuation: {
+        items: valuation.items ?? [],
+        totals: valuation.totals ?? []
+      },
       orders: orders.items ?? []
     };
   }
