@@ -12,4 +12,5 @@ type Orders interface {
 	ListOrders(context.Context, domain.PurchaseOrderStatus, int, int) ([]domain.PurchaseOrder, error)
 	ReceiveLine(context.Context, string, string, int64, string, string, string) error
 	ReceiveLineWithNewLot(context.Context, string, string, int64, string, domain.Lot, string) error
+	UpdateOrderStatus(context.Context, string, domain.PurchaseOrderStatus, string) error
 }
