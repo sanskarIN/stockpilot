@@ -20,14 +20,16 @@ This roadmap reflects the current repository state.
 - [x] Security, contributor, architecture, restore, release, and API compatibility documentation.
 - [x] Product catalog create/edit/search web workflow with role-aware controls.
 - [x] Guided web inventory operations for stock-in, stock-out, signed adjustments, and transfers.
+- [x] Warehouse/location administration workflow with timezone and warehouse association support.
+- [x] Purchase-order draft creation, order register, detail view, and inventory receiving workflow.
 
 ## Next — operational workflows
 
-- [ ] Warehouse/location management screens.
-- [ ] Purchase-order creation, editing, approval-state controls, and receiving UI.
 - [ ] Barcode/QR camera scanning UI for supported clients.
 - [ ] Lot and expiry receiving workflows with expiry warnings.
 - [ ] Reorder suggestion actions that can seed draft purchase orders without bypassing approval rules.
+- [ ] Purchase-order multi-line editing and explicit approval-state controls.
+- [ ] Warehouse/location edit, archive, and validation feedback workflows.
 
 ## Next — auditability and data operations
 
