@@ -9,7 +9,7 @@ This roadmap reflects the current repository state.
 - [x] Secure HTTP API with health/readiness endpoints, validation, CORS allowlisting, hardening headers, and request IDs.
 - [x] Authentication with password verification, opaque sessions, CSRF protection, session-token protection, and RBAC.
 - [x] Administrator bootstrap command.
-- [x] React + TypeScript responsive dashboard and PWA behavior.
+- [x] React + TypeScript responsive web dashboard and PWA behavior.
 - [x] Native Android authenticated dashboard with encrypted persisted sessions.
 - [x] Manifest V3 browser companion with scoped optional host permissions.
 - [x] Backend, frontend, Android, extension, CodeQL, and dependency-update CI baselines.
@@ -20,14 +20,16 @@ This roadmap reflects the current repository state.
 - [x] Security, contributor, architecture, restore, release, and API compatibility documentation.
 - [x] Product catalog create/edit/search web workflow with role-aware controls.
 - [x] Guided web inventory operations for stock-in, stock-out, signed adjustments, and transfers.
+- [x] Warehouse/location administration workflow with timezone and warehouse association support.
+- [x] Purchase-order draft creation, order register, detail view, and controlled inventory receiving workflow.
 
 ## Next — operational workflows
 
-- [ ] Warehouse/location management screens.
-- [ ] Purchase-order creation, editing, approval-state controls, and receiving UI.
 - [ ] Barcode/QR camera scanning UI for supported clients.
-- [ ] Lot and expiry receiving workflows with expiry warnings.
+- [ ] Lot and expiry-aware receiving with expiry warnings.
 - [ ] Reorder suggestion actions that can seed draft purchase orders without bypassing approval rules.
+- [ ] Purchase-order multi-line editing and explicit approval-state controls.
+- [ ] Warehouse/location edit and archive workflows.
 
 ## Next — auditability and data operations
 
