@@ -28,10 +28,10 @@ This roadmap reflects the current repository state.
 - [x] Reorder-suggestion actions that seed reviewed draft purchase orders without auto-submitting them.
 - [x] Lot inventory view with product, warehouse, location, lot, quantity, and expiry-risk filtering.
 - [x] Browser camera barcode/QR scanning for product-form barcode entry, with manual fallback.
+- [x] Android barcode/QR scanning with Google Code Scanner and product/lot-inventory handoff.
 
 ## Next — operational workflows
 
-- [ ] Android camera barcode/QR scanning UI and inventory workflow handoff.
 - [ ] Browser companion scan-to-product/inventory action.
 
 ## Next — auditability and data operations

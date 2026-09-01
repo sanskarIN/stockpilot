@@ -9,6 +9,7 @@
     <string name="password_label">Password</string>
     <string name="sign_in_action">Sign in</string>
     <string name="refresh_action">Refresh</string>
+    <string name="scan_barcode_action">Scan barcode</string>
     <string name="sign_out_action">Sign out</string>
     <string name="retry_action">Retry</string>
     <string name="products_title">Products</string>
