@@ -24,16 +24,17 @@ This roadmap reflects the current repository state.
 - [x] Purchase-order creation, register, multi-line editing, multi-line receiving, lot/expiry handling, and atomic new-lot receiving.
 - [x] Purchase-order lifecycle controls for draft submission and cancellation.
 - [x] Append-only audit write path and audit viewer for sensitive business mutations.
+- [x] Authentication/session audit events for login, session rejection, logout, and account lifecycle mutations.
 - [x] Reorder-suggestion actions that seed reviewed draft purchase orders without auto-submitting them.
 - [x] Lot inventory view with product, warehouse, location, lot, quantity, and expiry-risk filtering.
 - [x] Browser camera barcode/QR scanning for product-form barcode entry, with manual fallback.
 - [x] Android barcode/QR scanning with Google Code Scanner and product/lot-inventory handoff.
 - [x] Browser companion barcode/QR scanning with safe handoff to the authenticated StockPilot web origin.
-- [x] Authentication/session audit events for login, session rejection, logout, and account lifecycle mutations.
+- [x] Browser companion workflow selection for product lookup and direct inventory-operation handoff.
 
 ## Next — operational workflows
 
-- [ ] Extend browser companion handoff from product lookup to direct inventory workflow selection.
+- [ ] Extend companion capabilities with a dedicated, independently revocable authentication design if direct extension API access is required.
 
 ## Next — data operations
 
