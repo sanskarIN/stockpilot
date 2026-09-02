@@ -4,17 +4,32 @@ This directory contains the browser-extension foundation for the next StockPilot
 
 ## Current scope
 
-The current companion deliberately has a small permission and security surface:
+The companion deliberately keeps a small permission and security surface:
 
 - configure one StockPilot deployment origin;
 - request host access only after the user selects that server;
 - check the public `/api/v1/meta` and `/readyz` endpoints;
 - display server/version/readiness state;
-- open the configured StockPilot web application;
+- scan supported barcode/QR values with camera or manual fallback;
+- open product lookup or a selected inventory workflow with the scanned value;
 - store only the configured server URL and extension schema version;
 - store no passwords, session cookies, or API credentials.
 
-Authenticated inventory actions are intentionally not included in this preparation version. A later version should use an extension-specific authentication design rather than copying browser session cookies into extension storage.
+The extension never performs an authenticated inventory mutation itself. It hands a barcode and workflow choice to the normal StockPilot web application, where the existing signed-in session, RBAC, CSRF protection, validation, confirmation, and server-side inventory transaction remain authoritative.
+
+## Inventory handoff
+
+After a scan, the popup offers:
+
+- **Product lookup** — opens StockPilot with `barcode` only.
+- **Stock in** — opens with `barcode` and `inventoryOperation=stock_in`.
+- **Stock out** — opens with `barcode` and `inventoryOperation=stock_out`.
+- **Adjust stock** — opens with `barcode` and `inventoryOperation=adjustment`.
+- **Transfer stock** — opens with `barcode` and `inventoryOperation=transfer`.
+
+The web client resolves the barcode through its authenticated product lookup API and preselects the matching product. The inventory screen still requires the user to choose/confirm quantity and location details and explicitly submit the operation.
+
+Query parameters are consumed and removed from the visible browser URL after the initial handoff, so the barcode and workflow selection are not retained in navigation state.
 
 ## Local validation
 
@@ -59,21 +74,25 @@ Chrome match-pattern host permissions are host-scoped rather than port-scoped. T
 - No StockPilot authentication token is currently read or persisted by the extension.
 - Host permission is optional and requested from a direct user gesture.
 - The configured URL is normalized to a deployment origin before persistence.
+- Inventory handoff is navigation-only; the extension cannot create, edit, receive, transfer, or adjust stock directly.
 
 ## Files
 
 - `manifest.json` — Manifest V3 metadata and minimal permissions.
 - `src/background.js` — versioned service-worker bootstrap.
-- `src/popup.html` — accessible toolbar popup markup.
+- `src/popup.html` — accessible toolbar popup markup and inventory action chooser.
 - `src/popup.css` — compact light/dark popup presentation.
-- `src/popup.js` — permission, storage, health-check, and launcher flow.
-- `src/url.js` — server-origin validation and host-pattern generation.
+- `src/popup.js` — permission, storage, health-check, scanning, and workflow handoff flow.
+- `src/scanner.js` — browser-native barcode/QR scanner.
+- `src/url.js` — server-origin validation, host-pattern generation, and safe handoff URL construction.
 - `test/url.test.mjs` — URL and permission-scope unit tests.
 
 ## CI
 
 `.github/workflows/extension.yml` validates the manifest and JavaScript syntax and runs the zero-dependency Node test suite. Pull requests that touch `extension/**` run this quality gate before merge.
 
-## Next authenticated version
+## Authentication boundary
 
-The recommended next step is a dedicated extension credential flow with independently revocable credentials, explicit scopes, expiry, and server-side auditability. That work should be implemented together in the backend and extension instead of reusing or scraping the normal web session cookie.
+The companion does not copy or scrape the normal StockPilot web session cookie. The handoff opens the configured StockPilot origin and lets the web application establish and enforce its own authenticated state.
+
+A future dedicated extension credential flow should use independently revocable credentials, explicit scopes, expiry, and server-side auditability. That work should be implemented together in the backend and extension instead of reusing the normal web session cookie.
