@@ -16,12 +16,14 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Aggregate reorder recommendations, inventory valuation, exact barcode lookup, reporting coverage, catalog management, guided inventory operations, warehouse/location lifecycle, multi-line purchasing, lot/expiry receiving, append-only business auditability, lot inventory visibility, browser/Android barcode scanning, and companion scan handoff.
 - Authentication/session audit-event definitions and regression coverage.
 - Companion workflow choices for product lookup and direct inventory-operation handoff.
+- Product CSV dry-run validation with field parsing, duplicate detection, existing-SKU checks, and category/supplier reference validation.
 
 ### Changed
 
 - Sensitive successful business mutations and authentication/account lifecycle events now use the append-only audit stream with request-ID correlation.
 - Authentication audit metadata is deliberately coarse for failed login/session events and excludes credential material.
 - Scanned companion barcodes can preselect an authenticated product in the web inventory workflow without copying session credentials into the extension.
+- Catalog users with write permission can launch the CSV validation panel without bypassing the existing product-management permissions.
 
 ### Security
 
@@ -33,6 +35,7 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Authentication audit events never store passwords, raw session tokens, cookie values, or credential-bearing metadata.
 - Scanner flows do not copy StockPilot session credentials into scanner state.
 - Companion inventory handoff is navigation-only; stock mutations still require the authenticated web application and explicit user submission.
+- CSV dry-run validation does not write imported rows to the database.
 
 ## Release discipline
 
