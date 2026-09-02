@@ -26,7 +26,3 @@ type Catalog interface {
 	GetProductByBarcode(context.Context, string) (domain.Product, error)
 	ListProducts(context.Context, ProductFilter) ([]domain.Product, error)
 }
-
-type ProductBatchImporter interface {
-	ImportProducts(context.Context, []domain.Product) error
-}
