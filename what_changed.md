@@ -23,10 +23,12 @@ Phase 18 — Transactional CSV product import.
 - [x] Added the web API client for the write endpoint.
 - [x] Reworked the web import panel so validation and writing are separate explicit actions and successful imports refresh the catalog.
 - [x] Expanded `docs/CSV_PRODUCT_IMPORT.md` with endpoint, transactional, concurrency, audit, and failure semantics.
+- [x] Corrected Go module metadata and checksums to satisfy `go mod tidy` under the repository's Go 1.26 CI environment.
+- [x] Formatted the new HTTP and PostgreSQL import code/tests to satisfy the repository's `gofmt` quality gate.
 
 ## Verification status
 
-The connected GitHub environment does not expose a local project shell, so this continuation does not claim local Go/web/Android/extension command execution. The new PostgreSQL integration test is guarded by `DATABASE_URL` and will execute in environments that provide the configured database. Existing GitHub Actions remain the authoritative validation path.
+The connected environment cannot clone GitHub repositories locally because outbound GitHub DNS/network access is unavailable. GitHub Actions is therefore the authoritative execution environment. The first PR run exposed a pre-existing module-tidiness failure; that was corrected, and the next run exposed formatting in the newly added HTTP/test files; those files were then formatted and pushed. A fresh CI/CodeQL run is now being triggered for the latest branch head.
 
 ## Known limitations
 
@@ -38,11 +40,12 @@ The connected GitHub environment does not expose a local project shell, so this 
 
 ## Next exact tasks
 
-1. Add CSV inventory/report export with audit events and bounded streaming output.
-2. Add inventory aging, configurable expiry-risk, movement-velocity, supplier, and replenishment analytics.
-3. Expand concurrent inventory database integration coverage and migration compatibility tests.
-4. Add browser E2E, Android instrumentation, accessibility, restore, and release-artifact checks.
-5. Add automated backup retention examples and first stable-release gates.
+1. Finish PR #38 after all fresh CI/CodeQL checks pass, then merge it to `main`.
+2. Add CSV inventory/report export with audit events and bounded streaming output.
+3. Add inventory aging, configurable expiry-risk, movement-velocity, supplier, and replenishment analytics.
+4. Expand concurrent inventory database integration coverage and migration compatibility tests.
+5. Add browser E2E, Android instrumentation, accessibility, restore, and release-artifact checks.
+6. Add automated backup retention examples and first stable-release gates.
 
 ## Commit discipline
 
