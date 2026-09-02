@@ -2,26 +2,26 @@
 
 ## Current milestone
 
-Phase 15 — authentication and session audit coverage.
+Phase 16 — browser companion inventory workflow handoff.
 
 ## Repository state
 
 - Default branch: `main`.
-- Merged mainline includes Android/browser quality gates, reporting/replenishment, catalog management, guided inventory operations, warehouse/location lifecycle management, multi-line purchasing and receiving, lot/expiry-aware receiving, atomic new-lot receiving, purchase-order lifecycle controls, append-only business auditability with a web viewer, reorder-to-draft assistance, lot inventory visibility, browser camera scanning, Android scanner handoff, and browser companion scan-to-product handoff.
-- Active branch: `feat/auth-session-audit-v2`.
+- Merged mainline includes Android/browser quality gates, reporting/replenishment, catalog management, guided inventory operations, warehouse/location lifecycle management, multi-line purchasing and receiving, lot/expiry-aware receiving, atomic new-lot receiving, purchase-order lifecycle controls, append-only business and authentication auditability with a web viewer, reorder-to-draft assistance, lot inventory visibility, browser camera scanning, Android scanner handoff, and browser companion scan-to-product handoff.
+- Active branch: `feat/extension-inventory-handoff`.
 - The continuation intentionally preserves focused commits instead of squashing feature history.
 
 ## Completed in this continuation
 
-- [x] Added safe authentication audit event definitions.
-- [x] Audited successful login without recording passwords or raw session tokens.
-- [x] Audited failed login with coarse outcome metadata only.
-- [x] Audited missing and invalid session access without recording cookie values.
-- [x] Audited successful and failed logout using authenticated user/session identity only.
-- [x] Audited user creation, role changes, and account activation/deactivation.
-- [x] Reused the existing append-only audit repository rather than creating a parallel persistence path.
-- [x] Added regression tests for request-ID correlation and credential-secret exclusion.
-- [x] Updated roadmap, changelog, and security documentation.
+- [x] Merged authentication/session audit coverage into `main` through PR #34.
+- [x] Added a validated extension helper for safe inventory handoff URL construction.
+- [x] Added product lookup, stock-in, stock-out, adjustment, and transfer workflow choices to the companion scan result.
+- [x] Preserved the extension's navigation-only security boundary; no session cookie or credential is copied.
+- [x] Added web inventory query-parameter consumption for barcode and operation context.
+- [x] Added authenticated barcode resolution and product preselection in the inventory workflow.
+- [x] Removed consumed handoff query parameters from the visible web URL after initial processing.
+- [x] Added extension URL regression coverage for valid and invalid inventory handoffs.
+- [x] Updated extension documentation and roadmap continuity.
 
 ## Verification status
 
@@ -29,20 +29,20 @@ The connected GitHub environment does not expose a local project shell, so this 
 
 ## Known limitations
 
-- CSV import/export audit events are pending because those workflows do not exist yet.
-- Browser companion direct inventory workflow selection remains pending.
+- CSV product import/export workflows remain pending.
 - Advanced analytics remain pending.
+- Concurrent inventory database integration and migration compatibility coverage remain pending.
 - Browser E2E, Android instrumentation, accessibility, restore, and release-artifact checks remain pending.
+- A future extension-specific credential model is still required if direct extension API mutations are ever introduced.
 
 ## Next exact tasks
 
 1. Add CSV product import with dry-run validation and row-level errors.
 2. Add CSV inventory/report export with audit events.
 3. Add inventory aging, configurable expiry-risk, movement-velocity, supplier, and replenishment analytics.
-4. Extend companion barcode handoff to direct inventory workflow selection.
-5. Add concurrent inventory database integration coverage and migration compatibility tests.
-6. Add browser E2E, Android instrumentation, accessibility, restore, and release-artifact checks.
-7. Add automated backup retention examples and first stable-release gates.
+4. Add concurrent inventory database integration coverage and migration compatibility tests.
+5. Add browser E2E, Android instrumentation, accessibility, restore, and release-artifact checks.
+6. Add automated backup retention examples and first stable-release gates.
 
 ## Commit discipline
 
