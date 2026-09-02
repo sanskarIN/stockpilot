@@ -19,7 +19,9 @@ func TestProductImportIntegrationIsAtomic(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
 	defer cancel()
 	store, err := Open(ctx, databaseURL)
-	if err != nil { t.Fatalf("Open() error = %v", err) }
+	if err != nil {
+		t.Fatalf("Open() error = %v", err)
+	}
 	defer store.Close()
 
 	suffix := fmt.Sprintf("%d", time.Now().UnixNano())
