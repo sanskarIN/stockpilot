@@ -89,25 +89,57 @@ func (a *API) parseProductImport(w http.ResponseWriter, r *http.Request) (csvimp
 
 func (a *API) validateProductRows(r *http.Request, result csvimport.ValidationResult) ([]csvimport.RowError, []map[string]any, error) {
 	categories, err := a.catalog.ListCategories(r.Context())
-	if err != nil { return nil, nil, err }
+	if err != nil {
+		return nil, nil, err
+	}
 	suppliers, err := a.catalog.ListSuppliers(r.Context(), false)
-	if err != nil { return nil, nil, err }
-	categoryIDs := make(map[string]struct{}, len(categories)); for _, item := range categories { categoryIDs[item.ID] = struct{}{} }
-	supplierIDs := make(map[string]struct{}, len(suppliers)); for _, item := range suppliers { supplierIDs[item.ID] = struct{}{} }
+	if err != nil {
+		return nil, nil, err
+	}
+	categoryIDs := make(map[string]struct{}, len(categories))
+	for _, item := range categories {
+		categoryIDs[item.ID] = struct{}{}
+	}
+	supplierIDs := make(map[string]struct{}, len(suppliers))
+	for _, item := range suppliers {
+		supplierIDs[item.ID] = struct{}{}
+	}
 
 	errors := append([]csvimport.RowError(nil), result.Errors...)
 	valid := make([]map[string]any, 0, len(result.Rows))
 	for _, row := range result.Rows {
 		product := row.Product
 		rowValid := true
-		if product.CategoryID != "" { if _, ok := categoryIDs[product.CategoryID]; !ok { errors = append(errors, csvimport.RowError{Row: row.Row, Message: "category_id does not reference an existing category"}); rowValid = false } }
-		if product.SupplierID != "" { if _, ok := supplierIDs[product.SupplierID]; !ok { errors = append(errors, csvimport.RowError{Row: row.Row, Message: "supplier_id does not reference an existing supplier"}); rowValid = false } }
+		if product.CategoryID != "" {
+			if _, ok := categoryIDs[product.CategoryID]; !ok {
+				errors = append(errors, csvimport.RowError{Row: row.Row, Message: "category_id does not reference an existing category"})
+				rowValid = false
+			}
+		}
+		if product.SupplierID != "" {
+			if _, ok := supplierIDs[product.SupplierID]; !ok {
+				errors = append(errors, csvimport.RowError{Row: row.Row, Message: "supplier_id does not reference an existing supplier"})
+				rowValid = false
+			}
+		}
 		existing, lookupErr := a.catalog.ListProducts(r.Context(), repositoryProductExactFilter(product.SKU))
-		if lookupErr != nil { return nil, nil, lookupErr }
-		for _, current := range existing { if strings.EqualFold(current.SKU, product.SKU) { errors = append(errors, csvimport.RowError{Row: row.Row, Message: "SKU already exists"}); rowValid = false; break } }
-		if rowValid { valid = append(valid, map[string]any{"row": row.Row, "sku": product.SKU, "name": product.Name}) }
+		if lookupErr != nil {
+			return nil, nil, lookupErr
+		}
+		for _, current := range existing {
+			if strings.EqualFold(current.SKU, product.SKU) {
+				errors = append(errors, csvimport.RowError{Row: row.Row, Message: "SKU already exists"})
+				rowValid = false
+				break
+			}
+		}
+		if rowValid {
+			valid = append(valid, map[string]any{"row": row.Row, "sku": product.SKU, "name": product.Name})
+		}
 	}
 	return errors, valid, nil
 }
 
-func repositoryProductExactFilter(sku string) repository.ProductFilter { return repository.ProductFilter{Query: strings.TrimSpace(sku), Limit: 20} }
+func repositoryProductExactFilter(sku string) repository.ProductFilter {
+	return repository.ProductFilter{Query: strings.TrimSpace(sku), Limit: 20}
+}
