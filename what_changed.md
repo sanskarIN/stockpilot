@@ -28,10 +28,11 @@ Phase 18 — Transactional CSV product import and mainline CI repair.
 - [x] Restored the reporting and audit HTTP handlers required by the existing optional routes and repository contracts.
 - [x] Restored the atomic product batch-import repository contract in the repository package.
 - [x] Formatted the new HTTP and PostgreSQL import code/tests to satisfy the repository's `gofmt` quality gate.
+- [x] Reformatted `internal/httpapi/api.go` after the CI formatting gate identified the router/middleware file as non-gofmt-compliant.
 
 ## Verification status
 
-The connected environment cannot clone GitHub repositories locally because outbound GitHub DNS/network access is unavailable. GitHub Actions is therefore the authoritative execution environment. The previous CI run exposed formatting plus a migration-smoke compile failure. The compile failure identified duplicate handlers and missing reporting/audit HTTP implementations; those issues have now been repaired on the active branch. Fresh CI and CodeQL runs are queued against the repaired head and must finish successfully before merge.
+The connected environment cannot clone GitHub repositories locally because outbound GitHub DNS/network access is unavailable. GitHub Actions is therefore the authoritative execution environment. The latest CI run for the previous head failed only at the Go formatting gate; its PostgreSQL migration smoke test and Web quality job passed, and CodeQL passed. The formatting issue has now been corrected in commit `3115de9c9c60b691937e8788546d38116bd0241b`. A fresh CI run must complete against the new head before merge.
 
 ## Known limitations
 
@@ -43,7 +44,7 @@ The connected environment cannot clone GitHub repositories locally because outbo
 
 ## Next exact tasks
 
-1. Finish PR #38 only after fresh CI and CodeQL are green, then merge it to `main`.
+1. Verify fresh PR #38 CI and CodeQL against the formatted head; merge only when the required checks are green.
 2. Add CSV inventory/report export with audit events and bounded streaming output.
 3. Add inventory aging, configurable expiry-risk, movement-velocity, supplier, and replenishment analytics.
 4. Expand concurrent inventory database integration coverage and migration compatibility tests.
