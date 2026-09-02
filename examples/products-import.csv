@@ -1,0 +1,3 @@
+sku,name,description,category_id,supplier_id,barcode,unit,unit_cost_minor,currency,reorder_point,reorder_quantity,track_lots,track_expiry,active
+SKU-1001,Example Product,Replace with your product description,,,8901234567890,pcs,12500,INR,10,25,false,false,true
+SKU-1002,Lot Tracked Product,Example lot-tracked item,,,8901234567891,box,49900,INR,5,10,true,true,true

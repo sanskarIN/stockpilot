@@ -2,6 +2,8 @@
 
 StockPilot's first CSV import milestone provides a **dry-run validation** workflow. It does not write products to PostgreSQL.
 
+A ready-to-copy template is available at `examples/products-import.csv`.
+
 ## Endpoint
 
 `POST /api/v1/products/import/validate`
@@ -44,3 +46,7 @@ The response contains the number of valid rows, the number of errors, row-level 
 The dry-run endpoint intentionally has no persistence path. A successful dry run means the file is suitable for the next write/import milestone; it does **not** create products.
 
 The web catalog exposes the validation panel only to administrator and manager roles. The server remains authoritative for permissions and all final product constraints.
+
+## Next persistence milestone
+
+The production import endpoint must revalidate the complete payload server-side and persist the complete batch transactionally. It must not trust a previous dry-run result as authorization or as proof that the database has not changed since validation. Unique database constraints and the transaction must remain the final integrity boundary.
