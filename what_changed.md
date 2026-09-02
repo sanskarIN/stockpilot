@@ -2,26 +2,20 @@
 
 ## Current milestone
 
-Phase 17 — CSV product dry-run validation.
+Phase 17 — CSV product dry-run validation and import ergonomics.
 
 ## Repository state
 
 - Default branch: `main`.
-- Merged mainline includes Android/browser quality gates, reporting/replenishment, catalog management, guided inventory operations, warehouse/location lifecycle management, multi-line purchasing and receiving, lot/expiry-aware receiving, atomic new-lot receiving, purchase-order lifecycle controls, append-only business and authentication auditability with a web viewer, reorder-to-draft assistance, lot inventory visibility, browser camera scanning, Android scanner handoff, and browser companion inventory workflow handoff.
-- Active branch: `feat/csv-product-import`.
-- The continuation intentionally preserves focused commits instead of squashing feature history.
+- Merged mainline includes Android/browser quality gates, reporting/replenishment, catalog management, guided inventory operations, warehouse/location lifecycle management, multi-line purchasing and receiving, lot/expiry-aware receiving, atomic new-lot receiving, purchase-order lifecycle controls, append-only business and authentication auditability with a web viewer, reorder-to-draft assistance, lot inventory visibility, browser camera scanning, Android scanner handoff, browser companion inventory workflow handoff, and CSV product dry-run validation.
+- Active branch: `feat/csv-product-export`.
+- This continuation intentionally preserves focused commits instead of squashing feature history.
 
 ## Completed in this continuation
 
-- [x] Added bounded CSV parsing for product rows.
-- [x] Added required-header and row-level field validation.
-- [x] Added duplicate SKU and barcode detection within an upload.
-- [x] Added authenticated catalog-reference checks for category and supplier IDs.
-- [x] Added existing-SKU detection against the current catalog.
-- [x] Added `POST /api/v1/products/import/validate` as a dry-run-only endpoint.
-- [x] Added a write-role catalog UI panel for CSV validation with row-level error reporting.
-- [x] Added extension-independent CSV validation regression tests.
-- [x] Added CSV import documentation, roadmap, changelog, and continuity updates.
+- [x] Added a reusable `examples/products-import.csv` template covering normal and lot/expiry-tracked products.
+- [x] Expanded CSV documentation with template guidance and the transactional-persistence integrity boundary.
+- [x] Evaluated a product CSV export handler and removed it before merging because the route was not registered; no dead endpoint was left in the branch.
 
 ## Verification status
 
