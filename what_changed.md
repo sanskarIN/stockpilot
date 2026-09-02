@@ -2,13 +2,13 @@
 
 ## Current milestone
 
-Phase 18 — Transactional CSV product import.
+Phase 18 — Transactional CSV product import and mainline CI repair.
 
 ## Repository state
 
 - Default branch: `main`.
-- Merged mainline includes Android/browser quality gates, reporting/replenishment, catalog management, guided inventory operations, warehouse/location lifecycle management, multi-line purchasing and receiving, lot/expiry-aware receiving, atomic new-lot receiving, purchase-order lifecycle controls, append-only business and authentication auditability with a web viewer, reorder-to-draft assistance, lot inventory visibility, browser camera scanning, Android scanner handoff, browser companion inventory workflow handoff, and CSV product dry-run validation.
 - Active branch: `feat/csv-product-import`.
+- Merged mainline includes Android/browser quality gates, reporting/replenishment, catalog management, guided inventory operations, warehouse/location lifecycle management, multi-line purchasing and receiving, lot/expiry-aware receiving, atomic new-lot receiving, purchase-order lifecycle controls, append-only business and authentication auditability with a web viewer, reorder-to-draft assistance, lot inventory visibility, browser camera scanning, Android scanner handoff, browser companion inventory workflow handoff, and CSV product dry-run validation.
 - This continuation intentionally preserves focused commits instead of squashing feature history.
 
 ## Completed in this continuation
@@ -24,11 +24,14 @@ Phase 18 — Transactional CSV product import.
 - [x] Reworked the web import panel so validation and writing are separate explicit actions and successful imports refresh the catalog.
 - [x] Expanded `docs/CSV_PRODUCT_IMPORT.md` with endpoint, transactional, concurrency, audit, and failure semantics.
 - [x] Corrected Go module metadata and checksums to satisfy `go mod tidy` under the repository's Go 1.26 CI environment.
+- [x] Removed duplicate HTTP barcode and lot handler declarations exposed by the migration smoke test.
+- [x] Restored the reporting and audit HTTP handlers required by the existing optional routes and repository contracts.
+- [x] Restored the atomic product batch-import repository contract in the repository package.
 - [x] Formatted the new HTTP and PostgreSQL import code/tests to satisfy the repository's `gofmt` quality gate.
 
 ## Verification status
 
-The connected environment cannot clone GitHub repositories locally because outbound GitHub DNS/network access is unavailable. GitHub Actions is therefore the authoritative execution environment. The first PR run exposed a pre-existing module-tidiness failure; that was corrected, and the next run exposed formatting in the newly added HTTP/test files; those files were then formatted and pushed. A fresh CI/CodeQL run is now being triggered for the latest branch head.
+The connected environment cannot clone GitHub repositories locally because outbound GitHub DNS/network access is unavailable. GitHub Actions is therefore the authoritative execution environment. The previous CI run exposed formatting plus a migration-smoke compile failure. The compile failure identified duplicate handlers and missing reporting/audit HTTP implementations; those issues have now been repaired on the active branch. Fresh CI and CodeQL runs are queued against the repaired head and must finish successfully before merge.
 
 ## Known limitations
 
@@ -40,7 +43,7 @@ The connected environment cannot clone GitHub repositories locally because outbo
 
 ## Next exact tasks
 
-1. Finish PR #38 after all fresh CI/CodeQL checks pass, then merge it to `main`.
+1. Finish PR #38 only after fresh CI and CodeQL are green, then merge it to `main`.
 2. Add CSV inventory/report export with audit events and bounded streaming output.
 3. Add inventory aging, configurable expiry-risk, movement-velocity, supplier, and replenishment analytics.
 4. Expand concurrent inventory database integration coverage and migration compatibility tests.
