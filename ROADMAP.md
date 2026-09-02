@@ -31,6 +31,7 @@ This roadmap reflects the current repository state.
 - [x] Android barcode/QR scanning with Google Code Scanner and product/lot-inventory handoff.
 - [x] Browser companion barcode/QR scanning with safe handoff to the authenticated StockPilot web origin.
 - [x] Browser companion workflow selection for product lookup and direct inventory-operation handoff.
+- [x] CSV product dry-run validation with row-level errors, duplicate detection, and catalog-reference validation.
 
 ## Next — operational workflows
 
@@ -38,7 +39,7 @@ This roadmap reflects the current repository state.
 
 ## Next — data operations
 
-- [ ] CSV product import with dry-run validation and row-level error reports.
+- [ ] CSV product write/import after dry-run validation, with transactional persistence and audit events.
 - [ ] CSV inventory and report export with audit events.
 - [ ] Documented automated backup retention deployment examples.
 - [ ] Database integration tests covering concurrent inventory mutations and migration compatibility.
