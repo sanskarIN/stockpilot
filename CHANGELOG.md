@@ -13,41 +13,13 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Native Android client with encrypted session storage, authenticated API access, dark mode, and release TLS enforcement.
 - Manifest V3 browser companion with scoped optional host permissions and server health/launcher flow.
 - CodeQL and Dependabot automation.
-- Aggregate product-level reorder recommendations, including products with zero balance rows.
-- Suggested replenishment quantities targeting reorder point plus reorder quantity.
-- Currency-safe inventory valuation by product and grouped currency total.
-- Exact barcode lookup API for scanner-driven workflows.
-- PostgreSQL and HTTP regression coverage for reporting capabilities.
-- Security policy, contributor workflow, API compatibility policy, architecture guide, restore drill, release checklist, and issue/PR templates.
-- Product catalog management, guided inventory operations, warehouse/location administration, and purchase-order creation/receiving workflows.
-- Lot-aware receiving with reusable lots, new-lot creation, manufacturing/expiry metadata, and near-expiry warnings.
-- Atomic new-lot receipt transactions that roll back lot creation when receipt processing fails.
-- Explicit purchase-order lifecycle transitions for deliberate draft submission and cancellation.
-- Append-only audit-event persistence for completed sensitive catalog, inventory, warehouse/location/lot, and purchasing mutations.
-- Web audit history viewer with actor, action, entity, request ID, metadata, and pagination filters.
-- Multi-line purchase-order creation, draft editing, per-line receiving, and draft-order total calculation.
-- Reorder-suggestion actions that seed reviewed draft purchase orders without auto-submitting them.
-- Warehouse/location edit, archive, and reactivation workflows with server-side integrity guards.
-- Lot inventory visibility with product, warehouse, location, lot, quantity, and expiry-risk filters.
-- Browser camera barcode/QR scanning in product forms, with manual entry fallback.
-- Android barcode/QR scanning with Google Code Scanner and product/lot-inventory handoff.
-- Browser companion barcode/QR scanning with manual fallback and safe handoff to the authenticated StockPilot web origin.
+- Aggregate reorder recommendations, inventory valuation, exact barcode lookup, reporting coverage, catalog management, guided inventory operations, warehouse/location lifecycle, multi-line purchasing, lot/expiry receiving, append-only business auditability, lot inventory visibility, browser/Android barcode scanning, and companion scan handoff.
+- Authentication/session audit-event definitions and regression coverage.
 
 ### Changed
 
-- Dashboard stock health now uses product-level reorder recommendations instead of counting every low-stock location independently.
-- Dashboard reporting now includes replenishment and inventory valuation insights.
-- Repository contracts expose barcode lookup, replenishment, valuation, lot listing, order lifecycle, audit, draft-order update, reorder workflow, warehouse/location lifecycle, and lot inventory capabilities.
-- Purchasing supports deliberate `draft → ordered/cancelled` transitions; partial/received states remain receipt-controlled.
-- Receiving reuses existing lots for partial receipts and creates new lots atomically when required.
-- Sensitive successful mutations now emit auditable actor/action/entity/request records.
-- Draft purchase orders can now be edited transactionally until submission.
-- Reorder alerts can open the standard purchasing editor with a reviewed product/quantity proposal; persistence still requires explicit user confirmation.
-- Warehouse/location administration can edit active records, archive historical records instead of deleting them, and reactivate archived records when safe.
-- Lot inventory ordering prioritizes soonest-expiring stock and supports bounded pagination and expiry cutoffs.
-- Product barcode entry can use the device camera when the browser exposes `BarcodeDetector` and camera access; unsupported browsers retain manual entry.
-- The Android client can scan codes through Google Code Scanner and resolve product/lot inventory using its own authenticated session.
-- The browser companion can scan codes locally and hand them back to the normal StockPilot web origin without copying session cookies.
+- Sensitive successful business mutations and authentication/account lifecycle events now use the append-only audit stream with request-ID correlation.
+- Authentication audit metadata is deliberately coarse for failed login/session events and excludes credential material.
 
 ### Security
 
@@ -55,16 +27,9 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Authorization remains server-side and role-aware.
 - Production Android networking requires TLS.
 - Browser companion permissions remain scoped to the configured StockPilot origin.
-- Valuation arithmetic is calculated with PostgreSQL numeric values before checked conversion to `int64`.
-- Lot ownership and product tracking policy remain enforced server-side during inventory mutations.
-- Purchase-order status transitions are row-locked and validated by the domain state machine.
-- Audit history is read-only from the web client and audit storage exposes append/list operations without an update/delete API.
-- Draft purchase-order edits are limited to draft state and protected by a row lock.
-- Reorder shortcuts do not bypass purchase-order creation or approval controls.
-- Warehouses with active locations cannot be archived, and locations with non-zero inventory cannot be archived.
-- Locations cannot be activated under archived warehouses.
-- Camera scanning requests audio-free, rear-facing video where available and stop all camera tracks when the scanner closes.
-- The Android and browser companion scan flows do not copy StockPilot session credentials into scanner state.
+- Audit history remains read-only from the web client and audit storage exposes append/list operations without an update/delete API.
+- Authentication audit events never store passwords, raw session tokens, cookie values, or credential-bearing metadata.
+- Scanner flows do not copy StockPilot session credentials into scanner state.
 
 ## Release discipline
 
