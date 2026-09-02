@@ -33,3 +33,20 @@ export function originPattern(value) {
   // only the configured scheme + host instead of a broad all-host permission.
   return `${url.protocol}//${url.hostname}/*`;
 }
+
+export function buildInventoryHandoffUrl(serverUrl, barcode, operation = "stock_in") {
+  const origin = normalizeServerUrl(serverUrl);
+  const code = String(barcode ?? "").trim();
+  if (!code) {
+    throw new Error("A barcode is required for inventory handoff.");
+  }
+  const allowedOperations = new Set(["stock_in", "stock_out", "adjustment", "transfer"]);
+  if (!allowedOperations.has(operation)) {
+    throw new Error("Unsupported inventory operation.");
+  }
+
+  const url = new URL("/", origin);
+  url.searchParams.set("barcode", code);
+  url.searchParams.set("inventoryOperation", operation);
+  return url.toString();
+}
