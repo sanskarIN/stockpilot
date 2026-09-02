@@ -1,4 +1,4 @@
-import { normalizeServerUrl, originPattern } from "./url.js";
+import { normalizeServerUrl, originPattern, buildInventoryHandoffUrl } from "./url.js";
 import { startScanner, stopScanner } from "./scanner.js";
 
 const form = document.querySelector("#server-form");
@@ -19,10 +19,12 @@ const resultCard = document.querySelector("#scan-result");
 const resultTitle = document.querySelector("#result-title");
 const resultDetail = document.querySelector("#result-detail");
 const openResult = document.querySelector("#open-result");
+const handoffActions = document.querySelector("#handoff-actions");
 const errorBox = document.querySelector("#error");
 
 let serverUrl = "";
 let scannedValue = "";
+let selectedOperation = "product";
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -70,7 +72,15 @@ manualForm.addEventListener("submit", (event) => {
 });
 
 openButton.addEventListener("click", () => openInStockPilot());
-openResult.addEventListener("click", () => openInStockPilot(scannedValue));
+openResult.addEventListener("click", () => openInStockPilot(scannedValue, selectedOperation));
+
+handoffActions.querySelectorAll("[data-operation]").forEach((button) => {
+  button.addEventListener("click", () => {
+    selectedOperation = button.dataset.operation || "product";
+    updateHandoffState();
+    openInStockPilot(scannedValue, selectedOperation);
+  });
+});
 
 function closeScanView() {
   stopScanner();
@@ -81,17 +91,34 @@ function closeScanView() {
 function handleScan(value) {
   scannedValue = String(value).trim();
   if (!scannedValue) return;
+  selectedOperation = "product";
   closeScanView();
   resultTitle.textContent = "Code captured";
-  resultDetail.textContent = `${scannedValue} — open StockPilot to resolve the product using your existing signed-in session.`;
+  resultDetail.textContent = `${scannedValue} — choose the StockPilot workflow to open with this code.`;
   resultCard.hidden = false;
+  updateHandoffState();
 }
 
-async function openInStockPilot(barcode = scannedValue) {
-  if (!serverUrl) return;
-  const url = new URL("/", serverUrl);
-  url.searchParams.set("barcode", barcode);
-  await chrome.tabs.create({ url: url.toString() });
+function updateHandoffState() {
+  const buttons = handoffActions.querySelectorAll("[data-operation]");
+  buttons.forEach((button) => {
+    const active = (button.dataset.operation || "") === selectedOperation;
+    button.setAttribute("aria-pressed", String(active));
+  });
+  handoffActions.hidden = !scannedValue;
+  openResult.textContent = selectedOperation === "product" ? "Open product lookup" : `Open ${labelFor(selectedOperation)}`;
+}
+
+async function openInStockPilot(barcode = scannedValue, operation = selectedOperation) {
+  if (!serverUrl || !barcode) return;
+  try {
+    const url = operation === "product"
+      ? new URL("/", serverUrl)
+      : new URL(buildInventoryHandoffUrl(serverUrl, barcode, operation));
+    url.searchParams.set("barcode", barcode);
+    if (operation !== "product") url.searchParams.set("inventoryOperation", operation);
+    await chrome.tabs.create({ url: url.toString() });
+  } catch (error) { showError(error); }
 }
 
 async function initialize() {
@@ -127,6 +154,15 @@ async function checkStatus() {
   } finally { setBusy(false); }
 }
 
+function labelFor(operation) {
+  switch (operation) {
+    case "stock_in": return "stock in";
+    case "stock_out": return "stock out";
+    case "adjustment": return "stock adjustment";
+    case "transfer": return "stock transfer";
+    default: return "product lookup";
+  }
+}
 function setBusy(busy) {
   serverInput.disabled = busy; refreshButton.disabled = busy; scanButton.disabled = busy || !serverUrl; openButton.disabled = busy || !serverUrl; form.querySelector("button[type='submit']").disabled = busy;
 }
