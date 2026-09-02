@@ -28,48 +28,37 @@ type ValidationResult struct {
 	Headers []string
 }
 
-var productHeaders = []string{
-	"id", "sku", "name", "description", "category_id", "supplier_id", "barcode", "unit",
-	"unit_cost_minor", "currency", "reorder_point", "reorder_quantity", "track_lots", "track_expiry", "active",
-}
-
 func ParseProducts(r io.Reader) (ValidationResult, error) {
 	reader := csv.NewReader(io.LimitReader(r, 4<<20))
-	records, err := reader.Read()
+	headers, err := reader.Read()
 	if err == io.EOF {
 		return ValidationResult{}, fmt.Errorf("CSV file is empty")
 	}
 	if err != nil {
 		return ValidationResult{}, fmt.Errorf("read CSV header: %w", err)
 	}
-
-	index, err := headerIndex(records)
+	index, err := headerIndex(headers)
 	if err != nil {
 		return ValidationResult{}, err
 	}
-	result := ValidationResult{Rows: make([]ProductRow, 0), Errors: make([]RowError, 0), Headers: append([]string(nil), records...)}
+	result := ValidationResult{Rows: make([]ProductRow, 0), Errors: make([]RowError, 0), Headers: append([]string(nil), headers...)}
 	seenSKU := make(map[string]int)
 	seenBarcode := make(map[string]int)
 	rowNumber := 1
 	for {
-		records, err = reader.Read()
-		if err == io.EOF {
-			break
-		}
+		values, readErr := reader.Read()
+		if readErr == io.EOF { break }
 		rowNumber++
-		if err != nil {
+		if readErr != nil {
 			result.Errors = append(result.Errors, RowError{Row: rowNumber, Message: "malformed CSV row"})
 			continue
 		}
 		if rowNumber > MaxProductRows+1 {
 			result.Errors = append(result.Errors, RowError{Row: rowNumber, Message: fmt.Sprintf("maximum of %d product rows is allowed", MaxProductRows)})
-			for reader.Scan() { rowNumber++ }
 			break
 		}
-		if blankRecord(records) {
-			continue
-		}
-		product, rowErrors := parseProduct(index, records)
+		if blankRecord(values) { continue }
+		product, rowErrors := parseProduct(index, values)
 		if len(rowErrors) == 0 {
 			sku := strings.ToUpper(strings.TrimSpace(product.SKU))
 			if previous, ok := seenSKU[sku]; ok { rowErrors = append(rowErrors, fmt.Sprintf("SKU duplicates row %d", previous)) } else { seenSKU[sku] = rowNumber }
@@ -92,10 +81,7 @@ func headerIndex(headers []string) (map[string]int, error) {
 		if _, exists := result[name]; exists { return nil, fmt.Errorf("CSV header %q is duplicated", name) }
 		result[name] = i
 	}
-	for _, required := range productHeaders[1:2] {
-		if _, ok := result[required]; !ok { return nil, fmt.Errorf("CSV header %q is required", required) }
-	}
-	for _, required := range []string{"name", "unit", "unit_cost_minor", "currency", "reorder_point", "reorder_quantity", "track_lots", "track_expiry", "active"} {
+	for _, required := range []string{"sku", "name", "unit", "unit_cost_minor", "currency", "reorder_point", "reorder_quantity", "track_lots", "track_expiry", "active"} {
 		if _, ok := result[required]; !ok { return nil, fmt.Errorf("CSV header %q is required", required) }
 	}
 	return result, nil
