@@ -5,16 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/sanskarIN/stockpilot/internal/domain"
 )
-
-func (f *fakeStore) UpdateOrderStatus(_ context.Context, _ string, status domain.PurchaseOrderStatus, _ string) error {
-	if err := domain.ValidatePurchaseOrderTransition(domain.PurchaseOrderDraft, status); err != nil {
-		return err
-	}
-	return nil
-}
 
 func TestUpdateOrderStatusEndpointAllowsDraftToOrdered(t *testing.T) {
 	store := &fakeStore{}
