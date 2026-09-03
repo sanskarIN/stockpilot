@@ -244,7 +244,7 @@ func TestLocationArchiveEndpointUsesAuthenticatedActor(t *testing.T) {
 	}
 }
 func TestLotInventoryEndpoint(t *testing.T) {
-	expires := time.Date(2026, 9, 20, 0, 0, 0, time.UTC)
+	expires := time.Date(2026, 9, 20, 0, 0, 0, 0, time.UTC)
 	store := &fakeStore{lotInventory: []domain.LotInventoryRow{{ProductID: "prd_1", SKU: "SKU-1", ProductName: "Widget", LotID: "lot_1", LotNumber: "LOT-1", LocationID: "loc_1", Location: "A1", WarehouseID: "wh_1", Warehouse: "Main", OnHand: 12, ExpiresAt: &expires, Active: true}}}
 	handler := NewCore(store, store, store, func(context.Context) error { return nil })
 	request := authenticatedRequest(http.MethodGet, "/api/v1/inventory/lots?expiringBy=2026-10-01", "")
