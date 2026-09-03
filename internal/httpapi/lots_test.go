@@ -6,8 +6,6 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-
-	"github.com/sanskarIN/stockpilot/internal/domain"
 )
 
 func TestListLotsEndpointFiltersByProduct(t *testing.T) {
