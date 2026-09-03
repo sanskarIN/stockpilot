@@ -4,7 +4,34 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-Future work will continue here after v0.1.4.
+Future work will continue here after v0.1.5.
+
+## 0.1.5 — 2026-09-03
+
+### Added
+
+- Added bounded lot-inventory CSV export at `GET /api/v1/inventory/lots/export.csv`.
+- Added optional product, warehouse, location, and lot filters to the export contract.
+- Added the inclusive `expiringBy` date filter using `YYYY-MM-DD` input.
+- Added focused HTTP coverage for bounds, date parsing, headers, schema, timestamps, expiry filtering, and formula-safe values.
+
+### Changed
+
+- Lot inventory exports reuse the shared formula-safe CSV serializer introduced in v0.1.2.
+- Export rows retain deterministic PostgreSQL ordering by expiry date, product name, lot number, and location name.
+- Expiry timestamps are normalized to UTC RFC 3339 values.
+- Browser downloads use the deterministic filename `stockpilot-lot-inventory.csv`.
+
+### Security and operations
+
+- Lot inventory export is read-only and remains behind the existing HTTP middleware and application authorization/session controls.
+- Export requests are bounded at the application layer and the repository retains its own safety cap.
+- Export schemas exclude credentials, passwords, session secrets, and payment information.
+
+### Verification
+
+- Added unit coverage for lot export normalization and CSV contracts.
+- Full release verification remains required for Go, PostgreSQL, Web, Android, extension, authentication/session, authorization/CSRF, and CodeQL gates where configured.
 
 ## 0.1.4 — 2026-09-03
 
