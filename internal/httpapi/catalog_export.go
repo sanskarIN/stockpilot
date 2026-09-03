@@ -9,25 +9,36 @@ import (
 	"github.com/sanskarIN/stockpilot/internal/repository"
 )
 
-const maxCatalogExportRows = 5000
+const (
+	defaultCatalogExportRows = 1000
+	maxCatalogExportRows     = 5000
+)
+
+func normalizeCatalogExportBounds(limit, offset int) (int, int) {
+	if limit <= 0 {
+		limit = defaultCatalogExportRows
+	}
+	if limit > maxCatalogExportRows {
+		limit = maxCatalogExportRows
+	}
+	if offset < 0 {
+		offset = 0
+	}
+	return limit, offset
+}
 
 func (a *API) exportProductsCSV(w http.ResponseWriter, r *http.Request) {
+	limit, offset := normalizeCatalogExportBounds(
+		queryInt(r, "limit", defaultCatalogExportRows),
+		queryInt(r, "offset", 0),
+	)
 	filter := repository.ProductFilter{
 		Query:      strings.TrimSpace(r.URL.Query().Get("q")),
 		CategoryID: strings.TrimSpace(r.URL.Query().Get("categoryId")),
 		SupplierID: strings.TrimSpace(r.URL.Query().Get("supplierId")),
 		ActiveOnly: r.URL.Query().Get("activeOnly") != "false",
-		Limit:      queryInt(r, "limit", 1000),
-		Offset:     queryInt(r, "offset", 0),
-	}
-	if filter.Limit <= 0 {
-		filter.Limit = 1000
-	}
-	if filter.Limit > maxCatalogExportRows {
-		filter.Limit = maxCatalogExportRows
-	}
-	if filter.Offset < 0 {
-		filter.Offset = 0
+		Limit:      limit,
+		Offset:     offset,
 	}
 
 	products, err := a.catalog.ListProducts(r.Context(), filter)
