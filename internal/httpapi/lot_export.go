@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/sanskarIN/stockpilot/internal/csvexport"
 	"github.com/sanskarIN/stockpilot/internal/repository"
@@ -79,4 +80,8 @@ func normalizeLotExportBounds(limit, offset int) (int, int) {
 		offset = 0
 	}
 	return limit, offset
+}
+
+func parseExportDate(value string) (time.Time, error) {
+	return time.Parse("2006-01-02", value)
 }
