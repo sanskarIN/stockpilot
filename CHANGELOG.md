@@ -4,6 +4,10 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
+Future work will continue here after the first public preview.
+
+## 0.1.0-preview.1 — 2026-09-03
+
 ### Added
 
 - Product, category, supplier, warehouse, location, lot, inventory movement, transfer, and purchase-order foundations.
@@ -17,15 +21,16 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Authentication/session audit-event definitions and regression coverage.
 - Companion workflow choices for product lookup and direct inventory-operation handoff.
 - Product CSV dry-run validation with field parsing, duplicate detection, existing-SKU checks, and category/supplier reference validation.
-- Transactional CSV product import with server-side revalidation, generated IDs for rows without IDs, and batch-level audit events.
+- Transactional CSV product import with server-side revalidation, generated IDs for rows without IDs, batch-level audit events, and complete-batch rollback on persistence failure.
 
 ### Changed
 
-- Sensitive successful business mutations and authentication/account lifecycle events now use the append-only audit stream with request-ID correlation.
+- Sensitive successful business mutations and authentication/account lifecycle events use the append-only audit stream with request-ID correlation.
 - Authentication audit metadata is deliberately coarse for failed login/session events and excludes credential material.
 - Scanned companion barcodes can preselect an authenticated product in the web inventory workflow without copying session credentials into the extension.
-- Catalog users with write permission can launch the CSV validation panel without bypassing the existing product-management permissions.
-- CSV product import now separates dry-run validation from an explicit write action; the write request reparses and revalidates the file before a single atomic database transaction.
+- Catalog users with write permission can launch the CSV validation panel without bypassing existing product-management permissions.
+- CSV product import separates dry-run validation from an explicit write action; the write request reparses and revalidates the file before one atomic database transaction.
+- Lot listing now requires an explicit `productId` filter to keep the endpoint bounded to a product-scoped query.
 
 ### Security
 
@@ -39,6 +44,16 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 - Companion inventory handoff is navigation-only; stock mutations still require the authenticated web application and explicit user submission.
 - CSV dry-run validation does not write imported rows to the database, and the write endpoint never trusts a previous dry-run result as proof of current database state.
 - Product import relies on database uniqueness and foreign-key constraints as the final integrity boundary and rolls back the complete batch on constraint failure.
+
+### Verification
+
+- Go module tidy verification passed.
+- `gofmt` formatting gate passed.
+- `go vet ./...` passed.
+- Race-enabled Go tests and server build passed.
+- PostgreSQL migration/readiness smoke test passed.
+- Web typecheck and production build passed.
+- CodeQL passed for Go and JavaScript/TypeScript.
 
 ## Release discipline
 
