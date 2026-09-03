@@ -49,6 +49,19 @@ func (s *Store) CreateLocation(ctx context.Context, location domain.Location) er
 	_, err := s.pool.Exec(ctx, `INSERT INTO locations (id, warehouse_id, code, name, description, active) VALUES ($1, $2, $3, $4, $5, $6)`, location.ID, location.WarehouseID, strings.TrimSpace(location.Code), strings.TrimSpace(location.Name), strings.TrimSpace(location.Description), location.Active)
 	return mapError(err)
 }
+func (s *Store) UpdateLocation(ctx context.Context, location domain.Location) error {
+	if err := location.Validate(); err != nil {
+		return err
+	}
+	command, err := s.pool.Exec(ctx, `UPDATE locations SET warehouse_id=$2, code=$3, name=$4, description=$5, active=$6, updated_at=now() WHERE id=$1`, location.ID, location.WarehouseID, strings.TrimSpace(location.Code), strings.TrimSpace(location.Name), strings.TrimSpace(location.Description), location.Active)
+	if err != nil {
+		return mapError(err)
+	}
+	if command.RowsAffected() == 0 {
+		return domain.ErrNotFound
+	}
+	return nil
+}
 func (s *Store) ListLocations(ctx context.Context, warehouseID string, activeOnly bool) ([]domain.Location, error) {
 	args := make([]any, 0, 1)
 	where := make([]string, 0, 2)
@@ -178,6 +191,31 @@ func (s *Store) GetBalance(ctx context.Context, productID, locationID, lotID str
 		return domain.StockBalance{}, mapError(err)
 	}
 	return balance, nil
+}
+func (s *Store) ListBalances(ctx context.Context, limit, offset int) ([]domain.StockBalance, error) {
+	if limit <= 0 {
+		limit = 100
+	}
+	if limit > 5000 {
+		limit = 5000
+	}
+	if offset < 0 {
+		offset = 0
+	}
+	rows, err := s.pool.Query(ctx, `SELECT product_id, location_id, COALESCE(lot_id, ''), quantity, updated_at FROM inventory_balances ORDER BY product_id, location_id, COALESCE(lot_id, '') LIMIT $1 OFFSET $2`, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := make([]domain.StockBalance, 0)
+	for rows.Next() {
+		var item domain.StockBalance
+		if err := rows.Scan(&item.ProductID, &item.LocationID, &item.LotID, &item.Quantity, &item.UpdatedAt); err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+	return items, rows.Err()
 }
 func (s *Store) ListLowStock(ctx context.Context, limit int) ([]domain.StockBalance, error) {
 	if limit <= 0 {
