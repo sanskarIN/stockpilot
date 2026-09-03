@@ -50,7 +50,7 @@ func (a *API) updateWarehouse(w http.ResponseWriter, r *http.Request) {
 		writeDomainError(w, err)
 		return
 	}
-	a.recordAudit(r.Context(), authenticatedActorID(r), "warehouse.updated", "warehouse", item.ID, map[string]any{"code": item.Code, "name": item.Name, "active": item.Active})
+	a.recordAudit(r.Context(), authenticatedActorID(r), "warehouse.updated", "warehouse", item.ID, map[string]any{"code": item.Code, "name": item.Name})
 	writeJSON(w, http.StatusOK, item)
 }
 func (a *API) listLocations(w http.ResponseWriter, r *http.Request) {
@@ -111,7 +111,12 @@ func (a *API) createLot(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, item)
 }
 func (a *API) listLots(w http.ResponseWriter, r *http.Request) {
-	items, err := a.inventory.ListLots(r.Context(), r.URL.Query().Get("productId"), queryInt(r, "limit", 50))
+	productID := r.URL.Query().Get("productId")
+	if productID == "" {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "productId is required"})
+		return
+	}
+	items, err := a.inventory.ListLots(r.Context(), productID, queryInt(r, "limit", 50))
 	if err != nil {
 		writeDomainError(w, err)
 		return
