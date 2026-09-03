@@ -69,8 +69,13 @@ func (f *fakeStore) UpdateLocation(_ context.Context, v domain.Location) error {
 func (f *fakeStore) ListLocations(context.Context, string, bool) ([]domain.Location, error) {
 	return []domain.Location{{ID: "loc_1", WarehouseID: "wh_1", Code: "A1", Name: "A1", Active: true}}, nil
 }
-func (f *fakeStore) CreateLot(context.Context, domain.Lot) error                 { return nil }
-func (f *fakeStore) ListLots(context.Context, string, int) ([]domain.Lot, error) { return nil, nil }
+func (f *fakeStore) CreateLot(context.Context, domain.Lot) error { return nil }
+func (f *fakeStore) ListLots(_ context.Context, productID string, _ int) ([]domain.Lot, error) {
+	if productID == "prd_1" {
+		return []domain.Lot{{ID: "lot_1", ProductID: "prd_1", LotNumber: "LOT-1"}}, nil
+	}
+	return []domain.Lot{}, nil
+}
 func (f *fakeStore) ListLotInventory(_ context.Context, filter repository.LotInventoryFilter) ([]domain.LotInventoryRow, error) {
 	if filter.ExpiringBy != nil {
 		items := make([]domain.LotInventoryRow, 0)
@@ -127,11 +132,18 @@ func (f *fakeStore) ReceiveLine(_ context.Context, _ string, _ string, _ int64, 
 	f.receiptActor = actorID
 	return nil
 }
-func (f *fakeStore) ReceiveLineWithNewLot(_ context.Context, _ string, _ string, _ int64, _ string, _ domain.Lot, actorID string) error {
+func (f *fakeStore) ReceiveLineWithNewLot(_ context.Context, _ string, _ string, _ int64, _ string, lot domain.Lot, actorID string) error {
+	lot.ProductID = "prd_test"
+	if err := lot.Validate(); err != nil {
+		return err
+	}
 	f.receiptActor = actorID
 	return nil
 }
-func (f *fakeStore) UpdateOrderStatus(context.Context, string, domain.PurchaseOrderStatus, string) error {
+func (f *fakeStore) UpdateOrderStatus(_ context.Context, _ string, status domain.PurchaseOrderStatus, _ string) error {
+	if err := domain.ValidatePurchaseOrderTransition(domain.PurchaseOrderDraft, status); err != nil {
+		return err
+	}
 	return nil
 }
 func (f *fakeStore) AppendAuditEvent(_ context.Context, e domain.AuditEvent) error {
