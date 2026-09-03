@@ -4,7 +4,55 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-Future work will continue here after v0.1.2.
+Future work will continue here after v0.1.4.
+
+## 0.1.4 — 2026-09-03
+
+### Added
+
+- Added bounded inventory-balance CSV export at `GET /api/v1/inventory/export.csv`.
+- Added low-stock CSV export at `GET /api/v1/inventory/low-stock/export.csv`.
+- Added reorder-suggestions CSV export at `GET /api/v1/inventory/reorder-suggestions/export.csv`.
+- Added a repository-level bounded `ListBalances` operation for deterministic inventory export pagination.
+- Added focused HTTP coverage for export bounds, headers, formula safety, timestamps, low-stock output, and reorder-suggestion output.
+
+### Changed
+
+- Inventory exports reuse the shared formula-safe CSV serializer introduced in v0.1.2.
+- Inventory-balance export ordering is deterministic by product, location, and lot.
+- Export timestamps are normalized to UTC RFC 3339 values.
+- Browser downloads use deterministic CSV filenames and content types.
+
+### Security and operations
+
+- Export endpoints are read-only and remain behind the existing HTTP middleware and application authorization/session controls.
+- Inventory-balance export has a hard application limit of 5,000 rows per request.
+- Low-stock and reorder-suggestion queries retain their existing repository-side safety bounds.
+- Export schemas exclude credentials, passwords, session secrets, and payment information.
+
+### Verification
+
+- Added unit coverage for inventory export normalization and CSV contracts.
+- Full release verification remains required for Go, PostgreSQL, Web, Android, extension, authentication/session, authorization/CSRF, and CodeQL gates where configured.
+
+## 0.1.3 — 2026-09-03
+
+### Added
+
+- Added bounded product catalog CSV export at `GET /api/v1/products/export.csv`.
+- Reused existing catalog filters for search, category, supplier, active-only selection, limit, and offset.
+- Added deterministic CSV column ordering, UTC timestamp serialization, formula-safe serialization, and browser download headers.
+- Added focused export-bound tests and dedicated v0.1.3 release notes.
+
+### Security and operations
+
+- Product export remains read-only and uses bounded application-level pagination.
+- Export serialization protects spreadsheet formula-like values.
+- Existing request-ID, origin, authentication/session, authorization, and security-header controls remain applicable.
+
+### Verification
+
+- Full repository release gates remain required before publication, including Go, PostgreSQL, Web, Android, extension, and CodeQL checks where configured.
 
 ## 0.1.2 — 2026-09-03
 
