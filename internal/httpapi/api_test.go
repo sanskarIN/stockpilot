@@ -133,6 +133,7 @@ func (f *fakeStore) ReceiveLine(_ context.Context, _ string, _ string, _ int64, 
 	return nil
 }
 func (f *fakeStore) ReceiveLineWithNewLot(_ context.Context, _ string, _ string, _ int64, _ string, lot domain.Lot, actorID string) error {
+	lot.ID = "lot_test"
 	lot.ProductID = "prd_test"
 	if err := lot.Validate(); err != nil {
 		return err
