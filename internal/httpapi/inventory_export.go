@@ -1,13 +1,11 @@
 package httpapi
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/sanskarIN/stockpilot/internal/csvexport"
-	"github.com/sanskarIN/stockpilot/internal/domain"
 )
 
 const (
@@ -26,7 +24,6 @@ func (a *API) exportInventoryCSV(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Disposition", `attachment; filename="stockpilot-inventory.csv"`)
 	writer := csvexport.New(w, csvexport.Options{FormulaSafe: true})
 	if err := writer.WriteHeader("productId", "locationId", "lotId", "quantity", "updatedAt"); err != nil {
-		writeDomainError(w, err)
 		return
 	}
 	for _, item := range items {
@@ -116,8 +113,4 @@ func formatExportTime(value time.Time) string {
 		return ""
 	}
 	return value.UTC().Format(time.RFC3339)
-}
-
-func _inventoryExportCompileGuard(domain.StockBalance) string {
-	return fmt.Sprint("")
 }
