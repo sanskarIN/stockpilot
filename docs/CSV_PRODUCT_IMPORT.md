@@ -1,14 +1,20 @@
 # CSV Product Import
 
-StockPilot's first CSV import milestone provides a **dry-run validation** workflow. It does not write products to PostgreSQL.
+StockPilot supports a two-step CSV product import workflow: **dry-run validation** followed by an explicit **transactional write**.
 
 A ready-to-copy template is available at `examples/products-import.csv`.
 
-## Endpoint
+## Endpoints
+
+### Dry run
 
 `POST /api/v1/products/import/validate`
 
-The endpoint requires the normal authenticated catalog-write permission and CSRF protection. Upload a multipart form with a field named `file`.
+### Write
+
+`POST /api/v1/products/import`
+
+Both endpoints require the normal authenticated catalog-write permission and CSRF protection. Upload a multipart form with a field named `file`.
 
 The upload is bounded to 5 MiB and 1,000 product rows. The parser also applies a 4 MiB CSV reader limit so malformed or unexpectedly large input cannot grow unbounded in memory.
 
@@ -41,12 +47,27 @@ The dry run checks:
 
 The response contains the number of valid rows, the number of errors, row-level error messages, and a small valid-row preview.
 
+## Explicit write step
+
+A successful dry run does **not** automatically write anything. The web UI presents a separate **Import products** action after a clean dry run.
+
+The write endpoint reparses the uploaded CSV and repeats server-side validation against current database state. This closes the time-of-check/time-of-use gap between validation and persistence.
+
+Products without an `id` receive a server-generated product ID. Supplied IDs are retained and remain subject to the database primary-key constraint.
+
+The PostgreSQL persistence layer inserts the complete batch in one transaction. If any product fails domain validation, a foreign-key constraint, the SKU/barcode uniqueness constraint, or another database constraint, the entire batch is rolled back and no partial import remains.
+
+The write response returns the number of imported products and the created product representations. A successful import records a `products.imported` audit event containing the request ID and batch count, without storing the CSV contents in audit metadata.
+
 ## Integrity boundary
 
-The dry-run endpoint intentionally has no persistence path. A successful dry run means the file is suitable for the next write/import milestone; it does **not** create products.
+The dry-run result is never treated as authorization to write. The write request is independently authenticated and authorized, revalidates its own payload, and relies on database constraints as the final integrity boundary.
 
-The web catalog exposes the validation panel only to administrator and manager roles. The server remains authoritative for permissions and all final product constraints.
+The web catalog exposes the import workflow only through the existing administrator/manager catalog workspace. The server remains authoritative for permissions and all final product constraints.
 
-## Next persistence milestone
+## Failure behavior
 
-The production import endpoint must revalidate the complete payload server-side and persist the complete batch transactionally. It must not trust a previous dry-run result as authorization or as proof that the database has not changed since validation. Unique database constraints and the transaction must remain the final integrity boundary.
+- malformed or oversized multipart/CSV input returns a client error;
+- row-level validation errors prevent the write and are returned with row numbers;
+- an unsupported repository implementation returns `501 Not Implemented` rather than silently falling back to non-atomic writes;
+- concurrent SKU or barcode conflicts are resolved by the database uniqueness constraints and roll back the complete batch.

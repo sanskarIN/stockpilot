@@ -8,13 +8,13 @@ import (
 )
 
 type LotInventoryFilter struct {
-	ProductID  string
+	ProductID   string
 	WarehouseID string
-	LocationID string
-	LotID      string
-	ExpiringBy *time.Time
-	Limit      int
-	Offset     int
+	LocationID  string
+	LotID       string
+	ExpiringBy  *time.Time
+	Limit       int
+	Offset      int
 }
 
 type Inventory interface {

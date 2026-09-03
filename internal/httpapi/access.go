@@ -158,30 +158,52 @@ func (a *accessHandler) usersAPI(w http.ResponseWriter, r *http.Request, princip
 		writeJSON(w, http.StatusCreated, user)
 	case strings.HasSuffix(r.URL.Path, "/role") && r.Method == http.MethodPut:
 		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/api/v1/users/"), "/role")
-		var body struct { Role domain.Role `json:"role"` }
-		if !decodeJSON(w, r, &body) { return }
+		var body struct {
+			Role domain.Role `json:"role"`
+		}
+		if !decodeJSON(w, r, &body) {
+			return
+		}
 		if id == principal.User.ID && body.Role != domain.RoleAdmin {
 			writeJSON(w, http.StatusConflict, map[string]string{"error": "administrators cannot remove their own administrator role"})
 			return
 		}
-		if err := a.users.UpdateUserRole(r.Context(), id, body.Role); err != nil { writeDomainError(w, err); return }
+		if err := a.users.UpdateUserRole(r.Context(), id, body.Role); err != nil {
+			writeDomainError(w, err)
+			return
+		}
 		user, err := a.users.GetUser(r.Context(), id)
-		if err != nil { writeDomainError(w, err); return }
+		if err != nil {
+			writeDomainError(w, err)
+			return
+		}
 		a.recordAudit(r.Context(), principal.User.ID, "auth.user.role_changed", "user", id, map[string]any{"role": string(user.Role)})
 		writeJSON(w, http.StatusOK, user)
 	case strings.HasSuffix(r.URL.Path, "/active") && r.Method == http.MethodPut:
 		id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/api/v1/users/"), "/active")
-		var body struct { Active bool `json:"active"` }
-		if !decodeJSON(w, r, &body) { return }
+		var body struct {
+			Active bool `json:"active"`
+		}
+		if !decodeJSON(w, r, &body) {
+			return
+		}
 		if id == principal.User.ID && !body.Active {
 			writeJSON(w, http.StatusConflict, map[string]string{"error": "administrators cannot deactivate their own account"})
 			return
 		}
-		if err := a.users.SetUserActive(r.Context(), id, body.Active); err != nil { writeDomainError(w, err); return }
+		if err := a.users.SetUserActive(r.Context(), id, body.Active); err != nil {
+			writeDomainError(w, err)
+			return
+		}
 		user, err := a.users.GetUser(r.Context(), id)
-		if err != nil { writeDomainError(w, err); return }
+		if err != nil {
+			writeDomainError(w, err)
+			return
+		}
 		action := "auth.user.deactivated"
-		if body.Active { action = "auth.user.activated" }
+		if body.Active {
+			action = "auth.user.activated"
+		}
 		a.recordAudit(r.Context(), principal.User.ID, action, "user", id, map[string]any{"active": body.Active})
 		writeJSON(w, http.StatusOK, user)
 	default:
@@ -190,7 +212,9 @@ func (a *accessHandler) usersAPI(w http.ResponseWriter, r *http.Request, princip
 }
 
 func (a *accessHandler) recordAudit(ctx context.Context, actorID, action, entityType, entityID string, metadata map[string]any) {
-	if a.audit == nil { return }
+	if a.audit == nil {
+		return
+	}
 	event := domain.AuditEvent{OccurredAt: time.Now().UTC(), ActorID: actorID, Action: action, EntityType: entityType, EntityID: entityID, RequestID: requestIDFromContext(ctx), Metadata: metadata}
 	_ = a.audit.AppendAuditEvent(ctx, event)
 }
@@ -200,11 +224,20 @@ func permissionFor(r *http.Request) (domain.Permission, bool) {
 	read := r.Method == http.MethodGet || r.Method == http.MethodHead
 	switch {
 	case strings.HasPrefix(path, "/api/v1/categories"), strings.HasPrefix(path, "/api/v1/suppliers"), strings.HasPrefix(path, "/api/v1/products"):
-		if read { return domain.PermissionCatalogRead, true }; return domain.PermissionCatalogWrite, true
+		if read {
+			return domain.PermissionCatalogRead, true
+		}
+		return domain.PermissionCatalogWrite, true
 	case strings.HasPrefix(path, "/api/v1/warehouses"), strings.HasPrefix(path, "/api/v1/locations"), strings.HasPrefix(path, "/api/v1/lots"), strings.HasPrefix(path, "/api/v1/inventory"):
-		if read { return domain.PermissionInventoryRead, true }; return domain.PermissionInventoryWrite, true
+		if read {
+			return domain.PermissionInventoryRead, true
+		}
+		return domain.PermissionInventoryWrite, true
 	case strings.HasPrefix(path, "/api/v1/orders"):
-		if read { return domain.PermissionOrdersRead, true }; return domain.PermissionOrdersWrite, true
+		if read {
+			return domain.PermissionOrdersRead, true
+		}
+		return domain.PermissionOrdersWrite, true
 	case strings.HasPrefix(path, "/api/v1/reports"):
 		return domain.PermissionReportsRead, read
 	case strings.HasPrefix(path, "/api/v1/audit"):
@@ -215,7 +248,12 @@ func permissionFor(r *http.Request) (domain.Permission, bool) {
 }
 
 func isMutation(method string) bool {
-	switch method { case http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete: return true; default: return false }
+	switch method {
+	case http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete:
+		return true
+	default:
+		return false
+	}
 }
 
 func PrincipalFromContext(ctx context.Context) (auth.Principal, bool) {

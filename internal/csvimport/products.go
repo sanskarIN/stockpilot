@@ -47,7 +47,9 @@ func ParseProducts(r io.Reader) (ValidationResult, error) {
 	rowNumber := 1
 	for {
 		values, readErr := reader.Read()
-		if readErr == io.EOF { break }
+		if readErr == io.EOF {
+			break
+		}
 		rowNumber++
 		if readErr != nil {
 			result.Errors = append(result.Errors, RowError{Row: rowNumber, Message: "malformed CSV row"})
@@ -57,18 +59,32 @@ func ParseProducts(r io.Reader) (ValidationResult, error) {
 			result.Errors = append(result.Errors, RowError{Row: rowNumber, Message: fmt.Sprintf("maximum of %d product rows is allowed", MaxProductRows)})
 			break
 		}
-		if blankRecord(values) { continue }
+		if blankRecord(values) {
+			continue
+		}
 		product, rowErrors := parseProduct(index, values)
 		if len(rowErrors) == 0 {
 			sku := strings.ToUpper(strings.TrimSpace(product.SKU))
-			if previous, ok := seenSKU[sku]; ok { rowErrors = append(rowErrors, fmt.Sprintf("SKU duplicates row %d", previous)) } else { seenSKU[sku] = rowNumber }
+			if previous, ok := seenSKU[sku]; ok {
+				rowErrors = append(rowErrors, fmt.Sprintf("SKU duplicates row %d", previous))
+			} else {
+				seenSKU[sku] = rowNumber
+			}
 			barcode := strings.TrimSpace(product.Barcode)
 			if barcode != "" {
-				if previous, ok := seenBarcode[barcode]; ok { rowErrors = append(rowErrors, fmt.Sprintf("barcode duplicates row %d", previous)) } else { seenBarcode[barcode] = rowNumber }
+				if previous, ok := seenBarcode[barcode]; ok {
+					rowErrors = append(rowErrors, fmt.Sprintf("barcode duplicates row %d", previous))
+				} else {
+					seenBarcode[barcode] = rowNumber
+				}
 			}
 		}
-		for _, message := range rowErrors { result.Errors = append(result.Errors, RowError{Row: rowNumber, Message: message}) }
-		if len(rowErrors) == 0 { result.Rows = append(result.Rows, ProductRow{Row: rowNumber, Product: product}) }
+		for _, message := range rowErrors {
+			result.Errors = append(result.Errors, RowError{Row: rowNumber, Message: message})
+		}
+		if len(rowErrors) == 0 {
+			result.Rows = append(result.Rows, ProductRow{Row: rowNumber, Product: product})
+		}
 	}
 	return result, nil
 }
@@ -77,27 +93,67 @@ func headerIndex(headers []string) (map[string]int, error) {
 	result := make(map[string]int, len(headers))
 	for i, raw := range headers {
 		name := strings.ToLower(strings.TrimSpace(raw))
-		if name == "" { return nil, fmt.Errorf("CSV header %d is empty", i+1) }
-		if _, exists := result[name]; exists { return nil, fmt.Errorf("CSV header %q is duplicated", name) }
+		if name == "" {
+			return nil, fmt.Errorf("CSV header %d is empty", i+1)
+		}
+		if _, exists := result[name]; exists {
+			return nil, fmt.Errorf("CSV header %q is duplicated", name)
+		}
 		result[name] = i
 	}
 	for _, required := range []string{"sku", "name", "unit", "unit_cost_minor", "currency", "reorder_point", "reorder_quantity", "track_lots", "track_expiry", "active"} {
-		if _, ok := result[required]; !ok { return nil, fmt.Errorf("CSV header %q is required", required) }
+		if _, ok := result[required]; !ok {
+			return nil, fmt.Errorf("CSV header %q is required", required)
+		}
 	}
 	return result, nil
 }
 
 func parseProduct(index map[string]int, values []string) (domain.Product, []string) {
-	get := func(name string) string { if i, ok := index[name]; ok && i < len(values) { return strings.TrimSpace(values[i]) }; return "" }
+	get := func(name string) string {
+		if i, ok := index[name]; ok && i < len(values) {
+			return strings.TrimSpace(values[i])
+		}
+		return ""
+	}
 	product := domain.Product{ID: get("id"), SKU: get("sku"), Name: get("name"), Description: get("description"), CategoryID: get("category_id"), SupplierID: get("supplier_id"), Barcode: get("barcode"), Unit: get("unit"), Currency: get("currency")}
-	if product.ID == "" { product.ID = "pending" }
+	if product.ID == "" {
+		product.ID = "pending"
+	}
 	errors := make([]string, 0, 4)
-	parseInt := func(name string, target *int64) { value, err := strconv.ParseInt(get(name), 10, 64); if err != nil { errors = append(errors, fmt.Sprintf("%s must be a whole number", name)); return }; *target = value }
-	parseBool := func(name string, target *bool) { value, err := strconv.ParseBool(get(name)); if err != nil { errors = append(errors, fmt.Sprintf("%s must be true or false", name)); return }; *target = value }
-	parseInt("unit_cost_minor", &product.UnitCostMinor); parseInt("reorder_point", &product.ReorderPoint); parseInt("reorder_quantity", &product.ReorderQuantity)
-	parseBool("track_lots", &product.TrackLots); parseBool("track_expiry", &product.TrackExpiry); parseBool("active", &product.Active)
-	if err := product.Validate(); err != nil { errors = append(errors, err.Error()) }
+	parseInt := func(name string, target *int64) {
+		value, err := strconv.ParseInt(get(name), 10, 64)
+		if err != nil {
+			errors = append(errors, fmt.Sprintf("%s must be a whole number", name))
+			return
+		}
+		*target = value
+	}
+	parseBool := func(name string, target *bool) {
+		value, err := strconv.ParseBool(get(name))
+		if err != nil {
+			errors = append(errors, fmt.Sprintf("%s must be true or false", name))
+			return
+		}
+		*target = value
+	}
+	parseInt("unit_cost_minor", &product.UnitCostMinor)
+	parseInt("reorder_point", &product.ReorderPoint)
+	parseInt("reorder_quantity", &product.ReorderQuantity)
+	parseBool("track_lots", &product.TrackLots)
+	parseBool("track_expiry", &product.TrackExpiry)
+	parseBool("active", &product.Active)
+	if err := product.Validate(); err != nil {
+		errors = append(errors, err.Error())
+	}
 	return product, errors
 }
 
-func blankRecord(values []string) bool { for _, value := range values { if strings.TrimSpace(value) != "" { return false } }; return true }
+func blankRecord(values []string) bool {
+	for _, value := range values {
+		if strings.TrimSpace(value) != "" {
+			return false
+		}
+	}
+	return true
+}

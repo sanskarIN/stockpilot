@@ -5,18 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/sanskarIN/stockpilot/internal/domain"
 )
-
-func (f *fakeStore) ReceiveLineWithNewLot(_ context.Context, _ string, _ string, _ int64, _ string, lot domain.Lot, actorID string) error {
-	lot.ProductID = "prd_test"
-	if err := lot.Validate(); err != nil {
-		return err
-	}
-	f.receiptActor = actorID
-	return nil
-}
 
 func TestReceiveOrderLineNewLotUsesAtomicRepositoryPath(t *testing.T) {
 	store := &fakeStore{}

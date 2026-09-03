@@ -15,12 +15,12 @@ func (a *API) recordAudit(ctx context.Context, actorID, action, entityType, enti
 	}
 	event := domain.AuditEvent{
 		OccurredAt: time.Now().UTC(),
-		ActorID: actorID,
-		Action: action,
+		ActorID:    actorID,
+		Action:     action,
 		EntityType: entityType,
-		EntityID: entityID,
-		RequestID: requestIDFromContext(ctx),
-		Metadata: metadata,
+		EntityID:   entityID,
+		RequestID:  requestIDFromContext(ctx),
+		Metadata:   metadata,
 	}
 	if err := a.audit.AppendAuditEvent(ctx, event); err != nil && a.logger != nil {
 		a.logger.ErrorContext(ctx, "audit append failed", slog.Any("error", err), "action", action, "entity_type", entityType, "entity_id", entityID)

@@ -21,7 +21,9 @@ func TestValidatePurchaseOrderTransition(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := ValidatePurchaseOrderTransition(tt.from, tt.to)
-			if (err == nil) != tt.want { t.Fatalf("error = %v, want success=%v", err, tt.want) }
+			if (err == nil) != tt.want {
+				t.Fatalf("error = %v, want success=%v", err, tt.want)
+			}
 		})
 	}
 }

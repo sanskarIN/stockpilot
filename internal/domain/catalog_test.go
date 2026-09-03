@@ -40,8 +40,8 @@ func TestProductValidateRejectsExpiryWithoutLotTracking(t *testing.T) {
 
 func TestProductValidateRejectsNegativeValues(t *testing.T) {
 	tests := []struct {
-		name    string
-		mutate  func(*Product)
+		name   string
+		mutate func(*Product)
 	}{
 		{name: "unit cost", mutate: func(p *Product) { p.UnitCostMinor = -1 }},
 		{name: "reorder point", mutate: func(p *Product) { p.ReorderPoint = -1 }},

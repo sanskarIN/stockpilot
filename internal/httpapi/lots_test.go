@@ -6,16 +6,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-
-	"github.com/sanskarIN/stockpilot/internal/domain"
 )
-
-func (f *fakeStore) ListLots(_ context.Context, productID string, _ int) ([]domain.Lot, error) {
-	if productID == "prd_1" {
-		return []domain.Lot{{ID: "lot_1", ProductID: "prd_1", LotNumber: "LOT-1"}}, nil
-	}
-	return []domain.Lot{}, nil
-}
 
 func TestListLotsEndpointFiltersByProduct(t *testing.T) {
 	store := &fakeStore{}

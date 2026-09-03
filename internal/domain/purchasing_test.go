@@ -36,22 +36,22 @@ func TestPurchaseOrderReceivedStatus(t *testing.T) {
 		want   PurchaseOrderStatus
 	}{
 		{
-			name: "nothing received keeps current status",
-			lines: []PurchaseOrderLine{{Quantity: 2, Received: 0}},
+			name:   "nothing received keeps current status",
+			lines:  []PurchaseOrderLine{{Quantity: 2, Received: 0}},
 			status: PurchaseOrderOrdered,
-			want: PurchaseOrderOrdered,
+			want:   PurchaseOrderOrdered,
 		},
 		{
-			name: "partial receipt",
-			lines: []PurchaseOrderLine{{Quantity: 2, Received: 1}, {Quantity: 2, Received: 0}},
+			name:   "partial receipt",
+			lines:  []PurchaseOrderLine{{Quantity: 2, Received: 1}, {Quantity: 2, Received: 0}},
 			status: PurchaseOrderOrdered,
-			want: PurchaseOrderPartiallyReceived,
+			want:   PurchaseOrderPartiallyReceived,
 		},
 		{
-			name: "complete receipt",
-			lines: []PurchaseOrderLine{{Quantity: 2, Received: 2}, {Quantity: 3, Received: 3}},
+			name:   "complete receipt",
+			lines:  []PurchaseOrderLine{{Quantity: 2, Received: 2}, {Quantity: 3, Received: 3}},
 			status: PurchaseOrderPartiallyReceived,
-			want: PurchaseOrderReceived,
+			want:   PurchaseOrderReceived,
 		},
 	}
 
