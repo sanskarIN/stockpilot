@@ -1,0 +1,37 @@
+name: Fix Go compatibility issue
+
+on:
+  push:
+    branches:
+      - feat/csv-product-import
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 1.26.x
+      - name: Apply Go 1.26 compatibility fix
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("internal/httpapi/api_test.go")
+          text = path.read_text()
+          old = 'time.Date(2026, 9, 20, 0, 0, 0, time.UTC)'
+          new = 'time.Date(2026, 9, 20, 0, 0, 0, 0, time.UTC)'
+          if old not in text:
+              raise SystemExit("expected time.Date call was not found")
+          path.write_text(text.replace(old, new, 1))
+          PY
+          git config user.name "sanskarIN"
+          git config user.email "sanskarin@outlook.in"
+          git add internal/httpapi/api_test.go
+          git commit -m "fix(test): update time.Date call for Go 1.26"
+          git push origin HEAD:feat/csv-product-import
