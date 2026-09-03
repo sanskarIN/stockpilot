@@ -50,7 +50,7 @@ func (a *API) updateWarehouse(w http.ResponseWriter, r *http.Request) {
 		writeDomainError(w, err)
 		return
 	}
-	a.recordAudit(r.Context(), authenticatedActorID(r), "warehouse.updated", "warehouse", item.ID, map[string]any{"code": item.Code, "name": item.Name})
+	a.recordAudit(r.Context(), authenticatedActorID(r), "warehouse.updated", "warehouse", item.ID, map[string]any{"code": item.Code, "name": item.Name, "active": item.Active})
 	writeJSON(w, http.StatusOK, item)
 }
 func (a *API) listLocations(w http.ResponseWriter, r *http.Request) {
