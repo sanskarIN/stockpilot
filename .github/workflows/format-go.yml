@@ -1,0 +1,35 @@
+name: Format Go sources
+
+on:
+  push:
+    branches:
+      - feat/csv-product-import
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.26.x
+          cache: true
+      - name: Format Go sources
+        run: |
+          gofmt -w cmd internal
+          if git diff --quiet -- cmd internal; then
+            echo "Go sources are already formatted."
+            exit 0
+          fi
+          git config user.name "sanskarIN"
+          git config user.email "sanskarin@outlook.in"
+          git add cmd internal
+          git commit -m "style: format Go sources"
+          git push origin HEAD:feat/csv-product-import
