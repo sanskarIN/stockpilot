@@ -29,6 +29,7 @@ type Inventory interface {
 	ApplyMovement(context.Context, domain.StockMovement) (domain.StockBalance, error)
 	Transfer(context.Context, domain.TransferRequest) error
 	GetBalance(context.Context, string, string, string) (domain.StockBalance, error)
+	ListBalances(context.Context, int, int) ([]domain.StockBalance, error)
 	ListLowStock(context.Context, int) ([]domain.StockBalance, error)
 	ListReorderSuggestions(context.Context, int) ([]domain.ReorderSuggestion, error)
 	GetInventoryValuation(context.Context, int) (domain.InventoryValuationReport, error)
