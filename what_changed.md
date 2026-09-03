@@ -29,10 +29,13 @@ Phase 18 — Transactional CSV product import and mainline CI repair.
 - [x] Restored the atomic product batch-import repository contract in the repository package.
 - [x] Formatted the new HTTP and PostgreSQL import code/tests to satisfy the repository's `gofmt` quality gate.
 - [x] Reformatted `internal/httpapi/api.go` after the CI formatting gate identified the router/middleware file as non-gofmt-compliant.
+- [x] Improved the CI formatting step so a future formatting failure prints the exact non-gofmt-formatted files instead of failing silently.
+- [x] Preserved the existing PostgreSQL Go module cache configuration and existing Node action version while making the CI diagnostic change.
+- [x] Re-ran the failed Go-quality workflow job to validate the updated CI diagnostics.
 
 ## Verification status
 
-The connected environment cannot clone GitHub repositories locally because outbound GitHub DNS/network access is unavailable. GitHub Actions is therefore the authoritative execution environment. The latest CI run for the previous head failed only at the Go formatting gate; its PostgreSQL migration smoke test and Web quality job passed, and CodeQL passed. The formatting issue has now been corrected in commit `3115de9c9c60b691937e8788546d38116bd0241b`. A fresh CI run must complete against the new head before merge.
+The connected environment cannot clone GitHub repositories locally because outbound GitHub DNS/network access is unavailable. GitHub Actions is therefore the authoritative execution environment. The previous CI run for PR #38 failed at the Go formatting gate while the PostgreSQL migration smoke test and Web quality job passed, and CodeQL passed. The CI formatting step has now been changed to print the exact failing file list, and a workflow retry has been initiated. The new head must receive a fresh green CI result before PR #38 is merged.
 
 ## Known limitations
 
@@ -44,13 +47,14 @@ The connected environment cannot clone GitHub repositories locally because outbo
 
 ## Next exact tasks
 
-1. Verify fresh PR #38 CI and CodeQL against the formatted head; merge only when the required checks are green.
-2. Add CSV inventory/report export with audit events and bounded streaming output.
-3. Add inventory aging, configurable expiry-risk, movement-velocity, supplier, and replenishment analytics.
-4. Expand concurrent inventory database integration coverage and migration compatibility tests.
-5. Add browser E2E, Android instrumentation, accessibility, restore, and release-artifact checks.
-6. Add automated backup retention examples and first stable-release gates.
+1. Verify fresh PR #38 CI and CodeQL against the current head; merge only when the required checks are green.
+2. If formatting still fails, use the diagnostic file list and make focused formatting-only commits.
+3. Add CSV inventory/report export with audit events and bounded streaming output.
+4. Add inventory aging, configurable expiry-risk, movement-velocity, supplier, and replenishment analytics.
+5. Expand concurrent inventory database integration coverage and migration compatibility tests.
+6. Add browser E2E, Android instrumentation, accessibility, restore, and release-artifact checks.
+7. Add automated backup retention examples and first stable-release gates.
 
 ## Commit discipline
 
-Each functional boundary is intentionally represented by an individual commit where practical: domain rules, repository contracts, persistence, HTTP handlers, tests, client API, UI, routing, styling, fixes, and documentation are kept separately reviewable. Repository commits continue to use `sanskarin@outlook.in` where the connected GitHub identity supports author attribution.
+Each functional boundary is intentionally represented by an individual commit where practical: domain rules, repository contracts, persistence, HTTP handlers, tests, client API, UI, routing, styling, fixes, CI, and documentation are kept separately reviewable. Repository commits continue to use `sanskarin@outlook.in` where the connected GitHub identity supports author attribution.
