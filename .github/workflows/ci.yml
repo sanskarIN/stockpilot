@@ -33,7 +33,13 @@ jobs:
           go mod tidy
           git diff --exit-code -- go.mod go.sum
       - name: Check formatting
-        run: test -z "$(gofmt -l cmd internal)"
+        run: |
+          gofmt_files="$(gofmt -l cmd internal)"
+          if [ -n "$gofmt_files" ]; then
+            echo "::error::The following Go files are not gofmt-formatted:"
+            printf '%s\n' "$gofmt_files"
+            exit 1
+          fi
       - name: Vet
         run: go vet ./...
       - name: Test
@@ -96,7 +102,6 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.26.x'
-          cache: true
       - name: Start StockPilot
         run: |
           go run ./cmd/server > /tmp/stockpilot.log 2>&1 &
@@ -104,7 +109,7 @@ jobs:
       - name: Verify readiness after migrations
         run: |
           for attempt in {1..30}; do
-            if curl --fail --silent http://localhost:8080/readyz | grep -q '"ready"'; then
+            if curl --fail --silent http://localhost:8080/readyz | grep -q '\"ready\"'; then
               exit 0
             fi
             sleep 1
