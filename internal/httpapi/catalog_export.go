@@ -36,15 +36,14 @@ func (a *API) exportProductsCSV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filename := "stockpilot-products.csv"
 	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
-	w.Header().Set("Content-Disposition", "attachment; filename=\""+filename+"\"")
-	writer := csvexport.New(w, csvexport.WithFormulaSafety(true))
-	if err := writer.WriteHeader([]string{"id", "sku", "name", "description", "categoryId", "supplierId", "barcode", "unit", "unitCostMinor", "currency", "reorderPoint", "reorderQuantity", "trackLots", "trackExpiry", "active", "createdAt", "updatedAt"}); err != nil {
+	w.Header().Set("Content-Disposition", "attachment; filename=\"stockpilot-products.csv\"")
+	writer := csvexport.New(w, csvexport.Options{FormulaSafe: true})
+	if err := writer.WriteHeader("id", "sku", "name", "description", "categoryId", "supplierId", "barcode", "unit", "unitCostMinor", "currency", "reorderPoint", "reorderQuantity", "trackLots", "trackExpiry", "active", "createdAt", "updatedAt"); err != nil {
 		return
 	}
 	for _, product := range products {
-		if err := writer.WriteRecord([]string{
+		if err := writer.WriteRow(
 			product.ID,
 			product.SKU,
 			product.Name,
@@ -62,11 +61,9 @@ func (a *API) exportProductsCSV(w http.ResponseWriter, r *http.Request) {
 			strconv.FormatBool(product.Active),
 			product.CreatedAt.UTC().Format("2006-01-02T15:04:05Z"),
 			product.UpdatedAt.UTC().Format("2006-01-02T15:04:05Z"),
-		}); err != nil {
+		); err != nil {
 			return
 		}
 	}
 	_ = writer.Flush()
 }
-
-var _ http.Handler = http.HandlerFunc(nil)
