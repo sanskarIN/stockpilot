@@ -53,6 +53,7 @@ func NewCore(catalog repository.Catalog, inventory repository.Inventory, orders 
 	mux.HandleFunc("GET /api/v1/suppliers", a.listSuppliers)
 	mux.HandleFunc("POST /api/v1/suppliers", a.createSupplier)
 	mux.HandleFunc("GET /api/v1/products", a.listProducts)
+	mux.HandleFunc("GET /api/v1/products/export.csv", a.exportProductsCSV)
 	mux.HandleFunc("POST /api/v1/products", a.createProduct)
 	mux.HandleFunc("POST /api/v1/products/import/validate", a.validateProductImport)
 	mux.HandleFunc("POST /api/v1/products/import", a.importProducts)
