@@ -1,0 +1,72 @@
+package httpapi
+
+import (
+	"net/http"
+	"strconv"
+	"strings"
+
+	"github.com/sanskarIN/stockpilot/internal/csvexport"
+	"github.com/sanskarIN/stockpilot/internal/repository"
+)
+
+const maxCatalogExportRows = 5000
+
+func (a *API) exportProductsCSV(w http.ResponseWriter, r *http.Request) {
+	filter := repository.ProductFilter{
+		Query:      strings.TrimSpace(r.URL.Query().Get("q")),
+		CategoryID: strings.TrimSpace(r.URL.Query().Get("categoryId")),
+		SupplierID: strings.TrimSpace(r.URL.Query().Get("supplierId")),
+		ActiveOnly: r.URL.Query().Get("activeOnly") != "false",
+		Limit:      queryInt(r, "limit", 1000),
+		Offset:     queryInt(r, "offset", 0),
+	}
+	if filter.Limit <= 0 {
+		filter.Limit = 1000
+	}
+	if filter.Limit > maxCatalogExportRows {
+		filter.Limit = maxCatalogExportRows
+	}
+	if filter.Offset < 0 {
+		filter.Offset = 0
+	}
+
+	products, err := a.catalog.ListProducts(r.Context(), filter)
+	if err != nil {
+		writeDomainError(w, err)
+		return
+	}
+
+	filename := "stockpilot-products.csv"
+	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
+	w.Header().Set("Content-Disposition", "attachment; filename=\""+filename+"\"")
+	writer := csvexport.New(w, csvexport.WithFormulaSafety(true))
+	if err := writer.WriteHeader([]string{"id", "sku", "name", "description", "categoryId", "supplierId", "barcode", "unit", "unitCostMinor", "currency", "reorderPoint", "reorderQuantity", "trackLots", "trackExpiry", "active", "createdAt", "updatedAt"}); err != nil {
+		return
+	}
+	for _, product := range products {
+		if err := writer.WriteRecord([]string{
+			product.ID,
+			product.SKU,
+			product.Name,
+			product.Description,
+			product.CategoryID,
+			product.SupplierID,
+			product.Barcode,
+			product.Unit,
+			strconv.FormatInt(product.UnitCostMinor, 10),
+			product.Currency,
+			strconv.FormatInt(product.ReorderPoint, 10),
+			strconv.FormatInt(product.ReorderQuantity, 10),
+			strconv.FormatBool(product.TrackLots),
+			strconv.FormatBool(product.TrackExpiry),
+			strconv.FormatBool(product.Active),
+			product.CreatedAt.UTC().Format("2006-01-02T15:04:05Z"),
+			product.UpdatedAt.UTC().Format("2006-01-02T15:04:05Z"),
+		}); err != nil {
+			return
+		}
+	}
+	_ = writer.Flush()
+}
+
+var _ http.Handler = http.HandlerFunc(nil)
