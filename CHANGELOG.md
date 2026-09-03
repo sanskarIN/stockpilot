@@ -4,7 +4,27 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-Future work will continue here after v0.1.1.
+Future work will continue here after v0.1.2.
+
+## 0.1.2 — 2026-09-03
+
+### Added
+
+- Added the reusable `internal/csvexport` package for deterministic, RFC 4180-compatible CSV serialization.
+- Added optional spreadsheet-formula protection for cells beginning with `=`, `+`, `-`, or `@` after leading whitespace.
+- Added focused unit coverage for quoting, formula safety, validation, and writer errors.
+- Added `docs/CSV_EXPORT_DESIGN.md` describing the planned export contracts, authorization boundaries, resource limits, and security requirements.
+
+### Security and operations
+
+- Export design explicitly keeps authorization, filtering, ordering, and resource limits outside the serializer.
+- Export guidance prohibits credentials, session values, secrets, and other sensitive authentication material from downloadable datasets.
+- Large exports are planned to use bounded/streaming or asynchronous approaches rather than unbounded in-memory buffering.
+
+### Verification
+
+- CSV serialization tests cover commas, newlines, formula-like values, invalid headers, and nil-writer handling.
+- Full repository release gates remain required before publication, including Go, PostgreSQL, Web, Android, extension, and CodeQL checks where configured.
 
 ## 0.1.1 — 2026-09-03
 
