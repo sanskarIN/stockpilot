@@ -5,10 +5,10 @@ import (
 	"testing"
 )
 
-const validHeader = "sku,name,description,unit_cost_minor,currency,reorder_point,reorder_quantity,track_lots,track_expiry,active\n"
+const validHeader = "sku,name,description,unit,unit_cost_minor,currency,reorder_point,reorder_quantity,track_lots,track_expiry,active\n"
 
 func TestParseProductsValidRows(t *testing.T) {
-	input := validHeader + "SKU-1,Widget,Demo,1250,INR,10,20,false,false,true\n"
+	input := validHeader + "SKU-1,Widget,Demo,piece,1250,INR,10,20,false,false,true\n"
 	result, err := ParseProducts(strings.NewReader(input))
 	if err != nil {
 		t.Fatalf("ParseProducts() error = %v", err)
@@ -25,7 +25,7 @@ func TestParseProductsValidRows(t *testing.T) {
 }
 
 func TestParseProductsReportsFieldErrors(t *testing.T) {
-	input := validHeader + "S,Widget,Demo,-1,INR,nope,20,true,false,true\n"
+	input := validHeader + "S,Widget,Demo,piece,-1,INR,nope,20,true,false,true\n"
 	result, err := ParseProducts(strings.NewReader(input))
 	if err != nil {
 		t.Fatalf("ParseProducts() error = %v", err)
