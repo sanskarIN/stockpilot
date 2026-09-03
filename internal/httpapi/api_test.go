@@ -21,6 +21,7 @@ type fakeStore struct {
 	createdOrder       domain.PurchaseOrder
 	receiptActor       string
 	reorderSuggestions []domain.ReorderSuggestion
+	lowStock           []domain.StockBalance
 	valuation          domain.InventoryValuationReport
 	auditEvents        []domain.AuditEvent
 	updatedOrder       domain.PurchaseOrder
@@ -107,7 +108,7 @@ func (f *fakeStore) ListBalances(context.Context, int, int) ([]domain.StockBalan
 	return f.balances, nil
 }
 func (f *fakeStore) ListLowStock(context.Context, int) ([]domain.StockBalance, error) {
-	return nil, nil
+	return f.lowStock, nil
 }
 func (f *fakeStore) ListReorderSuggestions(context.Context, int) ([]domain.ReorderSuggestion, error) {
 	return f.reorderSuggestions, nil
