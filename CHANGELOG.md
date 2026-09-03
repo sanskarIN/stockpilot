@@ -4,7 +4,26 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-Future work will continue here after the first public preview.
+Future work will continue here after v0.1.1.
+
+## 0.1.1 — 2026-09-03
+
+### Changed
+
+- Clarified the v0.1.x maintenance-release policy and verification gates.
+- Added a dedicated release runbook covering source freeze, automated/manual verification, tagging, artifacts, post-release checks, and rollback.
+- Documented the v0.1.1 maintenance-release scope without introducing a large feature payload.
+
+### Security and operations
+
+- Reaffirmed backup/restore verification before release publication.
+- Reaffirmed HTTPS enforcement, encrypted Android session storage, scoped browser-companion permissions, security headers, CORS review, backup retention, and request-ID logging as release gates.
+- Documented the rule that a published release tag must not be rewritten; corrective defects should ship as a subsequent patch release.
+
+### Verification
+
+- v0.1.1 publication requires green Go quality, PostgreSQL migration smoke-test, Web quality, and CodeQL checks for the exact release commit.
+- Manual release gates remain required for backup/restore, authentication/session behavior, responsive/keyboard review, Android device smoke testing, browser-companion installation/handoff, rollback rehearsal, and post-release smoke testing.
 
 ## 0.1.0-preview.1 — 2026-09-03
 
