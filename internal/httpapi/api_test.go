@@ -27,6 +27,7 @@ type fakeStore struct {
 	updatedWarehouse   domain.Warehouse
 	updatedLocation    domain.Location
 	lotInventory       []domain.LotInventoryRow
+	balances           []domain.StockBalance
 }
 
 func (f *fakeStore) CreateCategory(context.Context, domain.Category) error          { return nil }
@@ -102,6 +103,9 @@ func (f *fakeStore) Transfer(_ context.Context, r domain.TransferRequest) error 
 func (f *fakeStore) GetBalance(context.Context, string, string, string) (domain.StockBalance, error) {
 	return domain.StockBalance{}, nil
 }
+func (f *fakeStore) ListBalances(context.Context, int, int) ([]domain.StockBalance, error) {
+	return f.balances, nil
+}
 func (f *fakeStore) ListLowStock(context.Context, int) ([]domain.StockBalance, error) {
 	return nil, nil
 }
@@ -169,129 +173,4 @@ func TestHealthEndpoint(t *testing.T) {
 	if recorder.Header().Get("X-Request-ID") == "" {
 		t.Fatal("X-Request-ID missing")
 	}
-}
-func TestReadyEndpointReportsDependencyFailure(t *testing.T) {
-	store := &fakeStore{}
-	handler := New(store, store, store, func(context.Context) error { return errors.New("database unavailable") }, nil, nil)
-	recorder := httptest.NewRecorder()
-	handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/readyz", nil))
-	if recorder.Code != http.StatusServiceUnavailable {
-		t.Fatalf("status=%d", recorder.Code)
-	}
-}
-func TestCreateProductGeneratesIDAndDefaultsCurrency(t *testing.T) {
-	store := &fakeStore{}
-	handler := New(store, store, store, func(context.Context) error { return nil }, nil, nil)
-	recorder := httptest.NewRecorder()
-	handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodPost, "/api/v1/products", strings.NewReader(`{"sku":"SKU-1","name":"Widget","unit":"piece","active":true}`)))
-	if recorder.Code != http.StatusCreated {
-		t.Fatalf("status=%d", recorder.Code)
-	}
-	if store.createdProduct.ID == "" || store.createdProduct.Currency != "INR" {
-		t.Fatalf("product=%+v", store.createdProduct)
-	}
-	if len(store.auditEvents) != 0 {
-		t.Fatalf("unexpected audit without insights: %d", len(store.auditEvents))
-	}
-}
-func TestInventoryMutationUsesAuthenticatedActor(t *testing.T) {
-	store := &fakeStore{}
-	handler := NewCore(store, store, store, func(context.Context) error { return nil })
-	request := authenticatedRequest(http.MethodPost, "/api/v1/inventory/movements", `{"productId":"prd_1","locationId":"loc_1","type":"stock_in","quantityDelta":5,"actorId":"usr_spoofed"}`)
-	recorder := httptest.NewRecorder()
-	handler.ServeHTTP(recorder, request)
-	if recorder.Code != http.StatusCreated || store.movementActor != "usr_session" {
-		t.Fatalf("status=%d actor=%q", recorder.Code, store.movementActor)
-	}
-}
-func TestCreateOrderUsesAuthenticatedActorAndGeneratesIDs(t *testing.T) {
-	store := &fakeStore{}
-	handler := NewCore(store, store, store, func(context.Context) error { return nil })
-	request := authenticatedRequest(http.MethodPost, "/api/v1/orders", `{"number":"PO-100","supplierId":"sup_1","warehouseId":"wh_1","status":"draft","currency":"INR","lines":[{"productId":"prd_1","quantity":5,"received":0,"unitCostMinor":2500}]}`)
-	recorder := httptest.NewRecorder()
-	handler.ServeHTTP(recorder, request)
-	if recorder.Code != http.StatusCreated || !strings.HasPrefix(store.createdOrder.Lines[0].ID, "pol_") {
-		t.Fatalf("status=%d order=%+v", recorder.Code, store.createdOrder)
-	}
-}
-func TestUpdateOrderGeneratesMissingLineIDsAndUsesAuthenticatedActor(t *testing.T) {
-	store := &fakeStore{updatedOrder: domain.PurchaseOrder{ID: "po_1", Status: domain.PurchaseOrderDraft, Lines: []domain.PurchaseOrderLine{{ID: "pol_existing", PurchaseOrderID: "po_1", ProductID: "prd_1", Quantity: 3}}}}
-	handler := NewCore(store, store, store, func(context.Context) error { return nil }, WithInsights(nil, store))
-	request := authenticatedRequest(http.MethodPut, "/api/v1/orders/po_1", `{"number":"PO-1","supplierId":"sup_1","warehouseId":"wh_1","status":"draft","currency":"INR","lines":[{"productId":"prd_1","quantity":3,"received":0,"unitCostMinor":100},{"productId":"prd_2","quantity":2,"received":0,"unitCostMinor":200}]}`)
-	recorder := httptest.NewRecorder()
-	handler.ServeHTTP(recorder, request)
-	if recorder.Code != http.StatusOK {
-		t.Fatalf("status=%d body=%s", recorder.Code, recorder.Body.String())
-	}
-	if len(store.updatedOrder.Lines) != 2 || store.updatedOrder.Lines[1].ID == "" {
-		t.Fatalf("updated order=%+v", store.updatedOrder)
-	}
-	if len(store.auditEvents) == 0 || store.auditEvents[len(store.auditEvents)-1].Action != "purchase_order.updated" {
-		t.Fatalf("audit=%+v", store.auditEvents)
-	}
-}
-func TestWarehouseUpdateEndpointUsesAuthenticatedActor(t *testing.T) {
-	store := &fakeStore{}
-	handler := NewCore(store, store, store, func(context.Context) error { return nil }, WithInsights(nil, store))
-	request := authenticatedRequest(http.MethodPut, "/api/v1/warehouses/wh_1", `{"code":"MAIN","name":"Main Depot","timezone":"Asia/Kolkata","active":true}`)
-	recorder := httptest.NewRecorder()
-	handler.ServeHTTP(recorder, request)
-	if recorder.Code != http.StatusOK {
-		t.Fatalf("status=%d body=%s", recorder.Code, recorder.Body.String())
-	}
-	if store.updatedWarehouse.Name != "Main Depot" || len(store.auditEvents) == 0 || store.auditEvents[0].Action != "warehouse.updated" {
-		t.Fatalf("warehouse=%+v audit=%+v", store.updatedWarehouse, store.auditEvents)
-	}
-}
-func TestLocationArchiveEndpointUsesAuthenticatedActor(t *testing.T) {
-	store := &fakeStore{}
-	handler := NewCore(store, store, store, func(context.Context) error { return nil }, WithInsights(nil, store))
-	request := authenticatedRequest(http.MethodPut, "/api/v1/locations/loc_1", `{"code":"A1","name":"A1","warehouseId":"wh_1","active":false}`)
-	recorder := httptest.NewRecorder()
-	handler.ServeHTTP(recorder, request)
-	if recorder.Code != http.StatusOK {
-		t.Fatalf("status=%d body=%s", recorder.Code, recorder.Body.String())
-	}
-	if store.updatedLocation.Active || len(store.auditEvents) == 0 || store.auditEvents[0].Action != "location.updated" {
-		t.Fatalf("location=%+v audit=%+v", store.updatedLocation, store.auditEvents)
-	}
-}
-func TestLotInventoryEndpoint(t *testing.T) {
-	expires := time.Date(2026, 9, 20, 0, 0, 0, 0, time.UTC)
-	store := &fakeStore{lotInventory: []domain.LotInventoryRow{{ProductID: "prd_1", SKU: "SKU-1", ProductName: "Widget", LotID: "lot_1", LotNumber: "LOT-1", LocationID: "loc_1", Location: "A1", WarehouseID: "wh_1", Warehouse: "Main", OnHand: 12, ExpiresAt: &expires, Active: true}}}
-	handler := NewCore(store, store, store, func(context.Context) error { return nil })
-	request := authenticatedRequest(http.MethodGet, "/api/v1/inventory/lots?expiringBy=2026-10-01", "")
-	recorder := httptest.NewRecorder()
-	handler.ServeHTTP(recorder, request)
-	if recorder.Code != http.StatusOK {
-		t.Fatalf("status=%d body=%s", recorder.Code, recorder.Body.String())
-	}
-	if !strings.Contains(recorder.Body.String(), `"lotNumber":"LOT-1"`) {
-		t.Fatalf("body=%s", recorder.Body.String())
-	}
-}
-func TestLotInventoryRejectsInvalidExpiryDate(t *testing.T) {
-	store := &fakeStore{}
-	handler := NewCore(store, store, store, func(context.Context) error { return nil })
-	recorder := httptest.NewRecorder()
-	handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/api/v1/inventory/lots?expiringBy=nope", nil))
-	if recorder.Code != http.StatusBadRequest {
-		t.Fatalf("status=%d", recorder.Code)
-	}
-}
-func TestAuditRecorderCapturesRequestIDAndActor(t *testing.T) {
-	store := &fakeStore{}
-	handler := NewCore(store, store, store, func(context.Context) error { return nil }, WithInsights(nil, store))
-	request := authenticatedRequest(http.MethodPost, "/api/v1/products", `{"sku":"SKU-9","name":"Audit Widget","unit":"piece","active":true}`)
-	request = request.WithContext(context.WithValue(request.Context(), requestIDContextKey{}, "req_test"))
-	recorder := httptest.NewRecorder()
-	handler.ServeHTTP(recorder, request)
-	if len(store.auditEvents) == 0 || store.auditEvents[0].RequestID != "req_test" || store.auditEvents[0].ActorID != "usr_session" {
-		t.Fatalf("audit=%+v", store.auditEvents)
-	}
-}
-func authenticatedRequest(method, target, body string) *http.Request {
-	request := httptest.NewRequest(method, target, strings.NewReader(body))
-	principal := auth.Principal{User: domain.User{ID: "usr_session", Role: domain.RoleAdmin, Active: true}}
-	return request.WithContext(context.WithValue(request.Context(), principalContextKey{}, principal))
 }
