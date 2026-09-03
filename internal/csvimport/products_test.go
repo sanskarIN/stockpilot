@@ -39,7 +39,7 @@ func TestParseProductsReportsFieldErrors(t *testing.T) {
 }
 
 func TestParseProductsRejectsDuplicateSKUAndBarcode(t *testing.T) {
-	input := "sku,name,unit,unit_cost_minor,currency,reorder_point,reorder_quantity,track_lots,track_expiry,active,barcode\nSKU-1,A,each,100,INR,1,1,false,false,true,890\nSKU-1,B,each,200,INR,1,1,false,false,true,890\n"
+	input := "sku,name,unit,unit_cost_minor,currency,reorder_point,reorder_quantity,track_lots,track_expiry,active,barcode\nSKU-1,Alpha,each,100,INR,1,1,false,false,true,890\nSKU-1,Beta,each,200,INR,1,1,false,false,true,890\n"
 	result, err := ParseProducts(strings.NewReader(input))
 	if err != nil {
 		t.Fatalf("ParseProducts() error = %v", err)
