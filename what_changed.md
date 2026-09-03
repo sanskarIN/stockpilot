@@ -2,58 +2,58 @@
 
 ## Current milestone
 
-Phase 18 — Transactional CSV product import and mainline CI repair.
+Phase 19 — First public preview release preparation (`v0.1.0-preview.1`).
 
 ## Repository state
 
 - Default branch: `main`.
-- Active branch: `feat/csv-product-import`.
-- Merged mainline includes Android/browser quality gates, reporting/replenishment, catalog management, guided inventory operations, warehouse/location lifecycle management, multi-line purchasing and receiving, lot/expiry-aware receiving, atomic new-lot receiving, purchase-order lifecycle controls, append-only business and authentication auditability with a web viewer, reorder-to-draft assistance, lot inventory visibility, browser camera scanning, Android scanner handoff, browser companion inventory workflow handoff, and CSV product dry-run validation.
+- Release branch: `release/v0.1.0-preview.1`.
+- Mainline now includes the transactional CSV product-import workflow merged through PR #38.
+- The merged milestone has green Go quality, PostgreSQL migration smoke-test, Web quality, and CodeQL checks.
 - This continuation intentionally preserves focused commits instead of squashing feature history.
 
-## Completed in this continuation
+## Completed in the previous milestone
 
 - [x] Added a dedicated `repository.ProductBatchImporter` contract so batch persistence is explicit and cannot silently fall back to sequential non-atomic writes.
 - [x] Added PostgreSQL transactional product-batch persistence with repeated domain validation and database uniqueness/foreign-key constraints as the final integrity boundary.
-- [x] Added `POST /api/v1/products/import` and registered it in the HTTP router beside the existing dry-run endpoint.
-- [x] Added server-side reparse/revalidation on every write request, closing the validation-to-write time-of-check/time-of-use gap.
-- [x] Added server-generated product IDs for CSV rows that omit `id`.
-- [x] Added a successful `products.imported` audit event containing request ID and batch count without storing CSV contents.
-- [x] Added a PostgreSQL integration test proving a duplicate inside a batch rolls the entire transaction back.
-- [x] Added the web API client for the write endpoint.
-- [x] Reworked the web import panel so validation and writing are separate explicit actions and successful imports refresh the catalog.
-- [x] Expanded `docs/CSV_PRODUCT_IMPORT.md` with endpoint, transactional, concurrency, audit, and failure semantics.
-- [x] Corrected Go module metadata and checksums to satisfy `go mod tidy` under the repository's Go 1.26 CI environment.
-- [x] Removed duplicate HTTP barcode and lot handler declarations exposed by the migration smoke test.
-- [x] Restored the reporting and audit HTTP handlers required by the existing optional routes and repository contracts.
-- [x] Restored the atomic product batch-import repository contract in the repository package.
-- [x] Formatted the new HTTP and PostgreSQL import code/tests to satisfy the repository's `gofmt` quality gate.
-- [x] Reformatted `internal/httpapi/api.go` after the CI formatting gate identified the router/middleware file as non-gofmt-compliant.
-- [x] Improved the CI formatting step so a future formatting failure prints the exact non-gofmt-formatted files instead of failing silently.
-- [x] Preserved the existing PostgreSQL Go module cache configuration and existing Node action version while making the CI diagnostic change.
-- [x] Re-ran the failed Go-quality workflow job to validate the updated CI diagnostics.
+- [x] Added `POST /api/v1/products/import` with server-side reparse/revalidation, generated IDs, and batch-level audit events.
+- [x] Added PostgreSQL rollback coverage for duplicate conflicts inside an import batch.
+- [x] Added the web API client and explicit CSV import UI workflow.
+- [x] Expanded CSV import documentation and project changelog/roadmap tracking.
+- [x] Repaired Go formatting and CI diagnostics after the branch exposed formatting drift.
+- [x] Removed duplicate HTTP test fake methods and restored their shared behavior in the central test fake.
+- [x] Updated Go 1.26-compatible test fixtures and parser fixtures.
+- [x] Added a required `productId` guard to the lot-listing endpoint.
+- [x] Verified the final branch with green Go quality, PostgreSQL migration smoke-test, Web quality, and CodeQL workflows.
+- [x] Merged PR #38 into `main` as commit `679bda9c281738f8dc56e38fb51fcaac059f7607`.
+
+## Release preparation
+
+- [ ] Decide the first public preview tag and create it on the verified `main` release commit.
+- [ ] Publish release notes covering CSV import, transactional integrity, audit behavior, migrations, and operational requirements.
+- [ ] Attach reproducible server/web/Android/browser artifacts and SHA-256 checksums when available.
+- [ ] Complete the non-automated release checklist items: backup/restore drill, authentication smoke test, responsive/keyboard review, Android device smoke test, and browser-companion installation smoke test.
+- [ ] Complete the post-release smoke test.
 
 ## Verification status
 
-The connected environment cannot clone GitHub repositories locally because outbound GitHub DNS/network access is unavailable. GitHub Actions is therefore the authoritative execution environment. The previous CI run for PR #38 failed at the Go formatting gate while the PostgreSQL migration smoke test and Web quality job passed, and CodeQL passed. The CI formatting step has now been changed to print the exact failing file list, and a workflow retry has been initiated. The new head must receive a fresh green CI result before PR #38 is merged.
+The merged PR #38 was verified by GitHub Actions before merge. The final run passed Go formatting, vet, race-enabled tests, server build, PostgreSQL migration readiness, Web typecheck/build, and both Go and JavaScript/TypeScript CodeQL analyses. The connected environment still cannot provide a local GitHub clone, so GitHub Actions remains the authoritative CI execution environment.
 
 ## Known limitations
 
-- CSV inventory/report export remains pending.
-- Advanced analytics remain pending.
-- Concurrent inventory database integration and migration compatibility coverage remain pending beyond the product-import rollback case.
-- Browser E2E, Android instrumentation, accessibility, restore, and release-artifact checks remain pending.
-- A future extension-specific credential model is still required if direct extension API mutations are ever introduced.
+- GitHub release/tag creation is not exposed by the current connected GitHub write surface, so publication of the actual GitHub Release must be completed from the repository UI/API with the verified release commit.
+- CSV inventory/report export remains the next product-development milestone after the preview publication.
+- Advanced analytics, broader concurrent-inventory integration coverage, migration compatibility coverage, browser E2E, Android instrumentation, accessibility, restore automation, and release-artifact automation remain pending.
 
 ## Next exact tasks
 
-1. Verify fresh PR #38 CI and CodeQL against the current head; merge only when the required checks are green.
-2. If formatting still fails, use the diagnostic file list and make focused formatting-only commits.
-3. Add CSV inventory/report export with audit events and bounded streaming output.
-4. Add inventory aging, configurable expiry-risk, movement-velocity, supplier, and replenishment analytics.
-5. Expand concurrent inventory database integration coverage and migration compatibility tests.
-6. Add browser E2E, Android instrumentation, accessibility, restore, and release-artifact checks.
-7. Add automated backup retention examples and first stable-release gates.
+1. Publish the first public preview from verified main (`v0.1.0-preview.1` or the final approved preview tag).
+2. Start the v0.2.0 development branch for CSV inventory/report export.
+3. Add bounded/streaming CSV exports for inventory, movements, purchasing, and audit/report views with authorization and audit events.
+4. Add inventory aging, configurable expiry-risk, movement velocity, supplier, and replenishment analytics.
+5. Expand concurrent inventory database integration and migration compatibility tests.
+6. Add browser E2E, Android instrumentation, accessibility, restore verification, artifact checks, and backup-retention examples.
+7. Prepare the stable-release gates for a later `v1.0.0` release.
 
 ## Commit discipline
 
