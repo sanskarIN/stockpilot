@@ -1,0 +1,56 @@
+name: Fix test fake behavior
+
+on:
+  push:
+    branches:
+      - feat/csv-product-import
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Restore shared fake behavior
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path("internal/httpapi/api_test.go")
+          text = path.read_text()
+          replacements = {
+              'func (f *fakeStore) ListLots(context.Context, string, int) ([]domain.Lot, error) {\n\treturn nil, nil\n}': '''func (f *fakeStore) ListLots(_ context.Context, productID string, _ int) ([]domain.Lot, error) {
+\tif productID == "prd_1" {
+\t\treturn []domain.Lot{{ID: "lot_1", ProductID: "prd_1", LotNumber: "LOT-1"}}, nil
+\t}
+\treturn []domain.Lot{}, nil
+}''',
+              'func (f *fakeStore) ReceiveLineWithNewLot(_ context.Context, _ string, _ string, _ int64, _ string, _ domain.Lot, actorID string) error {\n\tf.receiptActor = actorID\n\treturn nil\n}': '''func (f *fakeStore) ReceiveLineWithNewLot(_ context.Context, _ string, _ string, _ int64, _ string, lot domain.Lot, actorID string) error {
+\tlot.ProductID = "prd_test"
+\tif err := lot.Validate(); err != nil {
+\t\treturn err
+\t}
+\tf.receiptActor = actorID
+\treturn nil
+}''',
+              'func (f *fakeStore) UpdateOrderStatus(context.Context, string, domain.PurchaseOrderStatus, string) error {\n\treturn nil\n}': '''func (f *fakeStore) UpdateOrderStatus(_ context.Context, _ string, status domain.PurchaseOrderStatus, _ string) error {
+\tif err := domain.ValidatePurchaseOrderTransition(domain.PurchaseOrderDraft, status); err != nil {
+\t\treturn err
+\t}
+\treturn nil
+}''',
+          }
+          for old, new in replacements.items():
+              if old not in text:
+                  raise SystemExit(f"expected fake method not found: {old.splitlines()[0]}")
+              text = text.replace(old, new, 1)
+          path.write_text(text)
+          PY
+          git config user.name "sanskarIN"
+          git config user.email "sanskarin@outlook.in"
+          git add internal/httpapi/api_test.go
+          git commit -m "test(http): restore shared fake behavior"
+          git push origin HEAD:feat/csv-product-import
