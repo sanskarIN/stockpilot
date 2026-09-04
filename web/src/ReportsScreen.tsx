@@ -1,28 +1,31 @@
 import { useCallback, useEffect, useState } from "react";
 import { APIError, stockpilotAPI } from "./api";
 import { inventoryAging } from "./inventoryAgingApi";
-import type { InventoryValuationReport, InventorySummary, PurchasingSummary, User, InventoryAgingReport } from "./types";
+import { stockMovementHistory, stockMovementHistoryCSV } from "./stockMovementHistoryApi";
+import type { InventoryValuationReport, InventorySummary, PurchasingSummary, User, InventoryAgingReport, StockMovementHistoryReport } from "./types";
 
 type Props = { user: User; onBack: () => void; onSessionExpired: () => void };
 type LoadState = { kind: "loading" } | { kind: "ready" } | { kind: "error"; message: string };
 const emptyValuation: InventoryValuationReport = { items: [], totals: [] };
 const emptyAging: InventoryAgingReport = { items: [] };
+const emptyMovementHistory: StockMovementHistoryReport = { asOf: "", windowDays: 30, items: [] };
 
 export function ReportsScreen({ user, onBack, onSessionExpired }: Props) {
   const [inventory, setInventory] = useState<InventorySummary | null>(null);
   const [purchasing, setPurchasing] = useState<PurchasingSummary | null>(null);
   const [valuation, setValuation] = useState<InventoryValuationReport>(emptyValuation);
   const [aging, setAging] = useState<InventoryAgingReport>(emptyAging);
+  const [movementHistory, setMovementHistory] = useState<StockMovementHistoryReport>(emptyMovementHistory);
   const [state, setState] = useState<LoadState>({ kind: "loading" });
   const canExport = user.role !== "operator";
 
   const load = useCallback(async () => {
     setState({ kind: "loading" });
     try {
-      const [overview, valuationReport, agingReport] = await Promise.all([
-        stockpilotAPI.reportOverview(), stockpilotAPI.inventoryValuation(), inventoryAging(500),
+      const [overview, valuationReport, agingReport, movementReport] = await Promise.all([
+        stockpilotAPI.reportOverview(), stockpilotAPI.inventoryValuation(), inventoryAging(500), stockMovementHistory(30, 500),
       ]);
-      setInventory(overview.inventory); setPurchasing(overview.purchasing); setValuation(valuationReport); setAging(agingReport); setState({ kind: "ready" });
+      setInventory(overview.inventory); setPurchasing(overview.purchasing); setValuation(valuationReport); setAging(agingReport); setMovementHistory(movementReport); setState({ kind: "ready" });
     } catch (error) {
       if (error instanceof APIError && error.status === 401) { onSessionExpired(); return; }
       setState({ kind: "error", message: error instanceof Error ? error.message : "Reports could not be loaded." });
@@ -41,6 +44,7 @@ export function ReportsScreen({ user, onBack, onSessionExpired }: Props) {
       <article className="panel wide"><div className="panel-heading"><div><p className="eyebrow">Inventory valuation</p><h2>Current on-hand value</h2></div>{canExport && <button className="secondary-button compact-button" type="button" onClick={exportValuation}>Export CSV</button>}</div><p className="muted">Values are reported in minor currency units by product and grouped by currency.</p><ul className="activity-list">{valuation.totals.map(total => <li key={total.currency}><span><strong>{total.currency}</strong><small>Total on-hand valuation</small></span><strong>{formatMoney(total.valueMinor, total.currency)}</strong></li>)}{valuation.totals.length === 0 && state.kind !== "loading" && <li><span className="muted">No valuation data available.</span></li>}</ul></article>
       <article className="panel"><div className="panel-heading"><div><p className="eyebrow">Purchasing</p><h2>Order pipeline</h2></div></div><ul className="activity-list"><Row label="Draft" value={purchasing?.draftOrders ?? 0}/><Row label="Ordered" value={purchasing?.orderedOrders ?? 0}/><Row label="Partially received" value={purchasing?.partiallyReceivedOrders ?? 0}/><Row label="Received" value={purchasing?.receivedOrders ?? 0}/><Row label="Cancelled" value={purchasing?.cancelledOrders ?? 0}/></ul></article>
       <article className="panel wide"><div className="panel-heading"><div><p className="eyebrow">Inventory aging</p><h2>Time since last movement</h2></div>{canExport && <button className="secondary-button compact-button" type="button" onClick={exportAging}>Export CSV</button>}</div><p className="muted">Positive balances grouped into deterministic 0–30, 31–60, 61–90, 91–180, and 181+ day buckets.</p><div className="table-wrap"><table><thead><tr><th>Product</th><th>Location</th><th className="numeric">Quantity</th><th className="numeric">Age</th><th>Bucket</th></tr></thead><tbody>{aging.items.slice(0, 25).map(item => <tr key={`${item.productId}-${item.locationId}-${item.lotId}`}><td><strong>{item.name}</strong><br/><span className="compact mono">{item.sku}</span></td><td className="mono">{item.locationId}</td><td className="numeric">{item.quantity.toLocaleString()}</td><td className="numeric">{item.ageDays.toLocaleString()}d</td><td><strong>{item.bucket}</strong></td></tr>)}{aging.items.length === 0 && state.kind !== "loading" && <tr><td colSpan={5}>No aging data available.</td></tr>}</tbody></table></div></article>
+      <article className="panel wide"><div className="panel-heading"><div><p className="eyebrow">Stock movement velocity</p><h2>Recent movement activity</h2></div>{canExport && <button className="secondary-button compact-button" type="button" onClick={() => stockMovementHistoryCSV(movementHistory.windowDays)}>Export CSV</button>}</div><p className="muted">Aggregated inbound, outbound, net movement, and average daily outbound units over the last {movementHistory.windowDays} days.</p><div className="table-wrap"><table><thead><tr><th>Product</th><th>Location</th><th className="numeric">Movements</th><th className="numeric">Outbound</th><th className="numeric">Avg/day</th></tr></thead><tbody>{movementHistory.items.slice(0, 25).map(item => <tr key={`${item.productId}-${item.locationId}-${item.lotId}`}><td><strong>{item.name}</strong><br/><span className="compact mono">{item.sku}</span></td><td className="mono">{item.locationId}</td><td className="numeric">{item.movementCount.toLocaleString()}</td><td className="numeric">{item.outboundUnits.toLocaleString()}</td><td className="numeric">{item.averageDailyOutbound.toFixed(2)}</td></tr>)}{movementHistory.items.length === 0 && state.kind !== "loading" && <tr><td colSpan={5}>No movement activity in the selected window.</td></tr>}</tbody></table></div></article>
       <article className="panel wide"><div className="panel-heading"><div><p className="eyebrow">Highest value items</p><h2>Valuation breakdown</h2></div></div><div className="table-wrap"><table><thead><tr><th>Product</th><th>SKU</th><th className="numeric">On hand</th><th className="numeric">Unit cost</th><th className="numeric">Value</th></tr></thead><tbody>{valuation.items.slice(0, 25).map(item => <tr key={item.productId}><td><strong>{item.name}</strong><br/><span className="compact">{item.unit}</span></td><td className="mono">{item.sku}</td><td className="numeric">{item.onHand.toLocaleString()}</td><td className="numeric">{formatMoney(item.unitCostMinor, item.currency)}</td><td className="numeric"><strong>{formatMoney(item.valueMinor, item.currency)}</strong></td></tr>)}{valuation.items.length === 0 && state.kind !== "loading" && <tr><td colSpan={5}>No valuation items available.</td></tr>}</tbody></table></div></article>
     </section>
   </main></div>;
