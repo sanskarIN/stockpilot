@@ -83,6 +83,13 @@ func (a *accessHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	a.next.ServeHTTP(w, r)
+	if isCSVExportRequest(r) {
+		a.recordAudit(r.Context(), principal.User.ID, "export.csv.requested", "export", r.URL.Path, map[string]any{"method": r.Method})
+	}
+}
+
+func isCSVExportRequest(r *http.Request) bool {
+	return r.Method == http.MethodGet && strings.HasSuffix(strings.ToLower(r.URL.Path), ".csv")
 }
 
 func (a *accessHandler) login(w http.ResponseWriter, r *http.Request) {
