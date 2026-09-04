@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 33 — v0.2.2 Expiry-Risk Reporting and final-release preparation.
+Phase 34 — v0.2.3 Export Hardening and stable-release preparation.
 
 ## Repository state
 
@@ -10,42 +10,47 @@ Phase 33 — v0.2.2 Expiry-Risk Reporting and final-release preparation.
 - v0.1.0-preview.1 through v0.1.10 release preparation is merged.
 - v0.2.0 reporting foundation is merged on `main`.
 - v0.2.1 inventory aging implementation is merged on `main`.
-- v0.2.2 final release documentation is now merged on `main`.
+- v0.2.2 expiry-risk reporting release is published on GitHub.
+- v0.2.3 export-hardening changes are merged on `main`.
 - Focused, reviewable commits are preferred over meaningless commits solely to increase the commit count.
 
-## Completed for v0.2.2
+## Completed for v0.2.3
 
-- [x] Added expiry-risk reporting scope and release documentation.
-- [x] Added configurable expiry-risk windows.
-- [x] Added expired, critical, warning, and safe risk classifications.
-- [x] Added bounded report/export requirements.
-- [x] Added formula-safe CSV requirements.
-- [x] Added authorization and regression-test requirements.
-- [x] Added `docs/RELEASE_NOTES_v0.2.2.md`.
-- [x] Updated `CHANGELOG.md` for v0.2.2.
+- [x] Corrected audit-export metadata formula sanitization.
+- [x] Preserved shared formula-safe CSV serialization.
+- [x] Corrected receipt-history export timestamp regression expectations to canonical UTC output.
+- [x] Added `docs/RELEASE_NOTES_v0.2.3.md`.
+- [x] Updated `CHANGELOG.md` for v0.2.3.
+- [x] Updated `ROADMAP.md` for the v0.2.3 milestone.
 
-## Final release gates
+## v0.2.3 release gates
 
-- [ ] Confirm the latest `main` CI run completes successfully on the final release commit.
-- [ ] Confirm Go formatting, vet, unit, race, and integration verification.
+- [ ] Confirm the final `main` CI run completes successfully for the release candidate.
+- [ ] Confirm Go formatting, vet, unit, race, and server-build verification.
 - [ ] Confirm PostgreSQL migration/integration verification.
 - [ ] Confirm Web quality/build verification.
-- [ ] Confirm Android and browser-companion verification where configured.
-- [ ] Confirm CodeQL/security verification where configured.
-- [ ] Confirm browser E2E and accessibility checks where configured.
-- [ ] Complete production restore and migration rollback rehearsal.
-- [ ] Verify reproducible server, web, Android, and extension release artifacts.
-- [ ] Resolve all blocker/critical defects.
-- [ ] Only after every applicable gate passes: publish `v0.2.2` as a stable, non-prerelease GitHub Release.
+- [ ] Confirm CodeQL/security verification.
+- [ ] Confirm any configured Android, browser-companion, E2E, and accessibility checks.
+- [ ] Confirm restore/rollback and reproducible-artifact gates where applicable.
+- [ ] Resolve blocker/critical defects.
+- [ ] Only after applicable gates pass: publish `v0.2.3` as a stable, non-prerelease GitHub Release.
 
 ## Release metadata
 
-- Title: `StockPilot v0.2.2 — Expiry-Risk Reporting`
-- Tag: `v0.2.2`
+- Title: `StockPilot v0.2.3 — Export Hardening`
+- Tag: `v0.2.3`
 - Release type: Stable
 - Prerelease: Off
-- Latest: On
+- Latest: On, if intended as the current latest stable release
 - Date: 2026-09-04
+
+## Next implementation priority
+
+1. Stock movement history and velocity report.
+2. Supplier purchasing totals and lead-time tracking.
+3. Warehouse/location valuation breakdown.
+4. Replenishment effectiveness metrics.
+5. Cursor/streaming support for large report datasets.
 
 ## Commit discipline
 
