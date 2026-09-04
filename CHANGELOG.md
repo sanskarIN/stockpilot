@@ -4,11 +4,31 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-### Next: v0.2.9 — Operational Readiness & Reporting Reliability
+### Next: v0.2.10 — Reporting Performance & Operational Insights
 
-Preparation for v0.2.9 has started as the next pre-1.0 hardening milestone after v0.2.8.
+The next planned milestone focuses on faster bounded reporting and additive operational insights while preserving existing transactional and reporting semantics.
 
 Planned scope:
+
+- reuse bounded pagination and continuation primitives from the large-report scalability work;
+- deterministic ordering and explicit limits for new analytical queries;
+- reduced repeated database work for common report views where safe and measurable;
+- preserved timeout and cancellation propagation through report execution;
+- additive inventory, purchasing, and replenishment trend summaries;
+- period-over-period changes with currencies kept separate;
+- source-of-truth identifiers for report traceability;
+- clear distinction between observed historical metrics and advisory calculations;
+- defensive validation for date windows, limits, pagination inputs, and unsupported combinations;
+- stable backward-compatible response shapes and actionable public errors;
+- formula-safe, non-cacheable, bounded CSV exports;
+- Reports & Analytics period/bound context plus loading, empty, error, retry, and accessible table states;
+- regression coverage for pagination, bounds, cancellation, ordering, duplicate prevention, exports, and security.
+
+v0.2.10 remains read-only. No automatic purchasing or inventory mutation is planned, and schema migrations require evidence and compatibility review.
+
+### Next: v0.2.9 — Operational Readiness & Reporting Reliability
+
+v0.2.9 is the operational hardening milestone preceding v0.2.10. Its planned scope is:
 
 - explicit report query budgets and bounded execution behavior where supported;
 - standardized report metadata for generated-at timestamps, applied bounds, and complete/partial result state;
@@ -23,7 +43,7 @@ Planned scope:
 - operational documentation for health, readiness, and troubleshooting;
 - regression coverage for timeout, cancellation, bounds, logging safety, and export memory behavior.
 
-v0.2.9 remains read-only with no automatic purchasing or inventory mutation. Database migrations require evidence and compatibility review.
+v0.2.9 remains read-only with no automatic purchasing or inventory mutation. Database migrations require evidence and compatibility review. Stable publication remains verification-gated.
 
 ### v0.2.8 — Large-Report Scalability & Purchasing Trends
 
@@ -59,53 +79,3 @@ Completed implementation scope:
 - introduced no database migration.
 
 Stable publication still requires the repository's applicable verification gates to be confirmed green.
-
-## 0.2.6 — 2026-09-04
-
-### Added
-
-- Added warehouse/location inventory valuation reporting.
-- Added location-level on-hand units, valuation, currency, and distinct-product counts.
-- Added warehouse-level valuation totals grouped by currency.
-- Added bounded JSON reporting and formula-safe CSV export.
-
-### Changed
-
-- Reports & Analytics can now trace inventory valuation from products into physical warehouse locations.
-- Valuation remains currency-separated and does not perform implicit FX conversion.
-- Warehouse valuation uses authoritative positive inventory balances and active product costs.
-
-### Security and reliability
-
-- Warehouse valuation is read-only and uses existing authenticated reporting access controls.
-- Result rows are bounded to 1–5000 with a safe default.
-- CSV exports use no-store/no-cache headers and formula-safe text serialization.
-- No database migration is required for this release.
-
-### Verification
-
-- Stable publication requires the configured Go, PostgreSQL, Web, CodeQL, Android/browser companion, E2E/accessibility, restore/rollback, and artifact gates to pass.
-
-## 0.2.5 — 2026-09-04
-
-### Added
-
-- Added supplier performance reporting for purchasing activity.
-- Added supplier-level order, ordered-unit, received-unit, open-unit, and purchasing-value metrics.
-- Added observed receipt lead-time measurement from purchase-order creation to the first recorded receive movement.
-- Added completed-order and on-time-order counts using the purchase order expected date when available.
-- Added bounded JSON reporting and formula-safe CSV export for supplier performance.
-- Added a Reports & Analytics supplier reliability panel.
-
-### Changed
-
-- Reports & Analytics now combines supplier reliability with purchasing pipeline, valuation, inventory aging, and movement velocity.
-- Supplier reporting uses server-side aggregation from authoritative purchase-order, purchase-order-line, supplier, and stock-movement records.
-- Supplier results use deterministic ordering by order activity, supplier name, and supplier ID.
-
-### Security and reliability
-
-- Supplier reporting is read-only and uses the existing authenticated reporting access controls.
-- Report windows are bounded to 1–365 days and result sets to 1–5000 rows, with safe defaults.
-- CSV exports use no-store/no-cache headers and formula-safe text serialization.
-- No database migration is required for this release.
