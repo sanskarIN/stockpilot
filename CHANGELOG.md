@@ -4,7 +4,33 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-Future work will continue here after v0.2.3.
+Future work will continue here after v0.2.4.
+
+## 0.2.4 — 2026-09-04
+
+### Added
+
+- Added stock movement history aggregation for product/location/lot activity.
+- Added configurable movement-history windows from 1 to 365 days, defaulting to 30 days.
+- Added movement count, inbound units, outbound units, net units, and average daily outbound metrics.
+- Added bounded JSON reporting and formula-safe CSV export.
+- Added a Reports & Analytics movement-velocity panel and export action.
+
+### Changed
+
+- Reports & Analytics now includes recent movement velocity alongside valuation and inventory aging.
+- Movement reporting uses server-side aggregation from authoritative `stock_movements` records.
+- Deterministic ordering prioritizes outbound activity and recent movement timestamps.
+
+### Security and reliability
+
+- Movement reports remain read-only and use existing authenticated reporting access controls.
+- CSV exports retain bounded limits and `no-store` / `no-cache` download headers.
+- Formula-safe serialization is retained for spreadsheet-facing exports.
+
+### Verification
+
+- Stable publication requires the configured Go, PostgreSQL, Web, CodeQL, Android/browser companion, E2E/accessibility, restore/rollback, and artifact gates to pass.
 
 ## 0.2.3 — 2026-09-04
 
@@ -18,10 +44,6 @@ Future work will continue here after v0.2.3.
 - Preserved formula-safe CSV serialization for authenticated exports.
 - Preserved bounded export limits and privacy-oriented download headers.
 - Kept audit and receipt-history exports read-only and behind the existing authorization layer.
-
-### Verification
-
-- The v0.2.3 release candidate is validated through the repository GitHub Actions pipeline before stable publication.
 
 ## 0.2.2 — 2026-09-04
 
@@ -45,10 +67,6 @@ Future work will continue here after v0.2.3.
 - CSV values remain protected against spreadsheet formula injection.
 - No credentials, session tokens, passwords, or payment data are introduced by the report.
 
-### Verification
-
-- Stable release verification must pass the repository release checklist, including Go, PostgreSQL, Web, Android, browser companion, security, E2E/accessibility, restore/rollback, and reproducible-artifact gates where configured.
-
 ## 0.2.0 — 2026-09-04
 
 ### Added
@@ -64,17 +82,6 @@ Future work will continue here after v0.2.3.
 - Reporting navigation is now an actual application workflow rather than a dashboard placeholder link.
 - Valuation exports reuse the same privacy-oriented `no-store`/`no-cache` download policy as other CSV exports.
 - Reports remain read-only and continue to use server-side reporting permissions.
-
-### Security and operations
-
-- Valuation CSV downloads remain behind authenticated reporting authorization.
-- Export audit instrumentation introduced in v0.1.10 automatically records authenticated CSV requests without storing query strings or dataset contents.
-- Formula-safe CSV serialization is enabled for the new valuation export.
-
-### Verification
-
-- Added focused Go tests for the valuation export contract.
-- Repository-local execution is not available in the connected workspace; GitHub Actions or a local checkout remains authoritative for full Go, PostgreSQL, Web, Android, extension, and CodeQL verification.
 
 ## Release discipline
 
