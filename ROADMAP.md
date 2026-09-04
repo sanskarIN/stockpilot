@@ -42,6 +42,9 @@ This roadmap reflects the current repository state.
 - [x] Expiry-risk reporting by configurable date window.
 - [x] Expiry-risk server-side classifications and bounded report/export workflow.
 - [x] v0.2.3 CSV export formula-safety and timestamp regression hardening.
+- [x] Stock movement history aggregation with configurable reporting window.
+- [x] Stock movement velocity metrics and bounded CSV export.
+- [x] Web Reports workspace movement-velocity panel and export action.
 
 ## Next — operational workflows
 
@@ -57,7 +60,7 @@ This roadmap reflects the current repository state.
 
 - [x] Inventory aging HTTP/report implementation and CSV export.
 - [x] Expiry-risk report by configurable date window.
-- [ ] Stock movement history and velocity report.
+- [x] Stock movement history and velocity report.
 - [ ] Supplier purchasing totals and lead-time tracking.
 - [ ] Warehouse/location valuation breakdown.
 - [ ] Replenishment history and recommendation effectiveness metrics.
