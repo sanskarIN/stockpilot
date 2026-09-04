@@ -74,7 +74,7 @@ func TestReceiptHistoryExportCSV(t *testing.T) {
 	defer func() { fakeReceiptHistory = nil }()
 	store := &fakeStore{}
 	handler := NewCore(store, store, store, func(context.Context) error { return nil })
-	request := authenticatedRequest(http.MethodGet, "/api/v1/inventory/receipts/export.csv?productId=prd_1&warehouseId=wh_1&locationId=loc_1&lotId=lot_1&actorId=usr_1&reference=PO-1&from=2026-09-04&to=2026-09-05&limit=10&offset=0", "")
+	request := authenticatedRequest(http.MethodGet, "/api/v1/inventory/receipts/export.csv?limit=10&offset=0", "")
 	recorder := httptest.NewRecorder()
 	handler.ServeHTTP(recorder, request)
 	if recorder.Code != http.StatusOK {
