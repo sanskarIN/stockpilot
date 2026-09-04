@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"time"
 
 	"github.com/sanskarIN/stockpilot/internal/domain"
 	"github.com/sanskarIN/stockpilot/internal/reporting"
@@ -68,5 +67,3 @@ func (s *Store) WarehouseValuationQuery(ctx context.Context, query reporting.Que
 }
 
 var _ repository.BoundedReports = (*Store)(nil)
-
-var _ = time.UTC
