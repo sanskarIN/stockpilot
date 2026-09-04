@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/sanskarIN/stockpilot/internal/domain"
