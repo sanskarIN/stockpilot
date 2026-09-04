@@ -4,7 +4,38 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-Future work will continue here after v0.1.5.
+Future work will continue here after v0.1.6.
+
+## 0.1.6 — 2026-09-04
+
+### Added
+
+- Added bounded purchase-order CSV export at `GET /api/v1/orders/export.csv`.
+- Added optional purchase-order status filtering for `draft`, `ordered`, `partially_received`, `received`, and `cancelled`.
+- Added line-level ordered, received, remaining, unit-cost, and line-total fields to the export.
+- Added a dedicated `PurchaseOrderExportRow` domain model and repository export operation.
+- Added a deterministic PostgreSQL export query that selects purchase orders first and then flattens their lines.
+- Added focused HTTP coverage for export bounds, status validation, headers, schema, formula-safe values, totals, and timestamps.
+
+### Changed
+
+- Purchase-order exports reuse the shared formula-safe CSV serializer introduced in v0.1.2.
+- Purchase-order selection is deterministic by `created_at DESC, id DESC` and line ordering is deterministic by line ID.
+- Export timestamps are normalized to UTC RFC 3339 values.
+- Browser downloads use the deterministic filename `stockpilot-purchase-orders.csv`.
+- Receiving visibility is exposed through the authoritative `received` and `remaining` line quantities already maintained by the existing receiving transaction flow.
+
+### Security and operations
+
+- Purchase-order export is read-only and remains behind the existing HTTP middleware and application authorization/session controls.
+- Application-level export bounds cap requests at 5,000 selected purchase orders; repository bounds enforce the same ceiling.
+- Export serialization protects spreadsheet formula-like values.
+- Export schemas exclude credentials, passwords, session secrets, and payment information.
+
+### Verification
+
+- Added unit coverage for purchase-order export normalization and CSV contracts.
+- Full release verification remains required for Go, PostgreSQL, Web, Android, extension, authentication/session, authorization/CSRF, and CodeQL gates where configured.
 
 ## 0.1.5 — 2026-09-03
 
@@ -79,7 +110,7 @@ Future work will continue here after v0.1.5.
 
 ### Verification
 
-- Full repository release gates remain required before publication, including Go, PostgreSQL, Web, Android, extension, and CodeQL checks where configured.
+- Full repository release gates remain required for publication, including Go, PostgreSQL, Web, Android, extension, and CodeQL checks where configured.
 
 ## 0.1.2 — 2026-09-03
 
@@ -99,7 +130,7 @@ Future work will continue here after v0.1.5.
 ### Verification
 
 - CSV serialization tests cover commas, newlines, formula-like values, invalid headers, and nil-writer handling.
-- Full repository release gates remain required before publication, including Go, PostgreSQL, Web, Android, extension, and CodeQL checks where configured.
+- Full repository release gates remain required for publication, including Go, PostgreSQL, Web, Android, extension, and CodeQL checks where configured.
 
 ## 0.1.1 — 2026-09-03
 
