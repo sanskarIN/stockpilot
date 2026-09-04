@@ -2,98 +2,69 @@
 
 ## Current milestone
 
-Phase 41 — v0.2.10 Reporting Performance & Operational Insights preparation, following the v0.2.9 operational-readiness track.
+Phase 42 — v0.3.0 Reporting Foundations & Analytics Safety.
 
 ## Repository state
 
 - Default branch: `main`.
-- v0.1.0-preview.1 through v0.1.10 release preparation is merged.
-- v0.2.0 reporting foundation is merged on `main`.
-- v0.2.1 inventory aging implementation is merged on `main`.
-- v0.2.2 expiry-risk reporting release is published on GitHub.
-- v0.2.3 export-hardening release is published on GitHub.
-- v0.2.4 stock movement velocity implementation and release documentation are merged on `main`.
-- v0.2.5 supplier performance implementation and release documentation are merged on `main`.
-- v0.2.6 warehouse/location valuation implementation and release documentation are merged on `main`; GitHub release is published.
-- v0.2.7 replenishment-readiness implementation and release documentation are merged on `main`; stable publication status must be verified before being claimed.
-- v0.2.8 has a GitHub Release entry, but its recorded release body currently contains the v0.2.9 operational-readiness notes; this metadata mismatch should be corrected before future release publication work.
-- v0.2.8 implementation scope remains open in the continuity plan: large-report scalability and purchasing trends still require implementation and verification.
-- v0.2.9 preparation has started with operational-readiness and reporting-reliability notes; API metadata is `0.2.9` as an implementation marker, not a release-publication claim.
-- v0.2.10 release planning is now documented; implementation and stable publication have not been claimed.
-- Focused, reviewable commits are preferred over meaningless commits solely to increase the commit count.
+- v0.1.x preview releases and the v0.2.0 reporting foundation are merged.
+- v0.2.1 inventory aging, v0.2.2 expiry risk, v0.2.3 export hardening, v0.2.4 movement velocity, v0.2.5 supplier performance, and v0.2.6 warehouse/location valuation are implemented in the reporting series.
+- v0.2.7 replenishment readiness, v0.2.8 scalability/purchasing-trends work, v0.2.9 reliability preparation, and v0.2.10 performance/operational-insights planning were carried forward in the repository history.
+- The v0.2.8 release metadata previously contained a v0.2.9 body and should remain an explicit historical cleanup item.
+- `VERSION` now records `0.3.0` as the current release marker.
+- `docs/releases/v0.3.0.md` contains the release checklist and notes.
+- `internal/reporting/` now provides bounded periods, previous-period calculation, period-over-period changes, and bounded query parameters with unit tests.
+- Stable GitHub publication still requires the applicable CI and verification gates to pass.
 
-## v0.2.9 completion gate
+## v0.3.0 completed scope
 
-v0.2.9 is **not yet release-complete**. The remaining required work is:
+### Reporting foundations
 
-1. Finish the v0.2.8 implementation gate.
-2. Audit report timeout, cancellation, bounds, and logging paths.
-3. Implement shared reliability metadata/validation primitives.
-4. Harden PostgreSQL report execution and cancellation behavior.
-5. Add HTTP reliability/error contracts and regression coverage.
-6. Harden CSV/export memory behavior.
-7. Improve Reports & Analytics resilience and accessibility.
-8. Run full verification and security gates.
-9. Publish v0.2.9 only after all gates pass.
+- [x] Add bounded inclusive reporting periods with a 1–365 day safety envelope.
+- [x] Add deterministic previous-period calculation using the same number of days.
+- [x] Add period-over-period delta and percentage calculation.
+- [x] Represent zero-baseline percentage changes as undefined rather than inventing a value.
+- [x] Add centralized non-negative limit/offset validation.
+- [x] Add safe parsing for non-negative integer query values.
+- [x] Add focused unit tests for period, trend, and bounds behavior.
+- [x] Document the reporting package's read-only contract.
+- [x] Add a canonical `VERSION` marker and v0.3.0 release documentation.
 
-## v0.2.10 active scope
+## v0.3.0 verification gate
 
-### Reporting performance
+Run all applicable repository checks before treating the release as stable:
 
-- [ ] Reuse bounded pagination and continuation primitives from the scalability work.
-- [ ] Add deterministic ordering and explicit limits to new analytical queries.
-- [ ] Reduce repeated database work for common report views where measurable and safe.
-- [ ] Preserve cancellation, timeout, and request-bound propagation.
+```text
+make fmt
+make vet
+make test
+make test-unit
+make build
+make web-build
+make android-lint
+make android-test
+make android-build
+make extension-check
+make extension-test
+```
 
-### Operational insights
+Also verify CI/CodeQL, PostgreSQL migration/readiness behavior, accessibility, export safety, artifact integrity, and backup/restore procedures where applicable.
 
-- [ ] Add additive trend summaries for inventory, purchasing, and replenishment activity.
-- [ ] Add period-over-period changes without mixing currencies.
-- [ ] Preserve source-of-truth identifiers for traceability.
-- [ ] Distinguish observed historical metrics from advisory calculations.
-
-### API quality
-
-- [ ] Keep existing endpoints backward compatible.
-- [ ] Validate date windows, limits, pagination inputs, and unsupported combinations.
-- [ ] Return stable response shapes with bounded metadata and actionable public errors.
-- [ ] Preserve authenticated access controls and existing security middleware.
-
-### Export and data safety
-
-- [ ] Keep CSV output formula-safe and non-cacheable.
-- [ ] Bound export rows and memory consumption.
-- [ ] Prevent credentials, session tokens, payment information, and sensitive request payloads from entering logs or exports.
-- [ ] Preserve currency separation and authoritative database semantics.
-
-### Web experience
-
-- [ ] Add clear report period/bound context.
-- [ ] Provide loading, empty, error, retry, and no-data states.
-- [ ] Preserve keyboard accessibility and semantic table alternatives.
-- [ ] Avoid client-side calculations that diverge from server-side report semantics.
-
-## v0.2.10 engineering rules
+## Engineering rules
 
 - Reporting remains read-only.
-- No automatic purchase-order creation or inventory mutation.
-- Avoid schema migrations unless implementation evidence proves they are necessary and compatibility is reviewed.
-- Every functional boundary should be a focused, reviewable commit where practical.
+- No automatic purchase-order creation or inventory mutation is introduced by v0.3.0.
+- No database migration is introduced by the reporting foundation work.
+- Existing API contracts must remain backward compatible.
+- Bounds and period validation must fail closed and deterministically.
+- Focused, reviewable commits are preferred over artificial commit-count inflation.
+- Repository commits use `sanskarin@outlook.in` where the connected GitHub identity supports author attribution.
 
-## v0.2.10 implementation sequence
+## Next development track
 
-1. Finish and verify v0.2.8 scalability/trends work.
-2. Complete v0.2.9 operational reliability hardening and verification.
-3. Implement shared performance/pagination primitives.
-4. Add analytical trend and period-over-period contracts.
-5. Implement PostgreSQL aggregation with bounded queries.
-6. Add HTTP validation, metadata, and regression coverage.
-7. Add safe bounded CSV exports.
-8. Integrate the new insights into Reports & Analytics.
-9. Run full Go/PostgreSQL/Web/security/accessibility verification.
-10. Prepare release notes, tag, and publication checklist.
-11. Publish v0.2.10 only after implementation and verification are complete.
-
-## Commit discipline
-
-Each functional boundary remains separately reviewable where practical. Repository commits continue to use `sanskarin@outlook.in` where the connected GitHub identity supports author attribution. Meaningful focused commits are preferred over artificial commit-count inflation.
+1. Wire the shared reporting primitives into HTTP query parsing without changing existing response contracts.
+2. Add server-side report metadata for period, bounds, generated-at, and completeness state.
+3. Add bounded analytical trend endpoints backed by authoritative PostgreSQL aggregation.
+4. Add regression tests for cancellation, timeout propagation, deterministic ordering, and duplicate prevention.
+5. Integrate report-period context and retry/empty/error states into the web dashboard.
+6. Re-run the complete cross-platform and security verification suite before the next release.
