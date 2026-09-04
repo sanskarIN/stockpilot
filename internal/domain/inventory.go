@@ -158,7 +158,7 @@ type TransferRequest struct {
 	Quantity       int64     `json:"quantity"`
 	Reference      string    `json:"reference,omitempty"`
 	Note           string    `json:"note,omitempty"`
-	ActorID         string    `json:"actorId,omitempty"`
+	ActorID        string    `json:"actorId,omitempty"`
 	OccurredAt     time.Time `json:"occurredAt"`
 }
 
