@@ -20,8 +20,7 @@ func (a *API) exportInventoryCSV(w http.ResponseWriter, r *http.Request) {
 		writeDomainError(w, err)
 		return
 	}
-	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
-	w.Header().Set("Content-Disposition", `attachment; filename="stockpilot-inventory.csv"`)
+	setCSVDownloadHeaders(w, "stockpilot-inventory.csv")
 	writer := csvexport.New(w, csvexport.Options{FormulaSafe: true})
 	if err := writer.WriteHeader("productId", "locationId", "lotId", "quantity", "updatedAt"); err != nil {
 		return
@@ -41,8 +40,7 @@ func (a *API) exportLowStockCSV(w http.ResponseWriter, r *http.Request) {
 		writeDomainError(w, err)
 		return
 	}
-	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
-	w.Header().Set("Content-Disposition", `attachment; filename="stockpilot-low-stock.csv"`)
+	setCSVDownloadHeaders(w, "stockpilot-low-stock.csv")
 	writer := csvexport.New(w, csvexport.Options{FormulaSafe: true})
 	if err := writer.WriteHeader("productId", "locationId", "lotId", "quantity", "updatedAt"); err != nil {
 		return
@@ -62,8 +60,7 @@ func (a *API) exportReorderSuggestionsCSV(w http.ResponseWriter, r *http.Request
 		writeDomainError(w, err)
 		return
 	}
-	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
-	w.Header().Set("Content-Disposition", `attachment; filename="stockpilot-reorder-suggestions.csv"`)
+	setCSVDownloadHeaders(w, "stockpilot-reorder-suggestions.csv")
 	writer := csvexport.New(w, csvexport.Options{FormulaSafe: true})
 	if err := writer.WriteHeader("productId", "sku", "name", "supplierId", "unit", "onHand", "reorderPoint", "reorderQuantity", "targetStock", "suggestedQuantity"); err != nil {
 		return
