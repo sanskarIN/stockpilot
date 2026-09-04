@@ -4,8 +4,10 @@ import (
 	"encoding/csv"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/sanskarIN/stockpilot/internal/domain"
+	"github.com/sanskarIN/stockpilot/internal/reporting"
 )
 
 const (
@@ -27,10 +29,23 @@ func (a *API) supplierPerformance(w http.ResponseWriter, r *http.Request) {
 		writeDomainError(w, err)
 		return
 	}
-	if r.URL.Query().Get("format") == "csv" {
-		exportSupplierPerformanceCSV(w, report)
+	generatedAt := time.Now().UTC()
+	period, err := reporting.NewPeriod(generatedAt.AddDate(0, 0, -(days - 1)), generatedAt)
+	if err != nil {
+		writeDomainError(w, err)
 		return
 	}
+	bounds, err := reporting.NewBounds(limit, 0, defaultSupplierPerformanceLimit, maxSupplierPerformanceLimit)
+	if err != nil {
+		writeDomainError(w, err)
+		return
+	}
+	complete := len(report.Items) < limit
+	if r.URL.Query().Get("format") == "csv" {
+		exportSupplierPerformanceCSV(w, report, period, bounds, complete, generatedAt)
+		return
+	}
+	writeReportMetadata(w, reportRequest{Period: period, Bounds: bounds}, generatedAt, complete)
 	writeJSON(w, http.StatusOK, report)
 }
 
@@ -54,11 +69,8 @@ func normalizeSupplierPerformanceLimit(value int) int {
 	return value
 }
 
-func exportSupplierPerformanceCSV(w http.ResponseWriter, report domain.SupplierPerformanceReport) {
-	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
-	w.Header().Set("Content-Disposition", "attachment; filename=stockpilot-supplier-performance.csv")
-	w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate")
-	w.Header().Set("Pragma", "no-cache")
+func exportSupplierPerformanceCSV(w http.ResponseWriter, report domain.SupplierPerformanceReport, period reporting.Period, bounds reporting.Bounds, complete bool, generatedAt time.Time) {
+	writeReportExportHeaders(w, "stockpilot-supplier-performance.csv", period, bounds, complete, generatedAt)
 	writer := csv.NewWriter(w)
 	_ = writer.Write([]string{"supplier_id", "supplier_code", "supplier_name", "order_count", "ordered_units", "received_units", "open_units", "ordered_value_minor", "received_value_minor", "average_lead_time_days", "completed_order_count", "on_time_order_count"})
 	for _, item := range report.Items {
