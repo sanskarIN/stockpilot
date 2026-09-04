@@ -4,8 +4,10 @@ import (
 	"encoding/csv"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/sanskarIN/stockpilot/internal/domain"
+	"github.com/sanskarIN/stockpilot/internal/reporting"
 )
 
 const (
@@ -30,18 +32,28 @@ func (a *API) warehouseValuation(w http.ResponseWriter, r *http.Request) {
 		writeDomainError(w, err)
 		return
 	}
-	if r.URL.Query().Get("format") == "csv" {
-		exportWarehouseValuationCSV(w, report)
+	generatedAt := time.Now().UTC()
+	period, err := reporting.NewPeriod(generatedAt, generatedAt)
+	if err != nil {
+		writeDomainError(w, err)
 		return
 	}
+	bounds, err := reporting.NewBounds(limit, 0, defaultWarehouseValuationLimit, maxWarehouseValuationLimit)
+	if err != nil {
+		writeDomainError(w, err)
+		return
+	}
+	complete := len(report.Items) < limit
+	if r.URL.Query().Get("format") == "csv" {
+		exportWarehouseValuationCSV(w, report, period, bounds, complete, generatedAt)
+		return
+	}
+	writeReportMetadata(w, reportRequest{Period: period, Bounds: bounds}, generatedAt, complete)
 	writeJSON(w, http.StatusOK, report)
 }
 
-func exportWarehouseValuationCSV(w http.ResponseWriter, report domain.WarehouseValuationReport) {
-	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
-	w.Header().Set("Content-Disposition", "attachment; filename=stockpilot-warehouse-valuation.csv")
-	w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate")
-	w.Header().Set("Pragma", "no-cache")
+func exportWarehouseValuationCSV(w http.ResponseWriter, report domain.WarehouseValuationReport, period reporting.Period, bounds reporting.Bounds, complete bool, generatedAt time.Time) {
+	writeReportExportHeaders(w, "stockpilot-warehouse-valuation.csv", period, bounds, complete, generatedAt)
 	writer := csv.NewWriter(w)
 	_ = writer.Write([]string{"warehouse_id", "warehouse_code", "warehouse_name", "location_id", "location_code", "location_name", "currency", "on_hand", "valuation_minor", "product_count"})
 	for _, item := range report.Items {
