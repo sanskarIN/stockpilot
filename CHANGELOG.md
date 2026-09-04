@@ -4,14 +4,25 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-### Next: v0.3.4 — Reporting Export & Completeness
+### Next: v0.3.5 — Reporting Query Options & Repository Bounds
 
 Planned scope:
 
-- make report completeness reflect actual bounded result behavior;
-- standardize CSV export metadata and cache semantics;
-- add export regression coverage for reporting filters and pagination;
-- keep reporting read-only and backward-compatible.
+- introduce additive repository query options for period and pagination where supported;
+- wire deterministic ordering into bounded repository report queries;
+- preserve existing report interfaces until replacement implementations are ready;
+- add storage-boundary cancellation coverage.
+
+### v0.3.4 — Reporting Export & Completeness
+
+The v0.3.4 milestone standardizes report export metadata and makes completeness metadata conservative and truthful for bounded HTTP results.
+
+- centralized CSV export headers and cache-control semantics;
+- exposed generated-at, period, limit, offset, and completeness metadata on supplier and warehouse reports;
+- marked bounded reports complete only when fewer items than the requested limit are returned;
+- added regression coverage for shared export metadata and warehouse export behavior;
+- preserved existing JSON and CSV response bodies and filenames;
+- kept reporting read-only with no database migration.
 
 ### v0.3.3 — Reporting Repository Integration
 
