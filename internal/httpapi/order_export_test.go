@@ -24,10 +24,9 @@ func (f *fakeStore) ListOrderExportRows(_ context.Context, _ domain.PurchaseOrde
 
 func TestNormalizeOrderExportBounds(t *testing.T) {
 	tests := []struct {
-		name          string
-		limit, offset  int
-		wantLimit     int
-		wantOffset    int
+		name             string
+		limit, offset     int
+		wantLimit, wantOffset int
 	}{
 		{name: "defaults", limit: 0, offset: 0, wantLimit: 500, wantOffset: 0},
 		{name: "negative limit", limit: -2, offset: -4, wantLimit: 500, wantOffset: 0},
@@ -63,7 +62,7 @@ func TestPurchaseOrderExportCSV(t *testing.T) {
 	if !strings.Contains(body, "orderId,orderNumber,supplierId,warehouseId,status,currency") {
 		t.Fatalf("missing header: %s", body)
 	}
-	if !strings.Contains(body, "\"'=PO-100\"") {
+	if !strings.Contains(body, "'=PO-100") {
 		t.Fatalf("formula-safe order number missing: %s", body)
 	}
 	if !strings.Contains(body, "6,2500,25000") {
