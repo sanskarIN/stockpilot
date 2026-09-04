@@ -1,26 +1,42 @@
 # Changelog
 
-All notable StockPilot changes are recorded here. The project is pre-1.0, so current work remains under **Unreleased**.
+All notable StockPilot changes are recorded here. The project is pre-1.0, so current work remains under **Unreleased** until each release is published.
 
 ## Unreleased
 
-### v0.2.7 — Replenishment Readiness
+### Next: v0.2.8 — Large-Report Scalability & Purchasing Trends
 
-The next milestone focuses on advisory replenishment reporting that connects current reorder configuration with observed outbound movement velocity.
+Preparation for v0.2.8 will focus on making reporting scale safely as StockPilot's datasets grow while adding purchasing trend visibility.
 
 Planned scope:
 
-- replenishment readiness metrics derived from authoritative inventory and movement records;
-- on-hand, reorder point, reorder quantity, target stock, and suggested quantity visibility;
-- recent outbound units and average daily outbound velocity;
-- estimated days of cover when demand velocity is positive;
-- deterministic readiness/risk classification;
-- bounded authenticated JSON reporting;
-- optional formula-safe CSV export;
-- Reports & Analytics integration;
-- no automatic purchase-order creation or inventory mutation from the report.
+- cursor/keyset pagination or streaming for large report datasets;
+- bounded memory use and deterministic continuation semantics;
+- supplier/product purchasing trend series built from authoritative purchase-order data;
+- safe date-window and row bounds for trend endpoints;
+- CSV export that remains formula-safe and non-cacheable;
+- Reports & Analytics trend views with clear empty/loading/error states;
+- regression coverage for pagination, ordering, bounds, and export behavior.
 
-The v0.2.7 release must not be published as stable until implementation and all applicable verification gates are complete.
+No feature in this preparation should silently change transactional inventory or purchasing records.
+
+### v0.2.7 — Replenishment Readiness
+
+Completed implementation scope:
+
+- added advisory replenishment-readiness reporting derived from existing reorder suggestions and stock-movement history;
+- added on-hand, reorder point, reorder quantity, target stock, and suggested quantity visibility;
+- added recent outbound units and average daily outbound velocity;
+- added estimated days of cover when outbound velocity is positive;
+- added deterministic `out_of_stock`, `critical`, `reorder`, `watch`, and `healthy` classifications;
+- added bounded authenticated JSON reporting and formula-safe CSV export;
+- added the `GET /api/v1/reports/replenishment-readiness` endpoint;
+- updated API metadata to `0.2.7`;
+- added domain contract and regression coverage;
+- kept the report read-only with no purchase-order creation and no inventory mutation;
+- introduced no database migration.
+
+Stable publication still requires the repository's applicable verification gates to be confirmed green.
 
 ## 0.2.6 — 2026-09-04
 
