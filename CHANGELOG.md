@@ -4,7 +4,23 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-Future work will continue here after v0.2.6.
+### v0.2.7 — Replenishment Readiness
+
+The next milestone focuses on advisory replenishment reporting that connects current reorder configuration with observed outbound movement velocity.
+
+Planned scope:
+
+- replenishment readiness metrics derived from authoritative inventory and movement records;
+- on-hand, reorder point, reorder quantity, target stock, and suggested quantity visibility;
+- recent outbound units and average daily outbound velocity;
+- estimated days of cover when demand velocity is positive;
+- deterministic readiness/risk classification;
+- bounded authenticated JSON reporting;
+- optional formula-safe CSV export;
+- Reports & Analytics integration;
+- no automatic purchase-order creation or inventory mutation from the report.
+
+The v0.2.7 release must not be published as stable until implementation and all applicable verification gates are complete.
 
 ## 0.2.6 — 2026-09-04
 
