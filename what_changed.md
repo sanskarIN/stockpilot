@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 39 — v0.2.8 Large-Report Scalability & Purchasing Trends preparation.
+Phase 39 — v0.2.8 Large-Report Scalability & Purchasing Trends.
 
 ## Repository state
 
@@ -15,75 +15,52 @@ Phase 39 — v0.2.8 Large-Report Scalability & Purchasing Trends preparation.
 - v0.2.4 stock movement velocity implementation and release documentation are merged on `main`.
 - v0.2.5 supplier performance implementation and release documentation are merged on `main`.
 - v0.2.6 warehouse/location valuation implementation and release documentation are merged on `main`; GitHub release is published.
-- v0.2.7 replenishment-readiness implementation and release documentation are now merged on `main`.
+- v0.2.7 replenishment-readiness implementation and release documentation are merged on `main`.
 - v0.2.7 stable publication remains gated on verification results; do not claim the GitHub Release is published until confirmed.
+- v0.2.8 planning is now active on `main`.
 - Focused, reviewable commits are preferred over meaningless commits solely to increase the commit count.
 
-## v0.2.7 completed scope
-
-- [x] Connect existing reorder suggestions with authoritative recent outbound movement data.
-- [x] Add replenishment readiness domain/report contracts.
-- [x] Add recent outbound units and average daily outbound velocity to the replenishment report.
-- [x] Add estimated days of cover when outbound velocity is positive.
-- [x] Add deterministic advisory readiness/risk classification.
-- [x] Add bounded authenticated JSON reporting.
-- [x] Add optional formula-safe CSV export.
-- [x] Register `GET /api/v1/reports/replenishment-readiness`.
-- [x] Update API metadata to `0.2.7`.
-- [x] Add domain regression coverage.
-- [x] Keep the feature read-only; no automatic purchase orders or inventory mutation.
-- [x] Reuse existing authoritative records; no migration was introduced.
-
-## v0.2.7 release gates
-
-- [ ] Confirm Go formatting, vet, unit, race, and server-build verification.
-- [ ] Confirm PostgreSQL migration/readiness and integration verification.
-- [ ] Confirm Web quality/type-check/build verification.
-- [ ] Confirm CodeQL/security verification.
-- [ ] Confirm configured Android and browser-companion checks.
-- [ ] Confirm E2E/accessibility checks where configured.
-- [ ] Confirm restore/rollback and reproducible-artifact gates where applicable.
-- [ ] Resolve blocker/critical defects.
-- [x] Verify GitHub currently has no `v0.2.7` release.
-- [ ] Only after applicable gates pass: publish `v0.2.7` as a stable, non-prerelease GitHub Release.
-
-## v0.2.8 preparation scope
+## v0.2.8 active scope
 
 ### Large-report scalability
 
-- Design cursor/keyset pagination or streaming for large reporting datasets.
-- Preserve deterministic ordering and continuation semantics.
-- Bound memory usage and reject unsafe page/window inputs.
-- Prefer indexed, server-side iteration over unbounded in-memory aggregation.
-- Add regression coverage for first page, continuation, end-of-stream, duplicate prevention, and ordering stability.
+- [ ] Audit existing report pagination, aggregation, and database indexes.
+- [ ] Define additive cursor/keyset pagination or streaming contracts.
+- [ ] Preserve deterministic ordering and opaque continuation semantics.
+- [ ] Bound page sizes, date windows, query work, and memory growth.
+- [ ] Add first-page, continuation, end-of-stream, ordering, and duplicate-prevention tests.
 
 ### Purchasing trends
 
-- Add supplier/product purchasing trend series from authoritative purchase-order and purchase-order-line records.
-- Support bounded date windows and deterministic series ordering.
-- Expose ordered units, received units, open units, and purchasing value where the existing schema supports them without currency conversion assumptions.
-- Add formula-safe CSV export and non-cacheable download behavior.
-- Integrate trends into Reports & Analytics with clear loading, empty, error, and accessibility states.
+- [ ] Define supplier/product trend domain contracts from existing purchasing records.
+- [ ] Aggregate ordered, received, open units and purchasing value server-side.
+- [ ] Keep currencies separated; never introduce implicit FX conversion.
+- [ ] Add bounded HTTP reporting endpoints.
+- [ ] Add formula-safe CSV exports with non-cacheable download headers.
+- [ ] Integrate trend views into Reports & Analytics.
+- [ ] Add loading, empty, error, and accessibility states.
 
-### v0.2.8 safety rules
+## v0.2.8 engineering rules
 
-- Reporting remains read-only.
-- No automatic purchase-order creation or inventory mutation is part of this milestone.
-- No schema migration unless implementation evidence proves existing data cannot support the feature.
-- Do not publish v0.2.8 until the applicable verification gates are green.
+- Preserve existing endpoint semantics unless a compatibility review explicitly approves a change.
+- Prefer new additive endpoints/contracts when pagination semantics would otherwise alter existing clients.
+- Reuse authoritative purchase orders, purchase-order lines, products, suppliers, and existing indexes.
+- Keep reporting read-only.
+- No automatic purchase-order creation or inventory mutation.
+- No schema migration unless implementation evidence proves the existing schema insufficient.
 
-## v0.2.8 implementation order
+## v0.2.8 implementation sequence
 
-1. Audit existing report pagination/aggregation patterns and indexes.
-2. Define cursor/streaming contracts without breaking current endpoints.
-3. Implement server-side continuation and bounds.
-4. Define purchasing trend domain contracts.
+1. Audit report query/index patterns.
+2. Add reusable bounded pagination primitives.
+3. Add cursor/keyset tests.
+4. Define purchasing trend contracts.
 5. Implement PostgreSQL trend aggregation.
-6. Add HTTP endpoints and safe CSV exports.
-7. Add Web Reports & Analytics trend views.
-8. Add unit, HTTP, PostgreSQL, and integration coverage.
-9. Run all repository verification gates.
-10. Prepare and publish v0.2.8 only after verification.
+6. Add HTTP endpoints and CSV exports.
+7. Integrate Reports & Analytics.
+8. Add PostgreSQL/integration/security regression coverage.
+9. Run Go, Web, PostgreSQL, CodeQL, Android/browser, E2E/accessibility, rollback, and artifact gates where configured.
+10. Publish v0.2.8 only after implementation and verification are complete.
 
 ## Future milestones after v0.2.8
 
