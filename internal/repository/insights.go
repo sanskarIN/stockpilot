@@ -9,6 +9,7 @@ import (
 type Reports interface {
 	InventorySummary(context.Context) (domain.InventorySummary, error)
 	PurchasingSummary(context.Context) (domain.PurchasingSummary, error)
+	SupplierPerformance(context.Context, int, int) (domain.SupplierPerformanceReport, error)
 }
 
 type Audit interface {
