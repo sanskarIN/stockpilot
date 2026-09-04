@@ -31,8 +31,7 @@ func (a *API) exportAuditCSV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
-	w.Header().Set("Content-Disposition", `attachment; filename="stockpilot-audit-log.csv"`)
+	setCSVDownloadHeaders(w, "stockpilot-audit-log.csv")
 	writer := csvexport.New(w, csvexport.Options{FormulaSafe: true})
 	if err := writer.WriteHeader("id", "occurredAt", "actorId", "action", "entityType", "entityId", "requestId", "metadata"); err != nil {
 		return
