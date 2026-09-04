@@ -4,7 +4,32 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-Future work will continue here after v0.1.8.
+Future work will continue here after v0.1.9.
+
+## 0.1.9 — 2026-09-04
+
+### Added
+
+- Added a shared CSV download-header helper for all export endpoints.
+- Added authorization-contract regression coverage for every current CSV export route.
+- Added focused tests for privacy-oriented CSV response headers.
+
+### Changed
+
+- All CSV exports now send `Cache-Control: no-store` and `Pragma: no-cache`.
+- CSV content type and deterministic attachment filenames are centralized through the shared export-header helper.
+- Export permission mapping is explicitly covered for catalog, inventory, lot, receipt, reorder, purchasing, and audit datasets.
+
+### Security and operations
+
+- Export responses are instructed not to be retained by browser or intermediary caches by default.
+- Export access continues to use the authenticated `WithAccess` middleware and domain-specific read permissions.
+- The release does not introduce a new role or permission model and does not broaden export access.
+
+### Verification
+
+- Added regression coverage for all current export permission mappings and download privacy headers.
+- Full release verification remains required for Go, PostgreSQL, Web, Android, extension, authentication/session, authorization/CSRF, and CodeQL gates where configured.
 
 ## 0.1.8 — 2026-09-04
 
@@ -65,64 +90,6 @@ Future work will continue here after v0.1.8.
 ### Verification
 
 - Added unit coverage for pagination normalization and the CSV contract.
-- Full release verification remains required for Go, PostgreSQL, Web, Android, extension, authentication/session, authorization/CSRF, and CodeQL gates where configured.
-
-## 0.1.6 — 2026-09-04
-
-### Added
-
-- Added bounded purchase-order CSV export at `GET /api/v1/orders/export.csv`.
-- Added optional purchase-order status filtering for `draft`, `ordered`, `partially_received`, `received`, and `cancelled`.
-- Added line-level ordered, received, remaining, unit-cost, and line-total fields to the export.
-- Added a dedicated `PurchaseOrderExportRow` domain model and repository export operation.
-- Added a deterministic PostgreSQL export query that selects purchase orders first and then flattens their lines.
-- Added focused HTTP coverage for export bounds, status validation, headers, schema, formula-safe values, totals, and timestamps.
-
-### Changed
-
-- Purchase-order exports reuse the shared formula-safe CSV serializer introduced in v0.1.2.
-- Purchase-order selection is deterministic by `created_at DESC, id DESC` and line ordering is deterministic by line ID.
-- Export timestamps are normalized to UTC RFC 3339 values.
-- Browser downloads use the deterministic filename `stockpilot-purchase-orders.csv`.
-- Receiving visibility is exposed through the authoritative `received` and `remaining` line quantities already maintained by the existing receiving transaction flow.
-
-### Security and operations
-
-- Purchase-order export is read-only and remains behind the existing HTTP middleware and application authorization/session controls.
-- Application-level export bounds cap requests at 5,000 selected purchase orders; repository bounds enforce the same ceiling.
-- Export serialization protects spreadsheet formula-like values.
-- Export schemas exclude credentials, passwords, session secrets, and payment information.
-
-### Verification
-
-- Added unit coverage for purchase-order export normalization and CSV contracts.
-- Full release verification remains required for Go, PostgreSQL, Web, Android, extension, authentication/session, authorization/CSRF, and CodeQL gates where configured.
-
-## 0.1.5 — 2026-09-03
-
-### Added
-
-- Added bounded lot-inventory CSV export at `GET /api/v1/inventory/lots/export.csv`.
-- Added optional product, warehouse, location, and lot filters to the export contract.
-- Added the inclusive `expiringBy` date filter using `YYYY-MM-DD` input.
-- Added focused HTTP coverage for bounds, date parsing, headers, schema, timestamps, expiry filtering, and formula-safe values.
-
-### Changed
-
-- Lot inventory exports reuse the shared formula-safe CSV serializer introduced in v0.1.2.
-- Export rows retain deterministic PostgreSQL ordering by expiry date, product name, lot number, and location name.
-- Expiry timestamps are normalized to UTC RFC 3339 values.
-- Browser downloads use the deterministic filename `stockpilot-lot-inventory.csv`.
-
-### Security and operations
-
-- Lot inventory export is read-only and remains behind the existing HTTP middleware and application authorization/session controls.
-- Export requests are bounded at the application layer and the repository retains its own safety cap.
-- Export schemas exclude credentials, passwords, session secrets, and payment information.
-
-### Verification
-
-- Added unit coverage for lot export normalization and CSV contracts.
 - Full release verification remains required for Go, PostgreSQL, Web, Android, extension, authentication/session, authorization/CSRF, and CodeQL gates where configured.
 
 ## Release discipline
