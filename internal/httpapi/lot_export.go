@@ -38,8 +38,7 @@ func (a *API) exportLotInventoryCSV(w http.ResponseWriter, r *http.Request) {
 		writeDomainError(w, err)
 		return
 	}
-	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
-	w.Header().Set("Content-Disposition", `attachment; filename="stockpilot-lot-inventory.csv"`)
+	setCSVDownloadHeaders(w, "stockpilot-lot-inventory.csv")
 	writer := csvexport.New(w, csvexport.Options{FormulaSafe: true})
 	if err := writer.WriteHeader("productId", "sku", "productName", "lotId", "lotNumber", "locationId", "location", "warehouseId", "warehouse", "onHand", "expiresAt", "active"); err != nil {
 		return
