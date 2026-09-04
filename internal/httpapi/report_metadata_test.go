@@ -1,6 +1,7 @@
 package httpapi
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -9,8 +10,7 @@ import (
 
 func TestReportInventoryEmitsMetadataHeaders(t *testing.T) {
 	store := &fakeStore{}
-	store.balances = nil
-	handler := NewCore(store, store, store, func(_ interface{}) error { return nil })
+	handler := NewCore(store, store, store, func(context.Context) error { return nil })
 	request := httptest.NewRequest(http.MethodGet, "/api/v1/reports/inventory?limit=25&offset=5", nil)
 	recorder := httptest.NewRecorder()
 	handler.ServeHTTP(recorder, request)
