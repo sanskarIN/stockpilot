@@ -63,7 +63,7 @@ func (a *API) exportAuditCSV(w http.ResponseWriter, r *http.Request) {
 
 func formulaSafeJSON(value string) string {
 	for _, prefix := range []string{"=", "+", "-", "@"} {
-		value = strings.ReplaceAll(value, `"`+prefix, `"'`+prefix)
+		value = strings.ReplaceAll(value, "\""+prefix, "\"'"+prefix)
 	}
 	return value
 }
