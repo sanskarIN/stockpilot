@@ -9,6 +9,10 @@
 
 StockPilot v0.2.9 is the next planned pre-1.0 hardening milestone after v0.2.8. The goal is to make reporting and day-to-day operations more observable, predictable, and resilient without changing the transactional source of truth.
 
+## Implementation status
+
+Preparation has started on `main`. The API metadata now advertises `0.2.9` while the release remains **unpublished and verification-gated**.
+
 ## Planned highlights
 
 ### Reporting reliability
@@ -78,3 +82,7 @@ v0.2.9 is intended to remain backward compatible. Existing transactional data an
 - **Release type:** Stable after verification
 - **Prerelease:** No
 - **Planned date:** TBD after implementation and verification
+
+## Publication rule
+
+Do not represent v0.2.9 as published until implementation, verification, tag creation, and GitHub Release publication have actually completed.
