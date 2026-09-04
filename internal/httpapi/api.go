@@ -93,6 +93,7 @@ func NewCore(catalog repository.Catalog, inventory repository.Inventory, orders 
 		mux.HandleFunc("GET /api/v1/reports/inventory", a.reportInventory)
 		mux.HandleFunc("GET /api/v1/reports/purchasing", a.reportPurchasing)
 		mux.HandleFunc("GET /api/v1/reports/supplier-performance", a.supplierPerformance)
+		mux.HandleFunc("GET /api/v1/reports/warehouse-valuation", a.warehouseValuation)
 	}
 	if a.audit != nil {
 		mux.HandleFunc("GET /api/v1/audit", a.listAuditEvents)
@@ -179,7 +180,7 @@ func (a *API) ready(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) meta(w http.ResponseWriter, _ *http.Request) {
-	writeJSON(w, http.StatusOK, map[string]string{"name": "StockPilot", "version": "0.1.0-dev", "credit": "Made by the Sanskar"})
+	writeJSON(w, http.StatusOK, map[string]string{"name": "StockPilot", "version": "0.2.6", "credit": "Made by the Sanskar"})
 }
 
 func decodeJSON[T any](w http.ResponseWriter, r *http.Request, out *T) bool {
