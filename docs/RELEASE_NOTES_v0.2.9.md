@@ -78,7 +78,3 @@ v0.2.9 is intended to remain backward compatible. Existing transactional data an
 - **Release type:** Stable after verification
 - **Prerelease:** No
 - **Planned date:** TBD after implementation and verification
-
-## Publication rule
-
-These are preparation notes. Do not represent v0.2.9 as published until implementation, verification, and the GitHub Release publication have actually completed.
