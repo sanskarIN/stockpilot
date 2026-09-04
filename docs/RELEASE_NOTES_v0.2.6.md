@@ -65,5 +65,3 @@ Before declaring the release stable, verify:
 - end-to-end and accessibility checks;
 - restore/rollback checks;
 - release artifact checks.
-
-Do not mark the GitHub release as the latest stable release until the required gates are green.
