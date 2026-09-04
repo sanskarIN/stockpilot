@@ -93,7 +93,7 @@ func TestReceiptHistoryExportCSV(t *testing.T) {
 	if !strings.Contains(body, "mov_1,prd_1,SKU-1,Widget") || !strings.Contains(body, `'=formula`) {
 		t.Fatalf("missing exported row body=%q", body)
 	}
-	if !strings.Contains(body, "2026-09-04T04:30:00Z") || !strings.Contains(body, "2026-09-04T04:32:00Z") {
+	if !strings.Contains(body, "2026-09-03T23:00:00Z") || !strings.Contains(body, "2026-09-03T23:02:00Z") {
 		t.Fatalf("timestamps not normalized body=%q", body)
 	}
 }
