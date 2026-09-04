@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 37 — v0.2.6 Warehouse & Location Valuation.
+Phase 38 — v0.2.7 Replenishment Readiness.
 
 ## Repository state
 
@@ -14,53 +14,65 @@ Phase 37 — v0.2.6 Warehouse & Location Valuation.
 - v0.2.3 export-hardening release is published on GitHub.
 - v0.2.4 stock movement velocity implementation and release documentation are merged on `main`; stable publication must still be verified before claiming it is released.
 - v0.2.5 supplier performance implementation and release documentation are merged on `main`.
-- v0.2.6 warehouse/location valuation implementation and release documentation are now merged on `main`.
+- v0.2.6 warehouse/location valuation implementation and release documentation are merged on `main`.
+- v0.2.7 release scope and release notes are now prepared on `main`; implementation and verification are still required before publication.
 - Focused, reviewable commits are preferred over meaningless commits solely to increase the commit count.
 
-## Completed for v0.2.6
+## v0.2.7 release scope
 
-- [x] Added warehouse/location valuation domain contracts.
-- [x] Extended the reporting repository contract with warehouse valuation aggregation.
-- [x] Added PostgreSQL aggregation across inventory balances, products, locations, and warehouses.
-- [x] Added location-level on-hand units, valuation, currency, and distinct active-product counts.
-- [x] Added warehouse-level totals grouped by currency.
-- [x] Added bounded HTTP JSON reporting with a 1–5000 row limit.
-- [x] Added formula-safe CSV export with no-store/no-cache headers.
-- [x] Registered `GET /api/v1/reports/warehouse-valuation`.
-- [x] Added HTTP regression coverage for defaults, limits, JSON output, and CSV safety.
-- [x] Added `docs/RELEASE_NOTES_v0.2.6.md`.
-- [x] Updated `CHANGELOG.md`.
-- [x] Updated the public metadata endpoint version to `0.2.6`.
+- [ ] Connect existing reorder suggestions with authoritative recent outbound movement data.
+- [ ] Add replenishment readiness domain/report contracts.
+- [ ] Add recent outbound units and average daily outbound velocity to the replenishment report.
+- [ ] Add estimated days of cover when outbound velocity is positive.
+- [ ] Add deterministic advisory readiness/risk classification.
+- [ ] Add bounded authenticated JSON reporting.
+- [ ] Add optional formula-safe CSV export.
+- [ ] Integrate replenishment readiness into Reports & Analytics.
+- [ ] Add unit, repository, HTTP, and integration regression coverage.
+- [ ] Keep the feature read-only; do not automatically create purchase orders or mutate inventory.
+- [ ] Prefer existing authoritative records and avoid a migration unless implementation evidence requires persisted recommendation snapshots.
 
-## v0.2.6 release gates
+## v0.2.7 release gates
 
-- [ ] Confirm the final `main` CI run for the release candidate completes successfully.
+- [ ] Confirm the v0.2.7 implementation is complete on `main`.
 - [ ] Confirm Go formatting, vet, unit, race, and server-build verification.
-- [ ] Confirm PostgreSQL migration/integration verification.
+- [ ] Confirm PostgreSQL migration/readiness and integration verification.
 - [ ] Confirm Web quality/type-check/build verification.
 - [ ] Confirm CodeQL/security verification.
-- [ ] Confirm configured Android, browser-companion, E2E, and accessibility checks.
+- [ ] Confirm configured Android and browser-companion checks.
+- [ ] Confirm E2E/accessibility checks where configured.
 - [ ] Confirm restore/rollback and reproducible-artifact gates where applicable.
 - [ ] Resolve blocker/critical defects.
-- [ ] Verify that GitHub does not already contain `v0.2.6`.
-- [ ] Only after applicable gates pass: publish `v0.2.6` as a stable, non-prerelease GitHub Release.
+- [ ] Verify that GitHub does not already contain `v0.2.7`.
+- [ ] Only after applicable gates pass: publish `v0.2.7` as a stable, non-prerelease GitHub Release.
 
 ## Release metadata
 
-- Title: `StockPilot v0.2.6 — Warehouse & Location Valuation`
-- Tag: `v0.2.6`
+- Title: `StockPilot v0.2.7 — Replenishment Readiness`
+- Tag: `v0.2.7`
 - Release type: Stable after verification
 - Prerelease: Off
 - Latest: On, if intended as the current latest stable release
 - Date: 2026-09-04
+- Release notes: `docs/RELEASE_NOTES_v0.2.7.md`
 
-## Next implementation priority after v0.2.6
+## Implementation order
 
-1. Replenishment history and recommendation effectiveness metrics.
-2. Cursor/streaming support for large report datasets.
-3. Supplier/product purchasing trend series.
-4. Warehouse/location valuation drill-down by product and lot.
-5. Broader E2E, accessibility, Android, restore/rollback, and reproducible-artifact hardening.
+1. Replenishment report domain contracts.
+2. Repository aggregation over reorder configuration and movement history.
+3. HTTP endpoint, bounds, authorization, and CSV export.
+4. Web Reports & Analytics integration.
+5. Regression/integration coverage.
+6. Documentation and release metadata.
+7. Full verification gates.
+8. Stable GitHub publication.
+
+## Next milestones after v0.2.7
+
+1. Cursor/streaming support for large report datasets.
+2. Supplier/product purchasing trend series.
+3. Warehouse/location valuation drill-down by product and lot.
+4. Broader E2E, accessibility, Android, restore/rollback, and reproducible-artifact hardening.
 
 ## Commit discipline
 
