@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/sanskarIN/stockpilot/internal/csvexport"
-	"github.com/sanskarIN/stockpilot/internal/domain"
 	"github.com/sanskarIN/stockpilot/internal/repository"
 )
 
@@ -65,5 +64,3 @@ func normalizeMovementHistoryLimit(limit int) int {
 	}
 	return limit
 }
-
-var _ domain.StockMovementHistoryReport
