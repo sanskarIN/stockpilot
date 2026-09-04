@@ -80,6 +80,7 @@ func NewCore(catalog repository.Catalog, inventory repository.Inventory, orders 
 	mux.HandleFunc("GET /api/v1/reports/inventory-valuation", a.inventoryValuation)
 	mux.HandleFunc("GET /api/v1/reports/inventory-valuation/export.csv", a.exportInventoryValuationCSV)
 	mux.HandleFunc("GET /api/v1/reports/inventory-aging", a.inventoryAging)
+	mux.HandleFunc("GET /api/v1/reports/stock-movement-history", a.stockMovementHistory)
 	mux.HandleFunc("GET /api/v1/orders", a.listOrders)
 	mux.HandleFunc("GET /api/v1/orders/export.csv", a.exportOrdersCSV)
 	mux.HandleFunc("POST /api/v1/orders", a.createOrder)
