@@ -79,6 +79,7 @@ func NewCore(catalog repository.Catalog, inventory repository.Inventory, orders 
 	mux.HandleFunc("POST /api/v1/inventory/transfers", a.transfer)
 	mux.HandleFunc("GET /api/v1/reports/inventory-valuation", a.inventoryValuation)
 	mux.HandleFunc("GET /api/v1/reports/inventory-valuation/export.csv", a.exportInventoryValuationCSV)
+	mux.HandleFunc("GET /api/v1/reports/inventory-aging", a.inventoryAging)
 	mux.HandleFunc("GET /api/v1/orders", a.listOrders)
 	mux.HandleFunc("GET /api/v1/orders/export.csv", a.exportOrdersCSV)
 	mux.HandleFunc("POST /api/v1/orders", a.createOrder)
@@ -218,20 +219,3 @@ func writeJSON(w http.ResponseWriter, status int, value any) {
 }
 
 type statusWriter struct {
-	http.ResponseWriter
-	status      int
-	wroteHeader bool
-}
-
-func (w *statusWriter) WriteHeader(status int) {
-	w.status = status
-	w.wroteHeader = true
-	w.ResponseWriter.WriteHeader(status)
-}
-
-func (w *statusWriter) Write(body []byte) (int, error) {
-	if !w.wroteHeader {
-		w.WriteHeader(http.StatusOK)
-	}
-	return w.ResponseWriter.Write(body)
-}
