@@ -17,15 +17,14 @@ func (s *Store) GetInventoryAging(ctx context.Context, limit int) (domain.Invent
 	asOf := time.Now().UTC()
 	rows, err := s.pool.Query(ctx, `
 SELECT b.product_id,p.sku,p.name,b.location_id,COALESCE(b.lot_id,''),b.quantity,
-       COALESCE(MAX(m.occurred_at), l.created_at) AS last_movement_at
+       COALESCE(MAX(m.occurred_at), b.updated_at) AS last_movement_at
 FROM inventory_balances b
 JOIN products p ON p.id=b.product_id
-LEFT JOIN lots l ON l.id=b.lot_id
 LEFT JOIN stock_movements m ON m.product_id=b.product_id
   AND m.location_id=b.location_id
   AND COALESCE(m.lot_id,'')=COALESCE(b.lot_id,'')
 WHERE b.quantity > 0
-GROUP BY b.product_id,p.sku,p.name,b.location_id,b.lot_id,b.quantity,l.created_at
+GROUP BY b.product_id,p.sku,p.name,b.location_id,b.lot_id,b.quantity,b.updated_at
 ORDER BY last_movement_at ASC,p.name ASC,b.location_id ASC,COALESCE(b.lot_id,'') ASC
 LIMIT $1`, limit)
 	if err != nil {
