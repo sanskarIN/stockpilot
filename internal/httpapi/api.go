@@ -92,6 +92,7 @@ func NewCore(catalog repository.Catalog, inventory repository.Inventory, orders 
 	}
 	if a.audit != nil {
 		mux.HandleFunc("GET /api/v1/audit", a.listAuditEvents)
+		mux.HandleFunc("GET /api/v1/audit/export.csv", a.exportAuditCSV)
 	}
 	return mux
 }
