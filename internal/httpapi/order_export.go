@@ -28,8 +28,7 @@ func (a *API) exportOrdersCSV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
-	w.Header().Set("Content-Disposition", `attachment; filename="stockpilot-purchase-orders.csv"`)
+	setCSVDownloadHeaders(w, "stockpilot-purchase-orders.csv")
 	writer := csvexport.New(w, csvexport.Options{FormulaSafe: true})
 	if err := writer.WriteHeader(
 		"orderId", "orderNumber", "supplierId", "warehouseId", "status", "currency", "expectedAt",
