@@ -4,11 +4,30 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-### Next: v0.2.8 — Large-Report Scalability & Purchasing Trends
+### Next: v0.2.9 — Operational Readiness & Reporting Reliability
 
-Preparation for v0.2.8 focuses on making reporting scale safely as StockPilot's datasets grow while adding purchasing trend visibility.
+Preparation for v0.2.9 has started as the next pre-1.0 hardening milestone after v0.2.8.
 
 Planned scope:
+
+- explicit report query budgets and bounded execution behavior where supported;
+- standardized report metadata for generated-at timestamps, applied bounds, and complete/partial result state;
+- actionable report failures without exposing database internals;
+- deterministic ordering for repeatable report consumption;
+- structured request/report logging with stable event names and duration measurements;
+- safe slow-report diagnostics without credentials, session tokens, or sensitive request bodies;
+- timeout and cancellation propagation across read-heavy/report endpoints;
+- defensive validation for query parameters, date ranges, limits, and continuation inputs;
+- bounded large-export behavior with formula-safe, non-cacheable CSV output;
+- resilient Reports & Analytics loading, empty, error, retry, and accessibility states;
+- operational documentation for health, readiness, and troubleshooting;
+- regression coverage for timeout, cancellation, bounds, logging safety, and export memory behavior.
+
+v0.2.9 remains read-only with no automatic purchasing or inventory mutation. Database migrations require evidence and compatibility review.
+
+### v0.2.8 — Large-Report Scalability & Purchasing Trends
+
+Implementation is still required before v0.2.8 can be represented as a completed stable release. The release preparation scope remains:
 
 - reusable bounded pagination primitives for large report datasets;
 - additive cursor/keyset pagination or streaming without silently changing existing endpoint semantics;
