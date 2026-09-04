@@ -14,16 +14,16 @@ const (
 )
 
 type InventoryAgingItem struct {
-	ProductID       string               `json:"productId"`
-	SKU             string               `json:"sku"`
-	Name            string               `json:"name"`
-	LocationID      string               `json:"locationId"`
-	LotID           string               `json:"lotId,omitempty"`
-	Quantity        int64                `json:"quantity"`
-	AgeDays         int64                `json:"ageDays"`
-	Bucket          InventoryAgingBucket `json:"bucket"`
-	AsOf            time.Time            `json:"asOf"`
-	LastMovementAt  time.Time            `json:"lastMovementAt"`
+	ProductID      string               `json:"productId"`
+	SKU            string               `json:"sku"`
+	Name           string               `json:"name"`
+	LocationID     string               `json:"locationId"`
+	LotID          string               `json:"lotId,omitempty"`
+	Quantity       int64                `json:"quantity"`
+	AgeDays        int64                `json:"ageDays"`
+	Bucket         InventoryAgingBucket `json:"bucket"`
+	AsOf           time.Time            `json:"asOf"`
+	LastMovementAt time.Time            `json:"lastMovementAt"`
 }
 
 type InventoryAgingReport struct {
