@@ -1,10 +1,6 @@
 package httpapi
 
-import (
-	"net/http"
-
-	"github.com/sanskarIN/stockpilot/internal/domain"
-)
+import "net/http"
 
 const (
 	defaultInventoryAgingRows = 1000
@@ -30,5 +26,3 @@ func normalizeInventoryAgingLimit(limit int) int {
 	}
 	return limit
 }
-
-var _ = domain.Aging0To30
