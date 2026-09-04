@@ -24,8 +24,8 @@ func (f *fakeStore) ListOrderExportRows(_ context.Context, _ domain.PurchaseOrde
 
 func TestNormalizeOrderExportBounds(t *testing.T) {
 	tests := []struct {
-		name             string
-		limit, offset     int
+		name                 string
+		limit, offset         int
 		wantLimit, wantOffset int
 	}{
 		{name: "defaults", limit: 0, offset: 0, wantLimit: 500, wantOffset: 0},
