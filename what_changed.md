@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 27 — v0.1.8 receipt history and export reliability, with release preparation.
+Phase 28 — v0.1.9 export privacy and authorization hardening, with release preparation.
 
 ## Repository state
 
@@ -16,72 +16,67 @@ Phase 27 — v0.1.8 receipt history and export reliability, with release prepara
 - v0.1.5 extended exports to lot inventory and expiry-risk filtering.
 - v0.1.6 extended exports to purchase-order lines and current receiving progress.
 - v0.1.7 extended exports to append-only audit events.
-- v0.1.8 extends exports to authoritative receipt history stored in `stock_movements`.
+- v0.1.8 extended exports to authoritative receipt history stored in `stock_movements`.
+- v0.1.9 hardens export response privacy and adds regression coverage for export authorization mapping.
 - Focused, reviewable commits are preferred over meaningless commits solely to increase the commit count.
 
-## Completed for v0.1.8 preparation
+## Completed for v0.1.9 preparation
 
-- [x] Added `domain.ReceiptHistoryRow` as a dedicated flattened receipt-history export model.
-- [x] Added `repository.ReceiptHistoryFilter` and `ListReceiptHistory` to keep receipt retrieval separate from normal inventory mutation APIs.
-- [x] Added a PostgreSQL receipt-history query backed by `stock_movements` with `movement_type = 'receive'`.
-- [x] Joined receipt rows to products, locations, warehouses, and lots for a useful operational export without reconstructing history from current purchase-order counters.
-- [x] Added product, warehouse, location, lot, actor, reference, and date-range filtering.
-- [x] Added inclusive `from` and exclusive `to` date semantics.
-- [x] Added default 500 and maximum 5,000 export bounds with negative-offset normalization.
-- [x] Added deterministic ordering by `occurred_at DESC, id DESC`.
-- [x] Added `GET /api/v1/inventory/receipts/export.csv`.
-- [x] Added deterministic browser download filename and CSV content type.
-- [x] Reused the shared formula-safe CSV serializer.
-- [x] Added UTC RFC3339 timestamp serialization.
-- [x] Added focused tests for bounds, filters, date validation, headers, schema, formula safety, and timestamps.
-- [x] Added `docs/RELEASE_NOTES_v0.1.8.md`.
-- [x] Added the v0.1.8 `CHANGELOG.md` entry.
+- [x] Added `setCSVDownloadHeaders` to centralize CSV download response policy.
+- [x] Added `Cache-Control: no-store` to every current CSV export.
+- [x] Added `Pragma: no-cache` to every current CSV export.
+- [x] Preserved deterministic CSV content types and attachment filenames through the shared helper.
+- [x] Applied the shared privacy headers to product, inventory, low-stock, reorder, lot, receipt-history, purchase-order, and audit exports.
+- [x] Added focused tests for CSV privacy headers.
+- [x] Added regression coverage mapping every current export route to its domain-specific read permission.
+- [x] Fixed the export-access test fixture to use the standard URL parser.
+- [x] Added `docs/RELEASE_NOTES_v0.1.9.md`.
+- [x] Added the v0.1.9 `CHANGELOG.md` entry.
 
-## v0.1.8 release gates
+## v0.1.9 release gates
 
-- [ ] Run `gofmt`, `go vet ./...`, normal tests, and race-enabled Go tests.
-- [ ] Verify every production and test implementation of `repository.Inventory` implements `ListReceiptHistory`.
-- [ ] Verify every receipt-history filter reaches the repository contract and SQL predicate.
-- [ ] Verify `from` is inclusive and `to` is exclusive, including adjacent date windows.
-- [ ] Verify invalid dates and invalid ranges return HTTP 400.
-- [ ] Verify negative offsets normalize to zero and limits above 5,000 clamp safely.
-- [ ] Verify deterministic receipt ordering and CSV schema.
-- [ ] Verify formula safety and UTC timestamp serialization.
-- [ ] Verify privileged authorization and denial for unauthorized users.
-- [ ] Verify origin/CSRF/request-ID/security middleware behavior where applicable.
-- [ ] Run PostgreSQL readiness and receiving smoke tests with representative receipt data.
+- [ ] Run `gofmt`.
+- [ ] Run `go vet ./...`.
+- [ ] Run the normal Go test suite.
+- [ ] Run race-enabled Go tests.
+- [ ] Verify every export route through the authenticated `WithAccess` middleware.
+- [ ] Verify unauthorized principals receive HTTP 403 for exports they cannot read.
+- [ ] Verify all CSV exports send `Cache-Control: no-store` and `Pragma: no-cache`.
+- [ ] Verify deterministic content types and filenames remain unchanged.
+- [ ] Verify formula-safe serialization remains unchanged.
+- [ ] Run PostgreSQL readiness and export smoke tests.
 - [ ] Run Web, Android, browser-companion, and CodeQL checks where configured.
-- [ ] Verify no credentials or secrets are present in receipt notes, references, or other exported fields.
-- [ ] Create immutable `v0.1.8` tag on the verified commit.
-- [ ] Publish the GitHub Release with the prepared notes and keep it pre-release until every gate passes.
-- [ ] Perform post-release smoke testing against the published tag/artifacts.
+- [ ] Verify no export schema introduces credentials or session secrets.
+- [ ] Create immutable `v0.1.9` tag on the verified commit.
+- [ ] Publish the GitHub Release with the prepared notes.
+- [ ] Perform post-release smoke testing.
 
 ## Publication details
 
-- Version: `v0.1.8`
-- Release title: `StockPilot v0.1.8 — Receipt History & Export Reliability`
-- Git tag: `v0.1.8`
-- Release class: normal pre-1.0 feature release
+- Version: `v0.1.9`
+- Release title: `StockPilot v0.1.9 — Export Privacy & Authorization Hardening`
+- Git tag: `v0.1.9`
+- Release class: normal pre-1.0 maintenance/security-hardening release
 - Pre-release: yes until every release gate passes
-- Release notes: `docs/RELEASE_NOTES_v0.1.8.md`
+- Release notes: `docs/RELEASE_NOTES_v0.1.9.md`
 
 ## Known verification limitation in this workspace
 
 - The repository was updated directly through the connected GitHub integration.
 - The connected workspace does not provide a trustworthy local checkout/dependency environment for claiming `go test ./...` as completed.
+- GitHub currently reports no commit-status records/workflow runs that can be used as a full CI verification signal for this milestone.
 - Full release verification must therefore be completed by GitHub Actions or a local developer environment before publication is considered verified.
-- The v0.1.8 receipt-history endpoint intentionally remains bounded and materializes selected rows; true large-export streaming is still future work.
+- Large-export cursor/streaming support remains future work.
 
-## Next exact development tasks after v0.1.8
+## Next exact development tasks after v0.1.9
 
-1. Add authorization-focused integration coverage across every export family.
-2. Add deterministic streaming readers for large export datasets.
-3. Add web download controls with accessible loading, success, and failure feedback.
-4. Add export job lifecycle/status endpoints for asynchronous large exports.
-5. Add export audit events/observability for sensitive dataset downloads.
-6. Add richer expiry-risk classification and operational alerts.
-7. Add export retention and operational metrics where appropriate.
-8. Begin v0.2.x analytics and operational reporting with aggregate, trend, and exception views.
+1. Add deterministic cursor/streaming readers for large export datasets.
+2. Add web download controls with accessible loading, success, and failure feedback.
+3. Add export job lifecycle/status endpoints for asynchronous large exports.
+4. Add explicit export audit events and operational observability for sensitive dataset downloads.
+5. Add richer expiry-risk classification and operational alerts.
+6. Add export retention and operational metrics where appropriate.
+7. Begin v0.2.x analytics and operational reporting with aggregate, trend, and exception views.
 
 ## Commit discipline
 
