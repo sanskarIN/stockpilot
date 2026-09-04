@@ -4,14 +4,25 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-### Next: v0.3.5 — Reporting Query Options & Repository Bounds
+### Next: v0.3.6 — Repository Query Execution
 
 Planned scope:
 
-- introduce additive repository query options for period and pagination where supported;
-- wire deterministic ordering into bounded repository report queries;
-- preserve existing report interfaces until replacement implementations are ready;
-- add storage-boundary cancellation coverage.
+- implement storage-side execution of the additive bounded report query capability;
+- apply validated offsets without changing existing report interfaces;
+- add repository integration coverage for period and pagination boundaries;
+- preserve deterministic ordering and cancellation behavior.
+
+### v0.3.5 — Reporting Query Options & Repository Bounds
+
+The v0.3.5 milestone defines the additive contract needed to carry validated reporting periods and pagination bounds toward repository-backed analytics without breaking existing repository implementations.
+
+- added a reusable reporting `Query` value for optional period and pagination bounds;
+- added an additive `repository.BoundedReports` capability rather than changing the existing `Reports` interface;
+- added unit coverage for time-based and non-time-based query semantics;
+- documented v0.3.5 as an API-compatible foundation for storage-side bounded execution;
+- preserved existing JSON and CSV response bodies;
+- kept reporting read-only with no database migration.
 
 ### v0.3.4 — Reporting Export & Completeness
 
