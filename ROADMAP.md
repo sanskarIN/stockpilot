@@ -33,6 +33,8 @@ This roadmap reflects the current repository state.
 - [x] Browser companion workflow selection for product lookup and direct inventory-operation handoff.
 - [x] CSV product dry-run validation with row-level errors, duplicate detection, and catalog-reference validation.
 - [x] Transactional CSV product write/import with server-side revalidation and audit event.
+- [x] Dedicated Reports & Analytics web workspace.
+- [x] Inventory valuation CSV export with bounded, formula-safe, privacy-oriented delivery.
 
 ## Next — operational workflows
 
@@ -52,6 +54,7 @@ This roadmap reflects the current repository state.
 - [ ] Supplier purchasing totals and lead-time tracking.
 - [ ] Warehouse/location valuation breakdown.
 - [ ] Replenishment history and recommendation effectiveness metrics.
+- [ ] Cursor/streaming support for large report datasets.
 
 ## Release hardening
 
