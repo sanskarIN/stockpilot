@@ -104,6 +104,25 @@ type StockMovement struct {
 	CreatedAt     time.Time    `json:"createdAt"`
 }
 
+type ReceiptHistoryRow struct {
+	MovementID  string    `json:"movementId"`
+	ProductID   string    `json:"productId"`
+	SKU         string    `json:"sku"`
+	ProductName string    `json:"productName"`
+	LocationID  string    `json:"locationId"`
+	Location    string    `json:"location"`
+	WarehouseID string    `json:"warehouseId"`
+	Warehouse   string    `json:"warehouse"`
+	LotID       string    `json:"lotId,omitempty"`
+	LotNumber   string    `json:"lotNumber,omitempty"`
+	Quantity    int64     `json:"quantity"`
+	Reference   string    `json:"reference,omitempty"`
+	Note        string    `json:"note,omitempty"`
+	ActorID     string    `json:"actorId,omitempty"`
+	OccurredAt  time.Time `json:"occurredAt"`
+	CreatedAt   time.Time `json:"createdAt"`
+}
+
 func (m StockMovement) Validate() error {
 	if strings.TrimSpace(m.ID) == "" || strings.TrimSpace(m.ProductID) == "" || strings.TrimSpace(m.LocationID) == "" {
 		return fmt.Errorf("%w: movement id, product id, and location id are required", ErrInvalid)
@@ -139,7 +158,7 @@ type TransferRequest struct {
 	Quantity       int64     `json:"quantity"`
 	Reference      string    `json:"reference,omitempty"`
 	Note           string    `json:"note,omitempty"`
-	ActorID        string    `json:"actorId,omitempty"`
+	ActorID         string    `json:"actorId,omitempty"`
 	OccurredAt     time.Time `json:"occurredAt"`
 }
 
