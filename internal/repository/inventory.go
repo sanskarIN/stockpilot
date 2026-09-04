@@ -17,6 +17,19 @@ type LotInventoryFilter struct {
 	Offset      int
 }
 
+type ReceiptHistoryFilter struct {
+	ProductID   string
+	WarehouseID string
+	LocationID  string
+	LotID       string
+	ActorID     string
+	Reference   string
+	From        *time.Time
+	To          *time.Time
+	Limit       int
+	Offset      int
+}
+
 type Inventory interface {
 	CreateWarehouse(context.Context, domain.Warehouse) error
 	UpdateWarehouse(context.Context, domain.Warehouse) error
@@ -34,4 +47,5 @@ type Inventory interface {
 	ListReorderSuggestions(context.Context, int) ([]domain.ReorderSuggestion, error)
 	GetInventoryValuation(context.Context, int) (domain.InventoryValuationReport, error)
 	ListLotInventory(context.Context, LotInventoryFilter) ([]domain.LotInventoryRow, error)
+	ListReceiptHistory(context.Context, ReceiptHistoryFilter) ([]domain.ReceiptHistoryRow, error)
 }
