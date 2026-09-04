@@ -14,7 +14,6 @@ const (
 	maxReportLimit     = 5000
 )
 
-// reportRequest captures the shared, validated query contract for reporting endpoints.
 type reportRequest struct {
 	Period reporting.Period
 	Bounds reporting.Bounds
@@ -46,7 +45,6 @@ func parseReportRequest(r *http.Request, now time.Time) (reportRequest, error) {
 	if err != nil {
 		return reportRequest{}, err
 	}
-
 	limit, err := parseReportLimit(q.Get("limit"))
 	if err != nil {
 		return reportRequest{}, err
@@ -55,8 +53,11 @@ func parseReportRequest(r *http.Request, now time.Time) (reportRequest, error) {
 	if err != nil {
 		return reportRequest{}, err
 	}
-
-	return reportRequest{Period: period, Bounds: reporting.NewBounds(limit, offset)}, nil
+	bounds, err := reporting.NewBounds(limit, offset, defaultReportLimit, maxReportLimit)
+	if err != nil {
+		return reportRequest{}, err
+	}
+	return reportRequest{Period: period, Bounds: bounds}, nil
 }
 
 func parseReportLimit(value string) (int, error) {
