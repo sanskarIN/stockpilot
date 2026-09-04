@@ -80,7 +80,7 @@ func (a *API) listAuditEvents(w http.ResponseWriter, r *http.Request) {
 	filter := domain.AuditFilter{
 		ActorID:    r.URL.Query().Get("actorId"),
 		Action:     r.URL.Query().Get("action"),
-		EntityType: r.URL.Query().Query().Get("entityType"),
+		EntityType: r.URL.Query().Get("entityType"),
 		EntityID:   r.URL.Query().Get("entityId"),
 		Limit:      queryInt(r, "limit", 100),
 		Offset:     queryInt(r, "offset", 0),
