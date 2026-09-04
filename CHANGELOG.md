@@ -4,7 +4,35 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-Future work will continue here after v0.2.4.
+Future work will continue here after v0.2.5.
+
+## 0.2.5 — 2026-09-04
+
+### Added
+
+- Added supplier performance reporting for purchasing activity.
+- Added supplier-level order, ordered-unit, received-unit, open-unit, and purchasing-value metrics.
+- Added observed receipt lead-time measurement from purchase-order creation to the first recorded receive movement.
+- Added completed-order and on-time-order counts using the purchase order expected date when available.
+- Added bounded JSON reporting and formula-safe CSV export for supplier performance.
+- Added a Reports & Analytics supplier reliability panel.
+
+### Changed
+
+- Reports & Analytics now combines supplier reliability with purchasing pipeline, valuation, inventory aging, and movement velocity.
+- Supplier reporting uses server-side aggregation from authoritative purchase-order, purchase-order-line, supplier, and stock-movement records.
+- Supplier results use deterministic ordering by order activity, supplier name, and supplier ID.
+
+### Security and reliability
+
+- Supplier reporting is read-only and uses the existing authenticated reporting access controls.
+- Report windows are bounded to 1–365 days and result sets to 1–5000 rows, with safe defaults.
+- CSV exports use no-store/no-cache headers and formula-safe text serialization.
+- No database migration is required for this release.
+
+### Verification
+
+- Stable publication requires the configured Go, PostgreSQL, Web, CodeQL, Android/browser companion, E2E/accessibility, restore/rollback, and artifact gates to pass.
 
 ## 0.2.4 — 2026-09-04
 
@@ -79,10 +107,4 @@ Future work will continue here after v0.2.4.
 
 ### Changed
 
-- Reporting navigation is now an actual application workflow rather than a dashboard placeholder link.
-- Valuation exports reuse the same privacy-oriented `no-store`/`no-cache` download policy as other CSV exports.
-- Reports remain read-only and continue to use server-side reporting permissions.
-
-## Release discipline
-
-Dependency upgrades and generated artifacts are reviewed independently from product changes. Stable releases require the checks in `docs/RELEASE_CHECKLIST.md` and the restore procedure in `docs/RESTORE_DRILL.md`.
+- Reporting remains read-only and is backed by server-side repository aggregation.
