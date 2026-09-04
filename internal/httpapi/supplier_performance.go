@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/sanskarIN/stockpilot/internal/domain"
-	"github.com/sanskarIN/stockpilot/internal/repository"
 )
 
 const (
@@ -72,5 +71,3 @@ func exportSupplierPerformanceCSV(w http.ResponseWriter, report domain.SupplierP
 	}
 	writer.Flush()
 }
-
-var _ repository.Reports = (*API)(nil)
