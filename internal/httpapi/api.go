@@ -94,6 +94,7 @@ func NewCore(catalog repository.Catalog, inventory repository.Inventory, orders 
 		mux.HandleFunc("GET /api/v1/audit", a.listAuditEvents)
 		mux.HandleFunc("GET /api/v1/audit/export.csv", a.exportAuditCSV)
 	}
+	mux.HandleFunc("GET /api/v1/inventory/receipts/export.csv", a.exportReceiptHistoryCSV)
 	return mux
 }
 
