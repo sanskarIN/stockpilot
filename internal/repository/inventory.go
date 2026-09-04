@@ -46,6 +46,7 @@ type Inventory interface {
 	ListLowStock(context.Context, int) ([]domain.StockBalance, error)
 	ListReorderSuggestions(context.Context, int) ([]domain.ReorderSuggestion, error)
 	GetInventoryValuation(context.Context, int) (domain.InventoryValuationReport, error)
+	GetInventoryAging(context.Context, int) (domain.InventoryAgingReport, error)
 	ListLotInventory(context.Context, LotInventoryFilter) ([]domain.LotInventoryRow, error)
 	ListReceiptHistory(context.Context, ReceiptHistoryFilter) ([]domain.ReceiptHistoryRow, error)
 }
