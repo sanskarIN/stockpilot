@@ -36,6 +36,9 @@ This roadmap reflects the current repository state.
 - [x] Dedicated Reports & Analytics web workspace.
 - [x] Inventory valuation CSV export with bounded, formula-safe, privacy-oriented delivery.
 - [x] Inventory aging domain contracts and deterministic age-bucket rules.
+- [x] Inventory aging PostgreSQL query and bounded HTTP report endpoint.
+- [x] Inventory aging formula-safe CSV export through the report endpoint.
+- [x] Web Reports workspace inventory-aging panel and export action.
 
 ## Next — operational workflows
 
@@ -49,7 +52,7 @@ This roadmap reflects the current repository state.
 
 ## Next — reporting and analytics
 
-- [ ] Inventory aging HTTP/report implementation and CSV export.
+- [x] Inventory aging HTTP/report implementation and CSV export.
 - [ ] Expiry-risk report by configurable date window.
 - [ ] Stock movement history and velocity report.
 - [ ] Supplier purchasing totals and lead-time tracking.
