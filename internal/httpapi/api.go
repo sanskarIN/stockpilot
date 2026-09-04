@@ -92,6 +92,7 @@ func NewCore(catalog repository.Catalog, inventory repository.Inventory, orders 
 		mux.HandleFunc("GET /api/v1/reports/overview", a.reportOverview)
 		mux.HandleFunc("GET /api/v1/reports/inventory", a.reportInventory)
 		mux.HandleFunc("GET /api/v1/reports/purchasing", a.reportPurchasing)
+		mux.HandleFunc("GET /api/v1/reports/supplier-performance", a.supplierPerformance)
 	}
 	if a.audit != nil {
 		mux.HandleFunc("GET /api/v1/audit", a.listAuditEvents)
@@ -217,23 +218,4 @@ func writeJSON(w http.ResponseWriter, status int, value any) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(status)
 	_ = json.NewEncoder(w).Encode(value)
-}
-
-type statusWriter struct {
-	http.ResponseWriter
-	status      int
-	wroteHeader bool
-}
-
-func (w *statusWriter) WriteHeader(status int) {
-	w.status = status
-	w.wroteHeader = true
-	w.ResponseWriter.WriteHeader(status)
-}
-
-func (w *statusWriter) Write(body []byte) (int, error) {
-	if !w.wroteHeader {
-		w.WriteHeader(http.StatusOK)
-	}
-	return w.ResponseWriter.Write(body)
 }
