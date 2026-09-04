@@ -12,9 +12,11 @@ import (
 	"github.com/sanskarIN/stockpilot/internal/repository"
 )
 
+var fakeReceiptHistory []domain.ReceiptHistoryRow
+
 func (f *fakeStore) ListReceiptHistory(_ context.Context, filter repository.ReceiptHistoryFilter) ([]domain.ReceiptHistoryRow, error) {
-	items := make([]domain.ReceiptHistoryRow, 0, len(f.receiptHistory))
-	for _, item := range f.receiptHistory {
+	items := make([]domain.ReceiptHistoryRow, 0, len(fakeReceiptHistory))
+	for _, item := range fakeReceiptHistory {
 		if filter.ProductID != "" && item.ProductID != filter.ProductID {
 			continue
 		}
@@ -63,15 +65,18 @@ func TestNormalizeReceiptHistoryExportBounds(t *testing.T) {
 func TestReceiptHistoryExportCSV(t *testing.T) {
 	occurred := time.Date(2026, 9, 4, 4, 30, 0, 0, time.FixedZone("IST", 19800))
 	created := occurred.Add(2 * time.Minute)
-	store := &fakeStore{receiptHistory: []domain.ReceiptHistoryRow{{
+	fakeReceiptHistory = []domain.ReceiptHistoryRow{{
 		MovementID: "mov_1", ProductID: "prd_1", SKU: "SKU-1", ProductName: "Widget",
 		LocationID: "loc_1", Location: "A1", WarehouseID: "wh_1", Warehouse: "Main",
 		LotID: "lot_1", LotNumber: "LOT-1", Quantity: 7, Reference: "PO-1",
 		Note: "=formula", ActorID: "usr_1", OccurredAt: occurred, CreatedAt: created,
-	}}}
+	}}
+	defer func() { fakeReceiptHistory = nil }()
+	store := &fakeStore{}
 	handler := NewCore(store, store, store, func(context.Context) error { return nil })
 	request := authenticatedRequest(http.MethodGet, "/api/v1/inventory/receipts/export.csv?productId=prd_1&warehouseId=wh_1&locationId=loc_1&lotId=lot_1&actorId=usr_1&reference=PO-1&from=2026-09-04&to=2026-09-05&limit=10&offset=0", "")
-	recorder := httptest.NewRecorder()	handler.ServeHTTP(recorder, request)
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, request)
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("status=%d body=%s", recorder.Code, recorder.Body.String())
 	}
