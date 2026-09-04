@@ -4,23 +4,37 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-### Next: v0.3.1 — Reporting API Integration & Metadata
-
-The v0.3.1 milestone builds on the v0.3.0 reporting foundation and integrates bounded period and pagination metadata into the public reporting layer without changing transactional semantics.
+### Next: v0.3.3 — Reporting Repository Integration
 
 Planned scope:
 
-- integrate shared reporting period validation into report endpoints;
-- expose generated-at timestamps and applied reporting bounds;
-- expose complete/partial result metadata where applicable;
-- standardize bounded limit and offset handling;
-- preserve deterministic report ordering;
-- propagate request cancellation and timeouts;
-- keep report responses backward-compatible and additive;
-- maintain formula-safe, non-cacheable CSV exports;
-- add regression coverage for metadata, bounds, cancellation, ordering, and malformed parameters;
-- keep reporting read-only with no automatic inventory or purchasing mutation;
-- avoid database migrations unless implementation evidence requires them.
+- pass validated reporting periods and bounds into repository-backed analytics where supported;
+- remove remaining endpoint-specific reporting limit normalization;
+- add repository-level deterministic ordering guarantees;
+- add cancellation and timeout regression coverage at the reporting storage boundary;
+- preserve existing response bodies and CSV contracts;
+- keep reporting read-only with no automatic inventory or purchasing mutation.
+
+### v0.3.2 — Reporting API Contract & Version Alignment
+
+The v0.3.2 milestone makes the v0.3.0 reporting primitives usable at the HTTP boundary while preserving existing JSON response bodies.
+
+- added shared reporting request validation for `from`/`to`, `limit`, and `offset`;
+- added default 30-day reporting windows with the existing 1–365 day validation range;
+- exposed generated-at, period, bounds, and completeness metadata through response headers;
+- rejected incomplete or malformed reporting periods and invalid pagination bounds with HTTP 400;
+- aligned the `/api/v1/meta` version with the repository `VERSION` marker;
+- added regression tests for default requests, explicit periods, invalid bounds, and metadata headers;
+- kept the reporting changes additive and read-only with no database migration.
+
+### v0.3.1 — Reporting Metadata Foundation
+
+The v0.3.1 milestone introduced the reusable report metadata contract and release documentation used by the HTTP integration work in v0.3.2.
+
+- added reporting metadata construction for generated time, period, bounds, and completeness;
+- added validation-focused metadata coverage;
+- added reporting integration documentation and release planning;
+- updated the canonical `VERSION` marker to 0.3.1.
 
 ### v0.3.0 — Reporting Foundation & Analytics Readiness
 
