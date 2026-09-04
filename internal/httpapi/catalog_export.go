@@ -47,8 +47,7 @@ func (a *API) exportProductsCSV(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
-	w.Header().Set("Content-Disposition", "attachment; filename=\"stockpilot-products.csv\"")
+	setCSVDownloadHeaders(w, "stockpilot-products.csv")
 	writer := csvexport.New(w, csvexport.Options{FormulaSafe: true})
 	if err := writer.WriteHeader("id", "sku", "name", "description", "categoryId", "supplierId", "barcode", "unit", "unitCostMinor", "currency", "reorderPoint", "reorderQuantity", "trackLots", "trackExpiry", "active", "createdAt", "updatedAt"); err != nil {
 		return
