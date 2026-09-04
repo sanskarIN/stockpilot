@@ -59,7 +59,7 @@ func TestInventoryExportCSV(t *testing.T) {
 }
 
 func TestLowStockExportCSV(t *testing.T) {
-	store := &fakeStore{balances: []domain.StockBalance{{ProductID: "prd_1", LocationID: "loc_1", Quantity: 2}}}
+	store := &fakeStore{lowStock: []domain.StockBalance{{ProductID: "prd_1", LocationID: "loc_1", Quantity: 2}}}
 	handler := NewCore(store, store, store, func(context.Context) error { return nil })
 	recorder := httptest.NewRecorder()
 	handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/api/v1/inventory/low-stock/export.csv", nil))
