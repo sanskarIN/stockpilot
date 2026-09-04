@@ -13,9 +13,9 @@ import (
 
 func TestNormalizeAuditExportBounds(t *testing.T) {
 	tests := []struct {
-		name                   string
-		limit, offset           int
-		wantLimit, wantOffset   int
+		name                  string
+		limit, offset         int
+		wantLimit, wantOffset int
 	}{
 		{"defaults", 0, 0, 500, 0},
 		{"negative", -1, -5, 500, 0},
