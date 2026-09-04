@@ -81,6 +81,7 @@ func NewCore(catalog repository.Catalog, inventory repository.Inventory, orders 
 	mux.HandleFunc("GET /api/v1/reports/inventory-valuation/export.csv", a.exportInventoryValuationCSV)
 	mux.HandleFunc("GET /api/v1/reports/inventory-aging", a.inventoryAging)
 	mux.HandleFunc("GET /api/v1/reports/stock-movement-history", a.stockMovementHistory)
+	mux.HandleFunc("GET /api/v1/reports/replenishment-readiness", a.replenishmentReadiness)
 	mux.HandleFunc("GET /api/v1/orders", a.listOrders)
 	mux.HandleFunc("GET /api/v1/orders/export.csv", a.exportOrdersCSV)
 	mux.HandleFunc("POST /api/v1/orders", a.createOrder)
@@ -180,7 +181,7 @@ func (a *API) ready(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) meta(w http.ResponseWriter, _ *http.Request) {
-	writeJSON(w, http.StatusOK, map[string]string{"name": "StockPilot", "version": "0.2.6", "credit": "Made by the Sanskar"})
+	writeJSON(w, http.StatusOK, map[string]string{"name": "StockPilot", "version": "0.2.7", "credit": "Made by the Sanskar"})
 }
 
 func decodeJSON[T any](w http.ResponseWriter, r *http.Request, out *T) bool {
