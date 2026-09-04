@@ -4,15 +4,25 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-### Next: v0.3.3 — Reporting Repository Integration
+### Next: v0.3.4 — Reporting Export & Completeness
 
 Planned scope:
 
-- pass validated reporting periods and bounds into repository-backed analytics where supported;
-- remove remaining endpoint-specific reporting limit normalization;
-- add repository-level deterministic ordering guarantees;
-- add cancellation and timeout regression coverage at the reporting storage boundary;
-- preserve existing response bodies and CSV contracts;
+- make report completeness reflect actual bounded result behavior;
+- standardize CSV export metadata and cache semantics;
+- add export regression coverage for reporting filters and pagination;
+- keep reporting read-only and backward-compatible.
+
+### v0.3.3 — Reporting Repository Integration
+
+The v0.3.3 milestone connects the validated HTTP reporting contract to repository-backed analytics where the existing repository interfaces can support it.
+
+- pass request context through reporting storage calls;
+- preserve validated reporting bounds at the HTTP boundary;
+- add repository integration documentation and tests;
+- add deterministic ordering guidance for report implementations;
+- add cancellation-focused regression coverage where supported;
+- preserve existing JSON and CSV response bodies;
 - keep reporting read-only with no automatic inventory or purchasing mutation.
 
 ### v0.3.2 — Reporting API Contract & Version Alignment
