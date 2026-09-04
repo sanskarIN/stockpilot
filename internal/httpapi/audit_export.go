@@ -43,7 +43,7 @@ func (a *API) exportAuditCSV(w http.ResponseWriter, r *http.Request) {
 			if encodeErr != nil {
 				return
 			}
-			metadata = string(encoded)
+			metadata = formulaSafeJSON(string(encoded))
 		}
 		if err := writer.WriteRow(
 			strconv.FormatInt(item.ID, 10),
@@ -59,6 +59,13 @@ func (a *API) exportAuditCSV(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	_ = writer.Flush()
+}
+
+func formulaSafeJSON(value string) string {
+	for _, prefix := range []string{"=", "+", "-", "@"} {
+		value = strings.ReplaceAll(value, `"`+prefix, `"'`+prefix)
+	}
+	return value
 }
 
 func normalizeAuditExportBounds(limit, offset int) (int, int) {
