@@ -6,19 +6,22 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ### Next: v0.2.8 — Large-Report Scalability & Purchasing Trends
 
-Preparation for v0.2.8 will focus on making reporting scale safely as StockPilot's datasets grow while adding purchasing trend visibility.
+Preparation for v0.2.8 focuses on making reporting scale safely as StockPilot's datasets grow while adding purchasing trend visibility.
 
 Planned scope:
 
-- cursor/keyset pagination or streaming for large report datasets;
-- bounded memory use and deterministic continuation semantics;
-- supplier/product purchasing trend series built from authoritative purchase-order data;
+- reusable bounded pagination primitives for large report datasets;
+- additive cursor/keyset pagination or streaming without silently changing existing endpoint semantics;
+- opaque continuation tokens with deterministic ordering;
+- bounded memory use, page sizes, date windows, and query work;
+- supplier/product purchasing trend series built from authoritative purchase-order and purchase-order-line data;
+- ordered, received, open-unit, and purchasing-value metrics with currencies kept separate;
 - safe date-window and row bounds for trend endpoints;
 - CSV export that remains formula-safe and non-cacheable;
-- Reports & Analytics trend views with clear empty/loading/error states;
-- regression coverage for pagination, ordering, bounds, and export behavior.
+- Reports & Analytics trend views with clear empty/loading/error states and accessible table alternatives;
+- regression coverage for pagination, ordering, bounds, continuation, duplicate prevention, and export behavior.
 
-No feature in this preparation should silently change transactional inventory or purchasing records.
+No feature in this preparation should silently change transactional inventory or purchasing records. A schema migration will be avoided unless implementation evidence proves the existing schema insufficient.
 
 ### v0.2.7 — Replenishment Readiness
 
