@@ -18,7 +18,7 @@ Phase 40 — v0.2.9 Operational Readiness & Reporting Reliability preparation, f
 - v0.2.7 replenishment-readiness implementation and release documentation are merged on `main`.
 - v0.2.7 stable publication remains gated on verification results; do not claim the GitHub Release is published until confirmed.
 - v0.2.8 documentation is merged and its implementation scope remains open: large-report scalability and purchasing trends still require implementation and verification before a stable release can be claimed.
-- v0.2.9 preparation has now started with operational-readiness and reporting-reliability notes.
+- v0.2.9 preparation has now started with operational-readiness and reporting-reliability notes; API metadata is now `0.2.9` as an implementation marker, not a release-publication claim.
 - Focused, reviewable commits are preferred over meaningless commits solely to increase the commit count.
 
 ## v0.2.8 completion gate
