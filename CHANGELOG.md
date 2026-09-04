@@ -4,14 +4,26 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-### Next: v0.3.6 — Repository Query Execution
+### Next: v0.3.7 — Reporting Handler Capability Selection
 
 Planned scope:
 
-- implement storage-side execution of the additive bounded report query capability;
-- apply validated offsets without changing existing report interfaces;
-- add repository integration coverage for period and pagination boundaries;
-- preserve deterministic ordering and cancellation behavior.
+- let HTTP reporting handlers use the additive bounded repository capability where available;
+- preserve legacy repository behavior as a compatibility fallback;
+- add handler-level coverage for capability selection and pagination metadata;
+- keep existing response bodies unchanged.
+
+### v0.3.6 — Repository Query Execution
+
+The v0.3.6 milestone adds concrete PostgreSQL support for the additive bounded reporting capability while preserving the existing repository interfaces.
+
+- implemented `SupplierPerformanceQuery` and `WarehouseValuationQuery` on the PostgreSQL store;
+- validated repository query bounds before execution;
+- carried supplier reporting periods into the existing time-window query;
+- applied requested offsets and limits without changing the legacy `Reports` interface;
+- retained deterministic ordering from the underlying report queries;
+- preserved request cancellation through the repository context;
+- added no database migration and kept reporting read-only.
 
 ### v0.3.5 — Reporting Query Options & Repository Bounds
 
