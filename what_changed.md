@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 36 — v0.2.5 Supplier Performance and release preparation.
+Phase 37 — v0.2.6 Warehouse & Location Valuation.
 
 ## Repository state
 
@@ -13,26 +13,26 @@ Phase 36 — v0.2.5 Supplier Performance and release preparation.
 - v0.2.2 expiry-risk reporting release is published on GitHub.
 - v0.2.3 export-hardening release is published on GitHub.
 - v0.2.4 stock movement velocity implementation and release documentation are merged on `main`; stable publication must still be verified before claiming it is released.
-- v0.2.5 supplier performance implementation and release documentation are now merged on `main`.
+- v0.2.5 supplier performance implementation and release documentation are merged on `main`.
+- v0.2.6 warehouse/location valuation implementation and release documentation are now merged on `main`.
 - Focused, reviewable commits are preferred over meaningless commits solely to increase the commit count.
 
-## Completed for v0.2.5
+## Completed for v0.2.6
 
-- [x] Added supplier performance domain report contracts.
-- [x] Extended the reporting repository contract with supplier performance aggregation.
-- [x] Added PostgreSQL supplier aggregation using purchase orders, order lines, suppliers, and receive movements.
-- [x] Added ordered/received/open units and purchasing value metrics.
-- [x] Added observed receipt lead-time measurement.
-- [x] Added completed-order and on-time-order metrics.
-- [x] Added bounded HTTP JSON reporting with a 1–365 day window and 1–5000 row limit.
+- [x] Added warehouse/location valuation domain contracts.
+- [x] Extended the reporting repository contract with warehouse valuation aggregation.
+- [x] Added PostgreSQL aggregation across inventory balances, products, locations, and warehouses.
+- [x] Added location-level on-hand units, valuation, currency, and distinct active-product counts.
+- [x] Added warehouse-level totals grouped by currency.
+- [x] Added bounded HTTP JSON reporting with a 1–5000 row limit.
 - [x] Added formula-safe CSV export with no-store/no-cache headers.
-- [x] Registered `GET /api/v1/reports/supplier-performance`.
-- [x] Added HTTP normalization regression tests.
-- [x] Added web API/types and supplier reliability panel.
+- [x] Registered `GET /api/v1/reports/warehouse-valuation`.
+- [x] Added HTTP regression coverage for defaults, limits, JSON output, and CSV safety.
+- [x] Added `docs/RELEASE_NOTES_v0.2.6.md`.
 - [x] Updated `CHANGELOG.md`.
-- [x] Added `docs/RELEASE_NOTES_v0.2.5.md`.
+- [x] Updated the public metadata endpoint version to `0.2.6`.
 
-## v0.2.5 release gates
+## v0.2.6 release gates
 
 - [ ] Confirm the final `main` CI run for the release candidate completes successfully.
 - [ ] Confirm Go formatting, vet, unit, race, and server-build verification.
@@ -42,24 +42,24 @@ Phase 36 — v0.2.5 Supplier Performance and release preparation.
 - [ ] Confirm configured Android, browser-companion, E2E, and accessibility checks.
 - [ ] Confirm restore/rollback and reproducible-artifact gates where applicable.
 - [ ] Resolve blocker/critical defects.
-- [ ] Verify that GitHub does not already contain `v0.2.5`.
-- [ ] Only after applicable gates pass: publish `v0.2.5` as a stable, non-prerelease GitHub Release.
+- [ ] Verify that GitHub does not already contain `v0.2.6`.
+- [ ] Only after applicable gates pass: publish `v0.2.6` as a stable, non-prerelease GitHub Release.
 
 ## Release metadata
 
-- Title: `StockPilot v0.2.5 — Supplier Performance`
-- Tag: `v0.2.5`
+- Title: `StockPilot v0.2.6 — Warehouse & Location Valuation`
+- Tag: `v0.2.6`
 - Release type: Stable after verification
 - Prerelease: Off
 - Latest: On, if intended as the current latest stable release
 - Date: 2026-09-04
 
-## Next implementation priority after v0.2.5
+## Next implementation priority after v0.2.6
 
-1. Warehouse/location valuation breakdown.
-2. Replenishment history and recommendation effectiveness metrics.
-3. Cursor/streaming support for large report datasets.
-4. Supplier/product purchasing trend series.
+1. Replenishment history and recommendation effectiveness metrics.
+2. Cursor/streaming support for large report datasets.
+3. Supplier/product purchasing trend series.
+4. Warehouse/location valuation drill-down by product and lot.
 5. Broader E2E, accessibility, Android, restore/rollback, and reproducible-artifact hardening.
 
 ## Commit discipline
