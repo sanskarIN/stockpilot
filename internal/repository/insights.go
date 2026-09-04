@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/sanskarIN/stockpilot/internal/domain"
+	"github.com/sanskarIN/stockpilot/internal/reporting"
 )
 
 type Reports interface {
@@ -11,6 +12,13 @@ type Reports interface {
 	PurchasingSummary(context.Context) (domain.PurchasingSummary, error)
 	SupplierPerformance(context.Context, int, int) (domain.SupplierPerformanceReport, error)
 	WarehouseValuation(context.Context, int) (domain.WarehouseValuationReport, error)
+}
+
+// BoundedReports is an additive capability for repositories that can apply
+// validated reporting periods and pagination at the storage boundary.
+type BoundedReports interface {
+	SupplierPerformanceQuery(context.Context, reporting.Query) (domain.SupplierPerformanceReport, error)
+	WarehouseValuationQuery(context.Context, reporting.Query) (domain.WarehouseValuationReport, error)
 }
 
 type Audit interface {
