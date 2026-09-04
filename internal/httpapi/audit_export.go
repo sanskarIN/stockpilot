@@ -18,12 +18,12 @@ const (
 func (a *API) exportAuditCSV(w http.ResponseWriter, r *http.Request) {
 	limit, offset := normalizeAuditExportBounds(queryInt(r, "limit", defaultAuditExportRows), queryInt(r, "offset", 0))
 	filter := domain.AuditFilter{
-		ActorID: strings.TrimSpace(r.URL.Query().Get("actorId")),
-		Action: strings.TrimSpace(r.URL.Query().Get("action")),
+		ActorID:    strings.TrimSpace(r.URL.Query().Get("actorId")),
+		Action:     strings.TrimSpace(r.URL.Query().Get("action")),
 		EntityType: strings.TrimSpace(r.URL.Query().Get("entityType")),
-		EntityID: strings.TrimSpace(r.URL.Query().Get("entityId")),
-		Limit: limit,
-		Offset: offset,
+		EntityID:   strings.TrimSpace(r.URL.Query().Get("entityId")),
+		Limit:      limit,
+		Offset:     offset,
 	}
 	items, err := a.audit.ListAuditEvents(r.Context(), filter)
 	if err != nil {
