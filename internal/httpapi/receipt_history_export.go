@@ -52,8 +52,7 @@ func (a *API) exportReceiptHistoryCSV(w http.ResponseWriter, r *http.Request) {
 		writeDomainError(w, err)
 		return
 	}
-	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
-	w.Header().Set("Content-Disposition", `attachment; filename="stockpilot-receipt-history.csv"`)
+	setCSVDownloadHeaders(w, "stockpilot-receipt-history.csv")
 	writer := csvexport.New(w, csvexport.Options{FormulaSafe: true})
 	if err := writer.WriteHeader(
 		"movementId", "productId", "sku", "productName", "locationId", "location", "warehouseId", "warehouse",
