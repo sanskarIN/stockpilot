@@ -2,65 +2,61 @@
 
 **Version:** `0.2.7`  
 **Tag:** `v0.2.7`  
-**Release type:** Stable only after verification gates pass  
+**Release type:** Stable after verification gates pass  
 **Release date:** 2026-09-04
 
 ## Overview
 
-StockPilot v0.2.7 is the next reporting milestone after warehouse/location valuation. Its focus is making replenishment decisions more transparent by connecting current reorder recommendations with recent outbound movement behavior.
+StockPilot v0.2.7 adds a read-only replenishment-readiness report that combines the existing reorder-suggestion model with recent stock-movement velocity. It makes the operational reason behind a replenishment review easier to see without introducing a second inventory source of truth or automatic purchasing.
 
-## Planned release scope
+## Highlights
 
-### Replenishment readiness
+### Replenishment readiness report
 
-The release scope is centered on a read-only replenishment insight that can expose, for eligible active products:
+New endpoint:
 
-- current on-hand quantity;
-- configured reorder point;
-- configured reorder quantity;
-- target stock;
-- suggested replenishment quantity;
+`GET /api/v1/reports/replenishment-readiness`
+
+Supported query parameters:
+
+- `days` — historical demand window from 1 to 365 days; default 30.
+- `limit` — maximum result rows from 1 to 5000; default 1000.
+- `format=csv` — bounded formula-safe CSV export.
+
+Each item exposes:
+
+- product identity and SKU;
+- supplier and unit metadata;
+- on-hand quantity;
+- configured reorder point and reorder quantity;
+- target stock and suggested quantity;
 - recent outbound units;
 - average daily outbound velocity;
-- estimated days of cover when recent outbound velocity is positive;
-- a deterministic readiness/risk classification.
+- estimated days of cover when velocity is positive;
+- deterministic advisory risk classification.
 
-The calculation must remain advisory. It must not automatically create purchase orders or mutate inventory.
+### Risk classification
 
-### API design
+The report uses deterministic, explainable categories:
 
-The intended reporting surface is a bounded authenticated read-only endpoint under `/api/v1/reports/` with:
+- `out_of_stock` — no on-hand units;
+- `critical` — positive stock with fewer than 7 days of cover when outbound velocity is available;
+- `reorder` — on-hand quantity is at or below the configured reorder point;
+- `watch` — fewer than 14 days of cover when velocity is available;
+- `healthy` — none of the above conditions apply.
 
-- a configurable historical demand window from 1 to 365 days;
-- a bounded result limit from 1 to 5000;
-- deterministic ordering;
-- optional formula-safe CSV output;
-- `no-store` / `no-cache` response headers for CSV downloads.
+The classification is advisory and does not change inventory or create purchase orders.
 
-The implementation should reuse authoritative persisted inventory movements, product configuration, and existing reorder-suggestion logic rather than introducing a second source of truth.
+### Data integrity
 
-### Web reporting
+The report reuses existing reorder suggestions and persisted stock-movement history. No new database migration or recommendation snapshot table is introduced.
 
-Reports & Analytics should expose replenishment readiness alongside the existing inventory valuation, aging, movement velocity, supplier performance, and purchasing views.
+### CSV and API safety
 
-The UI should clearly distinguish:
-
-- configured thresholds;
-- observed demand;
-- calculated estimates;
-- advisory recommendations.
-
-No destructive or automatic purchasing action should be introduced by this reporting milestone.
-
-## Reliability and security requirements
-
-- Reporting remains read-only.
-- Existing authentication and authorization rules remain enforced server-side.
-- Historical windows and result sets remain bounded.
-- CSV output must use the existing formula-safe serializer.
-- CSV responses must retain `no-store` / `no-cache` headers.
-- No credentials, session tokens, passwords, or payment information are included in reports.
-- No database migration should be introduced unless implementation evidence shows persisted historical recommendation snapshots are required; prefer derived reporting from existing authoritative records.
+- Result windows and row counts are bounded server-side.
+- CSV output uses the existing formula-safe serializer.
+- CSV downloads use `no-store` / `no-cache` headers.
+- Existing authentication, authorization, CORS, CSRF, and security-header behavior remains unchanged.
 
 ## Verification gates
 
@@ -77,11 +73,9 @@ Before publishing v0.2.7 as stable, verify:
 - release artifact/reproducibility checks where configured;
 - blocker and critical-defect review.
 
-Do not publish the stable GitHub release until the applicable gates are green.
-
 ## Upgrade notes
 
-The target implementation is intended to be backward compatible with the v0.2.6 data model. Existing catalog, inventory, movement, and purchasing records remain authoritative.
+No schema migration is required for the replenishment-readiness implementation. Existing catalog, inventory, movement, and reorder configuration remain authoritative.
 
 ## Release metadata
 
@@ -90,9 +84,8 @@ The target implementation is intended to be backward compatible with the v0.2.6 
 - **Tag:** `v0.2.7`
 - **Release type:** Stable after verification
 - **Prerelease:** No
-- **Latest:** Yes, if this is the current latest stable release
 - **Date:** 2026-09-04
 
 ## Publication rule
 
-This document describes the v0.2.7 release scope and readiness requirements. The GitHub Release must not be represented as published until the implementation and verification gates are complete.
+The implementation is now present on `main`, but the GitHub stable release must only be published after the applicable verification gates are confirmed green.
