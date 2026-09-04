@@ -4,7 +4,24 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-Future work will continue here after v0.2.2.
+Future work will continue here after v0.2.3.
+
+## 0.2.3 — 2026-09-04
+
+### Fixed
+
+- Corrected audit-export metadata sanitization so formula-like JSON string values are neutralized before CSV delivery.
+- Corrected receipt-history export regression coverage to assert the canonical UTC timestamp representation emitted by the exporter.
+
+### Security and reliability
+
+- Preserved formula-safe CSV serialization for authenticated exports.
+- Preserved bounded export limits and privacy-oriented download headers.
+- Kept audit and receipt-history exports read-only and behind the existing authorization layer.
+
+### Verification
+
+- The v0.2.3 release candidate is validated through the repository GitHub Actions pipeline before stable publication.
 
 ## 0.2.2 — 2026-09-04
 
