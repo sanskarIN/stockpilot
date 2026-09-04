@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 38 — v0.2.7 Replenishment Readiness.
+Phase 39 — v0.2.8 Large-Report Scalability & Purchasing Trends preparation.
 
 ## Repository state
 
@@ -12,29 +12,30 @@ Phase 38 — v0.2.7 Replenishment Readiness.
 - v0.2.1 inventory aging implementation is merged on `main`.
 - v0.2.2 expiry-risk reporting release is published on GitHub.
 - v0.2.3 export-hardening release is published on GitHub.
-- v0.2.4 stock movement velocity implementation and release documentation are merged on `main`; stable publication must still be verified before claiming it is released.
+- v0.2.4 stock movement velocity implementation and release documentation are merged on `main`.
 - v0.2.5 supplier performance implementation and release documentation are merged on `main`.
-- v0.2.6 warehouse/location valuation implementation and release documentation are merged on `main`.
-- v0.2.7 release scope and release notes are now prepared on `main`; implementation and verification are still required before publication.
+- v0.2.6 warehouse/location valuation implementation and release documentation are merged on `main`; GitHub release is published.
+- v0.2.7 replenishment-readiness implementation and release documentation are now merged on `main`.
+- v0.2.7 stable publication remains gated on verification results; do not claim the GitHub Release is published until confirmed.
 - Focused, reviewable commits are preferred over meaningless commits solely to increase the commit count.
 
-## v0.2.7 release scope
+## v0.2.7 completed scope
 
-- [ ] Connect existing reorder suggestions with authoritative recent outbound movement data.
-- [ ] Add replenishment readiness domain/report contracts.
-- [ ] Add recent outbound units and average daily outbound velocity to the replenishment report.
-- [ ] Add estimated days of cover when outbound velocity is positive.
-- [ ] Add deterministic advisory readiness/risk classification.
-- [ ] Add bounded authenticated JSON reporting.
-- [ ] Add optional formula-safe CSV export.
-- [ ] Integrate replenishment readiness into Reports & Analytics.
-- [ ] Add unit, repository, HTTP, and integration regression coverage.
-- [ ] Keep the feature read-only; do not automatically create purchase orders or mutate inventory.
-- [ ] Prefer existing authoritative records and avoid a migration unless implementation evidence requires persisted recommendation snapshots.
+- [x] Connect existing reorder suggestions with authoritative recent outbound movement data.
+- [x] Add replenishment readiness domain/report contracts.
+- [x] Add recent outbound units and average daily outbound velocity to the replenishment report.
+- [x] Add estimated days of cover when outbound velocity is positive.
+- [x] Add deterministic advisory readiness/risk classification.
+- [x] Add bounded authenticated JSON reporting.
+- [x] Add optional formula-safe CSV export.
+- [x] Register `GET /api/v1/reports/replenishment-readiness`.
+- [x] Update API metadata to `0.2.7`.
+- [x] Add domain regression coverage.
+- [x] Keep the feature read-only; no automatic purchase orders or inventory mutation.
+- [x] Reuse existing authoritative records; no migration was introduced.
 
 ## v0.2.7 release gates
 
-- [ ] Confirm the v0.2.7 implementation is complete on `main`.
 - [ ] Confirm Go formatting, vet, unit, race, and server-build verification.
 - [ ] Confirm PostgreSQL migration/readiness and integration verification.
 - [ ] Confirm Web quality/type-check/build verification.
@@ -43,36 +44,52 @@ Phase 38 — v0.2.7 Replenishment Readiness.
 - [ ] Confirm E2E/accessibility checks where configured.
 - [ ] Confirm restore/rollback and reproducible-artifact gates where applicable.
 - [ ] Resolve blocker/critical defects.
-- [ ] Verify that GitHub does not already contain `v0.2.7`.
+- [x] Verify GitHub currently has no `v0.2.7` release.
 - [ ] Only after applicable gates pass: publish `v0.2.7` as a stable, non-prerelease GitHub Release.
 
-## Release metadata
+## v0.2.8 preparation scope
 
-- Title: `StockPilot v0.2.7 — Replenishment Readiness`
-- Tag: `v0.2.7`
-- Release type: Stable after verification
-- Prerelease: Off
-- Latest: On, if intended as the current latest stable release
-- Date: 2026-09-04
-- Release notes: `docs/RELEASE_NOTES_v0.2.7.md`
+### Large-report scalability
 
-## Implementation order
+- Design cursor/keyset pagination or streaming for large reporting datasets.
+- Preserve deterministic ordering and continuation semantics.
+- Bound memory usage and reject unsafe page/window inputs.
+- Prefer indexed, server-side iteration over unbounded in-memory aggregation.
+- Add regression coverage for first page, continuation, end-of-stream, duplicate prevention, and ordering stability.
 
-1. Replenishment report domain contracts.
-2. Repository aggregation over reorder configuration and movement history.
-3. HTTP endpoint, bounds, authorization, and CSV export.
-4. Web Reports & Analytics integration.
-5. Regression/integration coverage.
-6. Documentation and release metadata.
-7. Full verification gates.
-8. Stable GitHub publication.
+### Purchasing trends
 
-## Next milestones after v0.2.7
+- Add supplier/product purchasing trend series from authoritative purchase-order and purchase-order-line records.
+- Support bounded date windows and deterministic series ordering.
+- Expose ordered units, received units, open units, and purchasing value where the existing schema supports them without currency conversion assumptions.
+- Add formula-safe CSV export and non-cacheable download behavior.
+- Integrate trends into Reports & Analytics with clear loading, empty, error, and accessibility states.
 
-1. Cursor/streaming support for large report datasets.
-2. Supplier/product purchasing trend series.
-3. Warehouse/location valuation drill-down by product and lot.
-4. Broader E2E, accessibility, Android, restore/rollback, and reproducible-artifact hardening.
+### v0.2.8 safety rules
+
+- Reporting remains read-only.
+- No automatic purchase-order creation or inventory mutation is part of this milestone.
+- No schema migration unless implementation evidence proves existing data cannot support the feature.
+- Do not publish v0.2.8 until the applicable verification gates are green.
+
+## v0.2.8 implementation order
+
+1. Audit existing report pagination/aggregation patterns and indexes.
+2. Define cursor/streaming contracts without breaking current endpoints.
+3. Implement server-side continuation and bounds.
+4. Define purchasing trend domain contracts.
+5. Implement PostgreSQL trend aggregation.
+6. Add HTTP endpoints and safe CSV exports.
+7. Add Web Reports & Analytics trend views.
+8. Add unit, HTTP, PostgreSQL, and integration coverage.
+9. Run all repository verification gates.
+10. Prepare and publish v0.2.8 only after verification.
+
+## Future milestones after v0.2.8
+
+1. Warehouse/location valuation drill-down by product and lot.
+2. Broader E2E, accessibility, Android, restore/rollback, and reproducible-artifact hardening.
+3. Pre-1.0 API stability and operational-readiness review.
 
 ## Commit discipline
 
