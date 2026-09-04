@@ -2,7 +2,7 @@
 
 StockPilot is an open-source inventory and purchasing platform with a Go/PostgreSQL backend, a React/TypeScript web application, a native Android client, and a Manifest V3 browser companion.
 
-The project is currently in pre-1.0 development. The server reports `0.1.0-dev`; the Android and browser companion clients are currently versioned `0.1.0`.
+The project is currently in pre-1.0 development. The current development release is `0.2.6`; the Android and browser companion clients remain independently versioned.
 
 ## What StockPilot includes
 
@@ -16,6 +16,7 @@ The project is currently in pre-1.0 development. The server reports `0.1.0-dev`;
 - Native Kotlin Android client with encrypted session storage.
 - Manifest V3 browser companion with optional per-server host permissions.
 - Health/readiness endpoints, structured HTTP hardening, Docker deployment, backups, and CI/CodeQL checks.
+- Reports & Analytics for inventory valuation, warehouse/location valuation, inventory aging, expiry risk, movement velocity, and supplier performance.
 
 ## Repository layout
 
@@ -138,6 +139,7 @@ The server exposes:
 - `/api/v1/categories`, `/suppliers`, `/products` — catalog APIs.
 - `/api/v1/warehouses`, `/locations`, `/lots`, `/inventory/*` — inventory APIs.
 - `/api/v1/orders/*` — purchasing APIs.
+- `/api/v1/reports/*` — read-only reporting APIs, including warehouse/location valuation.
 - `/api/v1/users/*` — administrator-only user management APIs.
 
 Authenticated mutation requests require the `X-StockPilot-CSRF: 1` confirmation header.
