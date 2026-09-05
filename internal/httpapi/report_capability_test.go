@@ -50,6 +50,24 @@ func (s *reportCapabilityStub) WarehouseValuationQuery(_ context.Context, query 
 	return domain.WarehouseValuationReport{}, nil
 }
 
+type countedReportStub struct {
+	reportCapabilityStub
+	supplierCountCalls  int
+	warehouseCountCalls int
+}
+
+func (s *countedReportStub) SupplierPerformanceCount(_ context.Context, query reporting.Query) (int64, error) {
+	s.supplierCountCalls++
+	s.supplierQuery = query
+	return 37, nil
+}
+
+func (s *countedReportStub) WarehouseValuationCount(_ context.Context, query reporting.Query) (int64, error) {
+	s.warehouseCountCalls++
+	s.warehouseQuery = query
+	return 23, nil
+}
+
 type legacyReportStub struct {
 	legacySupplierCalls  int
 	legacyWarehouseCalls int
@@ -119,6 +137,28 @@ func TestSupplierPerformanceUsesBoundedCapability(t *testing.T) {
 	}
 }
 
+func TestSupplierPerformanceExposesTotalCount(t *testing.T) {
+	stub := &countedReportStub{}
+	handler := NewCore(nil, nil, nil, nil, WithInsights(stub, nil))
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/api/v1/reports/supplier-performance?days=21&limit=10&offset=20", nil))
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("status=%d body=%s", recorder.Code, recorder.Body.String())
+	}
+	if stub.supplierCalls != 1 || stub.supplierCountCalls != 1 {
+		t.Fatalf("report calls=%d count calls=%d", stub.supplierCalls, stub.supplierCountCalls)
+	}
+	if got := recorder.Header().Get("X-Total-Count"); got != "37" {
+		t.Fatalf("X-Total-Count=%q", got)
+	}
+	if stub.supplierQuery.Limit != 10 || stub.supplierQuery.Offset != 20 {
+		t.Fatalf("count query bounds=%+v", stub.supplierQuery)
+	}
+	if stub.supplierQuery.From == nil || stub.supplierQuery.To == nil {
+		t.Fatal("count query period is missing")
+	}
+}
+
 func TestSupplierPerformanceFallsBackToLegacyRepositoryWithoutOffset(t *testing.T) {
 	stub := &legacyReportStub{}
 	handler := NewCore(nil, nil, nil, nil, WithInsights(stub, nil))
@@ -164,6 +204,25 @@ func TestWarehouseValuationUsesBoundedCapability(t *testing.T) {
 	}
 	if stub.warehouseQuery.From == nil || stub.warehouseQuery.To == nil || !stub.warehouseQuery.From.Equal(*stub.warehouseQuery.To) {
 		t.Fatalf("warehouse snapshot period=%+v", stub.warehouseQuery)
+	}
+}
+
+func TestWarehouseValuationExposesTotalCount(t *testing.T) {
+	stub := &countedReportStub{}
+	handler := NewCore(nil, nil, nil, nil, WithInsights(stub, nil))
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/api/v1/reports/warehouse-valuation?limit=8&offset=16", nil))
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("status=%d body=%s", recorder.Code, recorder.Body.String())
+	}
+	if stub.warehouseCalls != 1 || stub.warehouseCountCalls != 1 {
+		t.Fatalf("report calls=%d count calls=%d", stub.warehouseCalls, stub.warehouseCountCalls)
+	}
+	if got := recorder.Header().Get("X-Total-Count"); got != "23" {
+		t.Fatalf("X-Total-Count=%q", got)
+	}
+	if stub.warehouseQuery.Limit != 8 || stub.warehouseQuery.Offset != 16 {
+		t.Fatalf("count query bounds=%+v", stub.warehouseQuery)
 	}
 }
 
