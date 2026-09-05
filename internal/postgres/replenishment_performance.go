@@ -25,7 +25,7 @@ func (s *Store) ReplenishmentPerformance(ctx context.Context, query reporting.Qu
 				AND ($2::timestamptz IS NULL OR o.created_at < ($2::timestamptz + interval '1 day'))
 				AND (($1::timestamptz IS NOT NULL AND $2::timestamptz IS NOT NULL)
 					OR o.created_at >= now() - ($3::int * interval '1 day'))
-				AND o.status <> 'cancelled'
+				AND o.status IN ('ordered', 'partially_received', 'received')
 		), line_totals AS (
 			SELECT l.purchase_order_id,
 				sum(l.quantity)::bigint AS ordered_units,
