@@ -31,7 +31,7 @@ func (a *API) supplierPerformance(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	generatedAt := time.Now().UTC()
-	period, err := reporting.NewPeriod(generatedAt.AddDate(0, 0, -(days-1)), generatedAt)
+	period, err := reporting.NewPeriod(generatedAt.AddDate(0, 0, -(days - 1)), generatedAt)
 	if err != nil {
 		writeDomainError(w, err)
 		return
