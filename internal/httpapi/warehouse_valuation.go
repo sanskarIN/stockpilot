@@ -44,10 +44,11 @@ func (a *API) warehouseValuation(w http.ResponseWriter, r *http.Request) {
 		writeDomainError(w, err)
 		return
 	}
+	boundedQuery := makeBoundedReportQuery(period, bounds)
 
 	var report domain.WarehouseValuationReport
 	if bounded, ok := a.reports.(repository.BoundedReports); ok {
-		report, err = bounded.WarehouseValuationQuery(r.Context(), makeBoundedReportQuery(period, bounds))
+		report, err = bounded.WarehouseValuationQuery(r.Context(), boundedQuery)
 	} else {
 		if offset != 0 {
 			writeJSON(w, http.StatusNotImplemented, map[string]string{"error": "report offset requires bounded reporting capability"})
@@ -61,6 +62,14 @@ func (a *API) warehouseValuation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	complete := len(report.Items) < limit
+	if counted, ok := a.reports.(repository.CountedReports); ok {
+		totalCount, countErr := counted.WarehouseValuationCount(r.Context(), boundedQuery)
+		if countErr != nil {
+			writeDomainError(w, countErr)
+			return
+		}
+		w.Header().Set("X-Total-Count", strconv.FormatInt(totalCount, 10))
+	}
 	if r.URL.Query().Get("format") == "csv" {
 		exportWarehouseValuationCSV(w, report, period, bounds, complete, generatedAt)
 		return
