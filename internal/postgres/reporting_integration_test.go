@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/sanskarIN/stockpilot/internal/domain"
+	"github.com/sanskarIN/stockpilot/internal/reporting"
 )
 
 func TestReportingIntegration(t *testing.T) {
@@ -104,5 +105,16 @@ func TestReportingIntegration(t *testing.T) {
 	}
 	if valuation.OnHand != 4 || valuation.ValueMinor != 1000 || valuation.Currency != "INR" {
 		t.Fatalf("valuation = %+v, want onHand=4 valueMinor=1000 currency=INR", *valuation)
+	}
+
+	bounded, err := store.WarehouseValuationQuery(ctx, reporting.Query{Limit: 1, Offset: 1})
+	if err != nil {
+		t.Fatalf("WarehouseValuationQuery() error = %v", err)
+	}
+	if len(bounded.Items) != 0 {
+		t.Fatalf("WarehouseValuationQuery() returned %d items after the only row", len(bounded.Items))
+	}
+	if len(bounded.Totals) == 0 {
+		t.Fatal("WarehouseValuationQuery() dropped warehouse totals when paginating items")
 	}
 }
