@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/sanskarIN/stockpilot/internal/domain"
 	"github.com/sanskarIN/stockpilot/internal/repository"
 )
 
@@ -28,5 +27,3 @@ func (a *API) replenishmentPerformance(w http.ResponseWriter, r *http.Request) {
 	writeReportMetadata(w, request, report.AsOf, len(report.Items) < request.Bounds.Limit)
 	writeJSON(w, http.StatusOK, report)
 }
-
-var _ = domain.ReplenishmentPerformanceReport{}
