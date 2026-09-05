@@ -18,7 +18,7 @@ type StockMovementHistoryItem struct {
 }
 
 type StockMovementHistoryReport struct {
-	AsOf       time.Time                 `json:"asOf"`
-	WindowDays int                       `json:"windowDays"`
+	AsOf       time.Time                  `json:"asOf"`
+	WindowDays int                        `json:"windowDays"`
 	Items      []StockMovementHistoryItem `json:"items"`
 }
