@@ -117,4 +117,20 @@ func TestReportingIntegration(t *testing.T) {
 	if len(bounded.Totals) == 0 {
 		t.Fatal("WarehouseValuationQuery() dropped warehouse totals when paginating items")
 	}
+
+	warehouseCount, err := store.WarehouseValuationCount(ctx, reporting.Query{Limit: 1, Offset: 1})
+	if err != nil {
+		t.Fatalf("WarehouseValuationCount() error = %v", err)
+	}
+	if warehouseCount < 1 {
+		t.Fatalf("WarehouseValuationCount() = %d, want at least 1", warehouseCount)
+	}
+
+	supplierCount, err := store.SupplierPerformanceCount(ctx, reporting.Query{Limit: 1, Offset: 1})
+	if err != nil {
+		t.Fatalf("SupplierPerformanceCount() error = %v", err)
+	}
+	if supplierCount < 0 {
+		t.Fatalf("SupplierPerformanceCount() = %d, want non-negative", supplierCount)
+	}
 }
