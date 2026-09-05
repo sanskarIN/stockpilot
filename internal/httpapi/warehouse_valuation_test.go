@@ -32,8 +32,13 @@ func (warehouseValuationReportsStub) WarehouseValuation(context.Context, int) (d
 }
 
 type warehouseValuationAuditStub struct{}
-func (warehouseValuationAuditStub) AppendAuditEvent(context.Context, domain.AuditEvent) error { return nil }
-func (warehouseValuationAuditStub) ListAuditEvents(context.Context, domain.AuditFilter) ([]domain.AuditEvent, error) { return nil, nil }
+
+func (warehouseValuationAuditStub) AppendAuditEvent(context.Context, domain.AuditEvent) error {
+	return nil
+}
+func (warehouseValuationAuditStub) ListAuditEvents(context.Context, domain.AuditFilter) ([]domain.AuditEvent, error) {
+	return nil, nil
+}
 
 func TestWarehouseValuationDefaultsAndJSON(t *testing.T) {
 	handler := NewCore(nil, nil, nil, func(context.Context) error { return nil }, WithInsights(warehouseValuationReportsStub{}, warehouseValuationAuditStub{}))
