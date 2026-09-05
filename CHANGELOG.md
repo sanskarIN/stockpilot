@@ -4,14 +4,27 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-### Next: v0.3.7 — Reporting Handler Capability Selection
+### Next: v0.3.8 — SQL-Native Pagination & Query Optimization
 
 Planned scope:
 
-- let HTTP reporting handlers use the additive bounded repository capability where available;
-- preserve legacy repository behavior as a compatibility fallback;
-- add handler-level coverage for capability selection and pagination metadata;
-- keep existing response bodies unchanged.
+- move report offsets into SQL where bounded query implementations can share the same contract;
+- reduce over-fetching for large offsets while retaining deterministic ordering;
+- add repository-level query-plan and pagination regression coverage;
+- keep response bodies and the additive reporting contracts backward compatible.
+
+### v0.3.7 — Reporting Handler Capability Selection
+
+The v0.3.7 milestone makes HTTP supplier-performance and warehouse-valuation handlers consume the additive bounded repository capability when it is available, while preserving a safe legacy fallback.
+
+- added shared HTTP helpers for parsing report offsets and constructing repository-facing bounded queries;
+- wired supplier-performance and warehouse-valuation handlers to `repository.BoundedReports` when implemented;
+- exposed `offset` handling on both endpoints with truthful pagination metadata;
+- rejected nonzero offsets with HTTP 501 when only a legacy repository implementation is available instead of silently returning the wrong page;
+- preserved legacy report methods and response bodies for compatible callers;
+- added regression coverage for bounded capability selection, legacy fallback, snapshot periods, offsets, metadata, and invalid offset input;
+- aligned `/api/v1/meta` with the release version `0.3.7` and added a regression test to prevent version drift;
+- kept reporting read-only with no database migration.
 
 ### v0.3.6 — Repository Query Execution
 
