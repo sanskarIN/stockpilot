@@ -4,7 +4,7 @@ import "testing"
 
 func TestNormalizeMovementHistoryWindow(t *testing.T) {
 	cases := []struct {
-		name    string
+		name     string
 		in, want int
 	}{
 		{"zero", 0, defaultMovementHistoryWindowDays},
@@ -24,7 +24,7 @@ func TestNormalizeMovementHistoryWindow(t *testing.T) {
 
 func TestNormalizeMovementHistoryLimit(t *testing.T) {
 	cases := []struct {
-		name    string
+		name     string
 		in, want int
 	}{
 		{"zero", 0, defaultMovementHistoryRows},
