@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"context"
+	"encoding/csv"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -49,14 +50,22 @@ func TestAuditExportCSV(t *testing.T) {
 	if recorder.Header().Get("Content-Disposition") != `attachment; filename="stockpilot-audit-log.csv"` {
 		t.Fatalf("content disposition=%q", recorder.Header().Get("Content-Disposition"))
 	}
-	body := recorder.Body.String()
-	if !strings.Contains(body, "id,occurredAt,actorId,action,entityType,entityId,requestId,metadata") {
-		t.Fatalf("missing header: %s", body)
+	reader := csv.NewReader(strings.NewReader(recorder.Body.String()))
+	records, err := reader.ReadAll()
+	if err != nil {
+		t.Fatalf("read exported CSV: %v", err)
 	}
-	if !strings.Contains(body, "42,2026-09-03T22:30:00Z,usr_1,product.updated") {
-		t.Fatalf("missing audit row: %s", body)
+	if len(records) != 2 {
+		t.Fatalf("records=%d body=%s", len(records), recorder.Body.String())
 	}
-	if !strings.Contains(body, `"note":"'=safe"`) {
-		t.Fatalf("formula-safe metadata missing: %s", body)
+	if got := strings.Join(records[0], ","); got != "id,occurredAt,actorId,action,entityType,entityId,requestId,metadata" {
+		t.Fatalf("header=%q", got)
+	}
+	row := records[1]
+	if row[0] != "42" || row[1] != "2026-09-03T22:30:00Z" || row[2] != "usr_1" || row[3] != "product.updated" {
+		t.Fatalf("unexpected row=%v", row)
+	}
+	if row[7] != `{"note":"'=safe"}` {
+		t.Fatalf("formula-safe metadata=%q", row[7])
 	}
 }
