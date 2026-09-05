@@ -96,6 +96,7 @@ func NewCore(catalog repository.Catalog, inventory repository.Inventory, orders 
 		mux.HandleFunc("GET /api/v1/reports/purchasing", a.reportPurchasing)
 		mux.HandleFunc("GET /api/v1/reports/supplier-performance", a.supplierPerformance)
 		mux.HandleFunc("GET /api/v1/reports/warehouse-valuation", a.warehouseValuation)
+		mux.HandleFunc("GET /api/v1/reports/replenishment-performance", a.replenishmentPerformance)
 	}
 	if a.audit != nil {
 		mux.HandleFunc("GET /api/v1/audit", a.listAuditEvents)
