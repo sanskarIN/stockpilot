@@ -8,11 +8,11 @@ import (
 
 func TestClassifyReplenishmentRisk(t *testing.T) {
 	tests := []struct {
-		name           string
-		onHand         int64
-		reorderPoint   int64
-		averageDaily   float64
-		want           domain.ReplenishmentRisk
+		name         string
+		onHand       int64
+		reorderPoint int64
+		averageDaily float64
+		want         domain.ReplenishmentRisk
 	}{
 		{"out of stock", 0, 10, 2, domain.ReplenishmentRiskOutOfStock},
 		{"critical cover", 10, 5, 2, domain.ReplenishmentRiskCritical},
@@ -30,8 +30,16 @@ func TestClassifyReplenishmentRisk(t *testing.T) {
 }
 
 func TestNormalizeReplenishmentBounds(t *testing.T) {
-	if got := normalizeReplenishmentWindow(0); got != 30 { t.Fatalf("default days = %d", got) }
-	if got := normalizeReplenishmentWindow(999); got != 365 { t.Fatalf("max days = %d", got) }
-	if got := normalizeReplenishmentLimit(0); got != 1000 { t.Fatalf("default limit = %d", got) }
-	if got := normalizeReplenishmentLimit(99999); got != 5000 { t.Fatalf("max limit = %d", got) }
+	if got := normalizeReplenishmentWindow(0); got != 30 {
+		t.Fatalf("default days = %d", got)
+	}
+	if got := normalizeReplenishmentWindow(999); got != 365 {
+		t.Fatalf("max days = %d", got)
+	}
+	if got := normalizeReplenishmentLimit(0); got != 1000 {
+		t.Fatalf("default limit = %d", got)
+	}
+	if got := normalizeReplenishmentLimit(99999); got != 5000 {
+		t.Fatalf("max limit = %d", got)
+	}
 }
