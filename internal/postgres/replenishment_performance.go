@@ -36,7 +36,7 @@ func (s *Store) ReplenishmentPerformance(ctx context.Context, query reporting.Qu
 		), receipt_stats AS (
 			SELECT m.reference, min(m.occurred_at) AS first_received_at
 			FROM stock_movements m
-			WHERE m.type='receive'
+			WHERE m.movement_type='receive'
 			GROUP BY m.reference
 		)
 		SELECT s.id, s.name,
