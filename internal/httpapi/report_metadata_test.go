@@ -10,7 +10,7 @@ import (
 
 func TestReportInventoryEmitsMetadataHeaders(t *testing.T) {
 	store := &fakeStore{}
-	handler := NewCore(store, store, store, func(context.Context) error { return nil })
+	handler := NewCore(store, store, store, func(context.Context) error { return nil }, WithInsights(store, nil))
 	request := httptest.NewRequest(http.MethodGet, "/api/v1/reports/inventory?limit=25&offset=5", nil)
 	recorder := httptest.NewRecorder()
 	handler.ServeHTTP(recorder, request)
