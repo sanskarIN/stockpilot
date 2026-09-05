@@ -4,14 +4,21 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-### Next: v0.3.9 — Report Count & Cursor Semantics
+### v0.3.9 — Report Count & Pagination Semantics
 
-Planned scope:
+The v0.3.9 milestone adds an additive total-count capability for bounded supplier-performance and warehouse-valuation reports without changing existing report response bodies.
 
-- add an explicit total-count contract for paginated reports;
-- evaluate cursor-based pagination for large analytical result sets;
-- preserve deterministic ordering and backward-compatible response bodies;
-- add API and repository regression coverage before changing default pagination behavior.
+- added an optional `repository.CountedReports` capability for total result counts;
+- added PostgreSQL-backed supplier-performance and warehouse-valuation count queries;
+- exposed the complete bounded-result count through the `X-Total-Count` HTTP response header;
+- reused the same validated reporting period and pagination bounds for page and count queries;
+- preserved existing JSON and CSV response bodies and export formats;
+- preserved legacy repository implementations when the optional counted capability is unavailable;
+- added HTTP regression coverage for count-header behavior and pagination bounds;
+- added PostgreSQL integration coverage for report count queries;
+- corrected the roadmap to reflect completed supplier and warehouse reporting capabilities;
+- kept cursor/streaming pagination as a later optimization rather than changing default offset behavior;
+- added no database migration and kept reporting read-only.
 
 ### v0.3.8 — SQL-Native Pagination & Query Optimization
 
