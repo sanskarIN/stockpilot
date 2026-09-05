@@ -4,6 +4,15 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
+### Next: v0.3.10 — Replenishment Effectiveness & Cursor Evaluation
+
+Planned scope:
+
+- add replenishment-history and recommendation-effectiveness metrics;
+- evaluate cursor/streaming pagination against the now-explicit report count contract;
+- keep any cursor contract additive and opt-in;
+- add API, repository, and integration coverage before changing default pagination behavior.
+
 ### v0.3.9 — Report Count & Pagination Semantics
 
 The v0.3.9 milestone adds an additive total-count capability for bounded supplier-performance and warehouse-valuation reports without changing existing report response bodies.
@@ -14,6 +23,8 @@ The v0.3.9 milestone adds an additive total-count capability for bounded supplie
 - reused the same validated reporting period and pagination bounds for page and count queries;
 - preserved existing JSON and CSV response bodies and export formats;
 - preserved legacy repository implementations when the optional counted capability is unavailable;
+- exposed pagination response headers to approved browser origins through CORS;
+- aligned `/api/v1/meta` with the release version `0.3.9`;
 - added HTTP regression coverage for count-header behavior and pagination bounds;
 - added PostgreSQL integration coverage for report count queries;
 - corrected the roadmap to reflect completed supplier and warehouse reporting capabilities;
