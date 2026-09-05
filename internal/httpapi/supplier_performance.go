@@ -46,6 +46,10 @@ func (a *API) supplierPerformance(w http.ResponseWriter, r *http.Request) {
 	if bounded, ok := a.reports.(repository.BoundedReports); ok {
 		report, err = bounded.SupplierPerformanceQuery(r.Context(), makeBoundedReportQuery(period, bounds))
 	} else {
+		if offset != 0 {
+			writeJSON(w, http.StatusNotImplemented, map[string]string{"error": "report offset requires bounded reporting capability"})
+			return
+		}
 		report, err = a.reports.SupplierPerformance(r.Context(), days, limit)
 	}
 	if err != nil {
