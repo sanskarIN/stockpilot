@@ -276,19 +276,42 @@ func TestLocationArchiveEndpointUsesAuthenticatedActor(t *testing.T) {
 		t.Fatalf("location=%+v audit=%+v", store.updatedLocation, store.auditEvents)
 	}
 }
-
-func TestAuthenticatedRequest(t *testing.T) {
-	req := authenticatedRequest(http.MethodGet, "/api/v1/products", "")
-	if req.Header.Get("Authorization") == "" {
-		t.Fatal("authorization missing")
+func TestLotInventoryEndpoint(t *testing.T) {
+	expires := time.Date(2026, 9, 20, 0, 0, 0, 0, time.UTC)
+	store := &fakeStore{lotInventory: []domain.LotInventoryRow{{ProductID: "prd_1", SKU: "SKU-1", ProductName: "Widget", LotID: "lot_1", LotNumber: "LOT-1", LocationID: "loc_1", Location: "A1", WarehouseID: "wh_1", Warehouse: "Main", OnHand: 12, ExpiresAt: &expires, Active: true}}}
+	handler := NewCore(store, store, store, func(context.Context) error { return nil })
+	request := authenticatedRequest(http.MethodGet, "/api/v1/inventory/lots?expiringBy=2026-10-01", "")
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, request)
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("status=%d body=%s", recorder.Code, recorder.Body.String())
+	}
+	if !strings.Contains(recorder.Body.String(), `"lotNumber":"LOT-1"`) {
+		t.Fatalf("body=%s", recorder.Body.String())
 	}
 }
-
-func authenticatedRequest(method, path, body string) *http.Request {
-	req := httptest.NewRequest(method, path, strings.NewReader(body))
-	req.Header.Set("Authorization", "Bearer test-session-token")
-	req = req.WithContext(auth.WithAuthenticatedPrincipal(req.Context(), auth.Principal{ID: "usr_session", Role: domain.RoleAdmin}))
-	return req
+func TestLotInventoryRejectsInvalidExpiryDate(t *testing.T) {
+	store := &fakeStore{}
+	handler := NewCore(store, store, store, func(context.Context) error { return nil })
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/api/v1/inventory/lots?expiringBy=nope", nil))
+	if recorder.Code != http.StatusBadRequest {
+		t.Fatalf("status=%d", recorder.Code)
+	}
 }
-
-var _ = time.Second
+func TestAuditRecorderCapturesRequestIDAndActor(t *testing.T) {
+	store := &fakeStore{}
+	handler := NewCore(store, store, store, func(context.Context) error { return nil }, WithInsights(nil, store))
+	request := authenticatedRequest(http.MethodPost, "/api/v1/products", `{"sku":"SKU-9","name":"Audit Widget","unit":"piece","active":true}`)
+	request = request.WithContext(context.WithValue(request.Context(), requestIDContextKey{}, "req_test"))
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, request)
+	if len(store.auditEvents) == 0 || store.auditEvents[0].RequestID != "req_test" || store.auditEvents[0].ActorID != "usr_session" {
+		t.Fatalf("audit=%+v", store.auditEvents)
+	}
+}
+func authenticatedRequest(method, target, body string) *http.Request {
+	request := httptest.NewRequest(method, target, strings.NewReader(body))
+	principal := auth.Principal{User: domain.User{ID: "usr_session", Role: domain.RoleAdmin, Active: true}}
+	return request.WithContext(context.WithValue(request.Context(), principalContextKey{}, principal))
+}
