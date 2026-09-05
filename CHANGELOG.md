@@ -4,14 +4,28 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-### Next: v0.3.8 — SQL-Native Pagination & Query Optimization
+### Next: v0.3.9 — Report Count & Cursor Semantics
 
 Planned scope:
 
-- move report offsets into SQL where bounded query implementations can share the same contract;
-- reduce over-fetching for large offsets while retaining deterministic ordering;
-- add repository-level query-plan and pagination regression coverage;
-- keep response bodies and the additive reporting contracts backward compatible.
+- add an explicit total-count contract for paginated reports;
+- evaluate cursor-based pagination for large analytical result sets;
+- preserve deterministic ordering and backward-compatible response bodies;
+- add API and repository regression coverage before changing default pagination behavior.
+
+### v0.3.8 — SQL-Native Pagination & Query Optimization
+
+The v0.3.8 milestone moves bounded report pagination into PostgreSQL rather than fetching an expanded result set and slicing it in Go.
+
+- applied SQL `LIMIT` and `OFFSET` directly to bounded supplier-performance queries;
+- applied SQL `LIMIT` and `OFFSET` directly to bounded warehouse-valuation queries;
+- retained deterministic ordering for stable page boundaries;
+- preserved the additive `repository.BoundedReports` contract;
+- preserved legacy `repository.Reports` behavior and existing JSON/CSV response bodies;
+- retained request-context cancellation through PostgreSQL query execution;
+- kept warehouse valuation totals independent of page slicing;
+- added no database migration;
+- kept reporting read-only.
 
 ### v0.3.7 — Reporting Handler Capability Selection
 
