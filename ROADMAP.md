@@ -63,7 +63,8 @@ This roadmap reflects the current repository state.
 - [x] Stock movement history and velocity report.
 - [x] Supplier purchasing totals and lead-time tracking.
 - [x] Warehouse/location valuation breakdown.
-- [ ] Replenishment history and recommendation effectiveness metrics.
+- [x] Replenishment performance history with fill-rate and receipt-timeliness metrics.
+- [ ] Explicit traceability between reorder suggestions and resulting purchase-order decisions.
 - [ ] Cursor/streaming support for large report datasets.
 
 ## Release hardening
@@ -75,6 +76,10 @@ This roadmap reflects the current repository state.
 - [ ] API compatibility/versioning policy wired into CI checks.
 - [ ] Reproducible web, server, Android, and extension release artifacts.
 - [ ] Resolve every blocker/critical defect before the first stable release.
+
+## Next milestone
+
+- [ ] v0.4.1: replenishment recommendation traceability and outcome tracking.
 
 ## Later
 
