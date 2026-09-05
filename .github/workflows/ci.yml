@@ -32,10 +32,6 @@ jobs:
         run: |
           go mod tidy
           git diff --exit-code -- go.mod go.sum
-      - name: Check supplier formatting diagnostic
-        run: |
-          gofmt -d internal/httpapi/supplier_performance.go
-          test -z "$(gofmt -l internal/httpapi/supplier_performance.go)"
       - name: Check formatting
         run: |
           gofmt_files="$(gofmt -l cmd internal)"
