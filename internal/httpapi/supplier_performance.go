@@ -8,6 +8,7 @@ import (
 
 	"github.com/sanskarIN/stockpilot/internal/domain"
 	"github.com/sanskarIN/stockpilot/internal/reporting"
+	"github.com/sanskarIN/stockpilot/internal/repository"
 )
 
 const (
@@ -24,9 +25,9 @@ func (a *API) supplierPerformance(w http.ResponseWriter, r *http.Request) {
 	}
 	days := normalizeSupplierPerformanceDays(queryInt(r, "days", defaultSupplierPerformanceDays))
 	limit := normalizeSupplierPerformanceLimit(queryInt(r, "limit", defaultSupplierPerformanceLimit))
-	report, err := a.reports.SupplierPerformance(r.Context(), days, limit)
+	offset, err := parseReportOffsetParameter(r)
 	if err != nil {
-		writeDomainError(w, err)
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
 		return
 	}
 	generatedAt := time.Now().UTC()
@@ -35,11 +36,23 @@ func (a *API) supplierPerformance(w http.ResponseWriter, r *http.Request) {
 		writeDomainError(w, err)
 		return
 	}
-	bounds, err := reporting.NewBounds(limit, 0, defaultSupplierPerformanceLimit, maxSupplierPerformanceLimit)
+	bounds, err := reporting.NewBounds(limit, offset, defaultSupplierPerformanceLimit, maxSupplierPerformanceLimit)
 	if err != nil {
 		writeDomainError(w, err)
 		return
 	}
+
+	var report domain.SupplierPerformanceReport
+	if bounded, ok := a.reports.(repository.BoundedReports); ok {
+		report, err = bounded.SupplierPerformanceQuery(r.Context(), makeBoundedReportQuery(period, bounds))
+	} else {
+		report, err = a.reports.SupplierPerformance(r.Context(), days, limit)
+	}
+	if err != nil {
+		writeDomainError(w, err)
+		return
+	}
+
 	complete := len(report.Items) < limit
 	if r.URL.Query().Get("format") == "csv" {
 		exportSupplierPerformanceCSV(w, report, period, bounds, complete, generatedAt)
