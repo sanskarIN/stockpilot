@@ -19,7 +19,7 @@ type SupplierPerformanceItem struct {
 }
 
 type SupplierPerformanceReport struct {
-	AsOf       time.Time                `json:"asOf"`
-	WindowDays int                      `json:"windowDays"`
+	AsOf       time.Time                 `json:"asOf"`
+	WindowDays int                       `json:"windowDays"`
 	Items      []SupplierPerformanceItem `json:"items"`
 }
