@@ -43,8 +43,8 @@ func (a *API) replenishmentReadiness(w http.ResponseWriter, r *http.Request) {
 	}
 
 	type velocity struct {
-	outbound int64
-	average  float64
+		outbound int64
+		average  float64
 	}
 	velocities := make(map[string]velocity)
 	for _, item := range movementReport.Items {
