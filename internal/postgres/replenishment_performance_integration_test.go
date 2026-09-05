@@ -66,7 +66,7 @@ func TestReplenishmentPerformanceIntegration(t *testing.T) {
 	if _, err := store.pool.Exec(ctx, `UPDATE purchase_orders SET created_at=$2, updated_at=$2 WHERE id=$1`, orderID, createdAt); err != nil {
 		t.Fatalf("backdate order: %v", err)
 	}
-	if _, err := store.pool.Exec(ctx, `INSERT INTO stock_movements (id, product_id, location_id, type, quantity_delta, reference, occurred_at) VALUES ($1,$2,$3,'receive',15,$4,$5)`, "mov_repl_"+suffix, productID, locationID, "PO:"+orderID, createdAt.Add(12*time.Hour)); err != nil {
+	if _, err := store.pool.Exec(ctx, `INSERT INTO stock_movements (id, product_id, location_id, movement_type, quantity_delta, reference, occurred_at) VALUES ($1,$2,$3,'receive',15,$4,$5)`, "mov_repl_"+suffix, productID, locationID, "PO:"+orderID, createdAt.Add(12*time.Hour)); err != nil {
 		t.Fatalf("insert receipt movement: %v", err)
 	}
 
