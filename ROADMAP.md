@@ -61,8 +61,8 @@ This roadmap reflects the current repository state.
 - [x] Inventory aging HTTP/report implementation and CSV export.
 - [x] Expiry-risk report by configurable date window.
 - [x] Stock movement history and velocity report.
-- [ ] Supplier purchasing totals and lead-time tracking.
-- [ ] Warehouse/location valuation breakdown.
+- [x] Supplier purchasing totals and lead-time tracking.
+- [x] Warehouse/location valuation breakdown.
 - [ ] Replenishment history and recommendation effectiveness metrics.
 - [ ] Cursor/streaming support for large report datasets.
 
