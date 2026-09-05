@@ -23,11 +23,15 @@ type BoundedReports interface {
 
 // CountedReports is an additive capability for repositories that can report
 // the complete number of rows represented by a bounded report query.
-// It leaves existing report response bodies unchanged while enabling clients
-// to reason about pagination without guessing from page length alone.
 type CountedReports interface {
 	SupplierPerformanceCount(context.Context, reporting.Query) (int64, error)
 	WarehouseValuationCount(context.Context, reporting.Query) (int64, error)
+}
+
+// ReplenishmentReports is an additive capability for repositories that can
+// calculate historical purchase-order fill and receipt-timeliness metrics.
+type ReplenishmentReports interface {
+	ReplenishmentPerformance(context.Context, reporting.Query) (domain.ReplenishmentPerformanceReport, error)
 }
 
 type Audit interface {
