@@ -8,6 +8,7 @@ import (
 
 	"github.com/sanskarIN/stockpilot/internal/domain"
 	"github.com/sanskarIN/stockpilot/internal/reporting"
+	"github.com/sanskarIN/stockpilot/internal/repository"
 )
 
 const (
@@ -27,9 +28,9 @@ func (a *API) warehouseValuation(w http.ResponseWriter, r *http.Request) {
 	if limit > maxWarehouseValuationLimit {
 		limit = maxWarehouseValuationLimit
 	}
-	report, err := a.reports.WarehouseValuation(r.Context(), limit)
+	offset, err := parseReportOffsetParameter(r)
 	if err != nil {
-		writeDomainError(w, err)
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
 		return
 	}
 	generatedAt := time.Now().UTC()
@@ -38,11 +39,23 @@ func (a *API) warehouseValuation(w http.ResponseWriter, r *http.Request) {
 		writeDomainError(w, err)
 		return
 	}
-	bounds, err := reporting.NewBounds(limit, 0, defaultWarehouseValuationLimit, maxWarehouseValuationLimit)
+	bounds, err := reporting.NewBounds(limit, offset, defaultWarehouseValuationLimit, maxWarehouseValuationLimit)
 	if err != nil {
 		writeDomainError(w, err)
 		return
 	}
+
+	var report domain.WarehouseValuationReport
+	if bounded, ok := a.reports.(repository.BoundedReports); ok {
+		report, err = bounded.WarehouseValuationQuery(r.Context(), makeBoundedReportQuery(period, bounds))
+	} else {
+		report, err = a.reports.WarehouseValuation(r.Context(), limit)
+	}
+	if err != nil {
+		writeDomainError(w, err)
+		return
+	}
+
 	complete := len(report.Items) < limit
 	if r.URL.Query().Get("format") == "csv" {
 		exportWarehouseValuationCSV(w, report, period, bounds, complete, generatedAt)
