@@ -13,13 +13,6 @@ func (s *Store) ReplenishmentPerformance(ctx context.Context, query reporting.Qu
 	if err := query.Validate(); err != nil {
 		return domain.ReplenishmentPerformanceReport{}, err
 	}
-	windowDays := 30
-	if query.From != nil && query.To != nil {
-		days := int(query.To.Sub(*query.From).Hours()/24) + 1
-		if days > 0 {
-			windowDays = days
-		}
-	}
 	limit := query.Limit
 	if limit <= 0 {
 		limit = 100
@@ -28,7 +21,10 @@ func (s *Store) ReplenishmentPerformance(ctx context.Context, query reporting.Qu
 		WITH selected_orders AS (
 			SELECT o.id, o.supplier_id, o.expected_at, o.created_at
 			FROM purchase_orders o
-			WHERE o.created_at >= now() - ($1::int * interval '1 day')
+			WHERE ($1::timestamptz IS NULL OR o.created_at >= $1::timestamptz)
+				AND ($2::timestamptz IS NULL OR o.created_at < ($2::timestamptz + interval '1 day'))
+				AND (($1::timestamptz IS NOT NULL AND $2::timestamptz IS NOT NULL)
+					OR o.created_at >= now() - ($3::int * interval '1 day'))
 				AND o.status <> 'cancelled'
 		), line_totals AS (
 			SELECT l.purchase_order_id,
@@ -38,8 +34,7 @@ func (s *Store) ReplenishmentPerformance(ctx context.Context, query reporting.Qu
 			JOIN selected_orders o ON o.id=l.purchase_order_id
 			GROUP BY l.purchase_order_id
 		), receipt_stats AS (
-			SELECT m.reference,
-				min(m.occurred_at) AS first_received_at
+			SELECT m.reference, min(m.occurred_at) AS first_received_at
 			FROM stock_movements m
 			WHERE m.type='receive'
 			GROUP BY m.reference
@@ -59,7 +54,7 @@ func (s *Store) ReplenishmentPerformance(ctx context.Context, query reporting.Qu
 		LEFT JOIN receipt_stats r ON r.reference='PO:' || o.id
 		GROUP BY s.id, s.name
 		ORDER BY outstanding_units DESC, s.name ASC, s.id ASC
-		LIMIT $2 OFFSET $3`, windowDays, limit, query.Offset)
+		LIMIT $4 OFFSET $5`, query.From, query.To, reporting.DefaultPeriodDays, limit, query.Offset)
 	if err != nil {
 		return domain.ReplenishmentPerformanceReport{}, err
 	}
@@ -75,6 +70,10 @@ func (s *Store) ReplenishmentPerformance(ctx context.Context, query reporting.Qu
 	}
 	if err := rows.Err(); err != nil {
 		return domain.ReplenishmentPerformanceReport{}, err
+	}
+	windowDays := reporting.DefaultPeriodDays
+	if query.From != nil && query.To != nil {
+		windowDays = int(query.To.Sub(*query.From).Hours()/24) + 1
 	}
 	return domain.ReplenishmentPerformanceReport{AsOf: time.Now().UTC(), WindowDays: windowDays, Items: items}, nil
 }
