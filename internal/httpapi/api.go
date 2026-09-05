@@ -139,6 +139,7 @@ func (a *API) middleware(next http.Handler) http.Handler {
 			}
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
+			w.Header().Set("Access-Control-Expose-Headers", "X-Request-ID, X-Report-Generated-At, X-Report-From, X-Report-To, X-Report-Limit, X-Report-Offset, X-Report-Complete, X-Total-Count")
 			w.Header().Set("Vary", "Origin")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, X-Request-ID, X-StockPilot-CSRF")
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
@@ -181,7 +182,7 @@ func (a *API) ready(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) meta(w http.ResponseWriter, _ *http.Request) {
-	writeJSON(w, http.StatusOK, map[string]string{"name": "StockPilot", "version": "0.3.7", "credit": "Made by the Sanskar"})
+	writeJSON(w, http.StatusOK, map[string]string{"name": "StockPilot", "version": "0.3.9", "credit": "Made by the Sanskar"})
 }
 
 func decodeJSON[T any](w http.ResponseWriter, r *http.Request, out *T) bool {
