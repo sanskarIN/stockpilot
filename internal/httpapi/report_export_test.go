@@ -22,14 +22,14 @@ func TestWriteReportExportHeaders(t *testing.T) {
 	writeReportExportHeaders(recorder, "report.csv", period, bounds, false, now)
 
 	checks := map[string]string{
-		"Content-Type":           "text/csv; charset=utf-8",
-		"Content-Disposition":    "attachment; filename=report.csv",
-		"Cache-Control":          "no-store, no-cache, must-revalidate",
-		"Pragma":                 "no-cache",
+		"Content-Type":          "text/csv; charset=utf-8",
+		"Content-Disposition":   "attachment; filename=report.csv",
+		"Cache-Control":         "no-store, no-cache, must-revalidate",
+		"Pragma":                "no-cache",
 		"X-Report-Generated-At": "2026-09-04T12:00:00Z",
-		"X-Report-Limit":         "25",
-		"X-Report-Offset":        "5",
-		"X-Report-Complete":      "false",
+		"X-Report-Limit":        "25",
+		"X-Report-Offset":       "5",
+		"X-Report-Complete":     "false",
 	}
 	for header, want := range checks {
 		if got := recorder.Header().Get(header); got != want {
