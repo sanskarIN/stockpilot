@@ -108,7 +108,7 @@ func (a *API) replenishmentReadiness(w http.ResponseWriter, r *http.Request) {
 			if item.DaysOfCover != nil {
 				days = strconv.FormatFloat(*item.DaysOfCover, 'f', 2, 64)
 			}
-			if err := writer.WriteRow(item.ProductID, item.SKU, item.Name, item.SupplierID, item.Unit, strconv.FormatInt(item.OnHand, 10), strconv.FormatInt(item.ReorderPoint, 10), strconv.FormatInt(item.ReorderQuantity, 10), strconv.FormatInt(item.TargetStock, 10), strconv.FormatInt(item.SuggestedQuantity, 10), strconv.FormatInt(item.OutboundUnits, 10), strconv.FormatFloat(item.AverageDailyOut, 'f', 2, 64), days, item.Risk, report.AsOf.Format(time.RFC3339), strconv.Itoa(report.WindowDays)); err != nil {
+			if err := writer.WriteRow(item.ProductID, item.SKU, item.Name, item.SupplierID, item.Unit, strconv.FormatInt(item.OnHand, 10), strconv.FormatInt(item.ReorderPoint, 10), strconv.FormatInt(item.ReorderQuantity, 10), strconv.FormatInt(item.TargetStock, 10), strconv.FormatInt(item.SuggestedQuantity, 10), strconv.FormatInt(item.OutboundUnits, 10), strconv.FormatFloat(item.AverageDailyOut, 'f', 2, 64), days, string(item.Risk), report.AsOf.Format(time.RFC3339), strconv.Itoa(report.WindowDays)); err != nil {
 				return
 			}
 		}
