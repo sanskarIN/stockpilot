@@ -79,7 +79,7 @@ This roadmap reflects the current repository state.
 
 ## Next milestone
 
-- [ ] v0.4.1: replenishment recommendation traceability and outcome tracking.
+- [ ] v0.4.2: replenishment recommendation traceability and outcome tracking.
 
 ## Later
 

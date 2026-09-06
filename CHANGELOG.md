@@ -4,13 +4,23 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-### Next: v0.4.1 — Replenishment Recommendation Traceability
+### Next: v0.4.2 — Replenishment Recommendation Traceability
 
 Planned scope:
 
 - add explicit linkage between reviewed reorder suggestions and resulting purchase orders;
 - expose recommendation outcome state without inferring causality from timing alone;
 - preserve existing report contracts and additive repository capabilities.
+
+### v0.4.1 — Release Hardening
+
+The v0.4.1 milestone is a clean maintenance release focused on release metadata and regression-test alignment after the v0.4.0 reporting work.
+
+- aligned the repository release version with `0.4.1`;
+- aligned the `/api/v1/meta` regression test with the release version;
+- kept the v0.4.0 reporting contracts and database schema unchanged;
+- deferred replenishment recommendation traceability to v0.4.2 so it can be implemented and validated independently;
+- kept the release branch free of the previously failing traceability implementation.
 
 ### v0.4.0 — Replenishment Performance & Operational Analytics
 
