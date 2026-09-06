@@ -66,6 +66,7 @@ This roadmap reflects the current repository state.
 - [x] Replenishment performance history with fill-rate and receipt-timeliness metrics.
 - [x] Explicit traceability between reorder suggestions and resulting purchase-order decisions.
 - [x] Deterministic cursor pagination for replenishment-readiness JSON reports.
+- [x] Dedicated web replenishment review-history workspace.
 - [ ] Cursor/streaming support for large report datasets beyond replenishment-readiness.
 
 ## Release hardening
@@ -78,7 +79,7 @@ This roadmap reflects the current repository state.
 - [ ] Reproducible web, server, Android, and extension release artifacts.
 - [ ] Resolve every blocker/critical defect before the first stable release.
 
-## Current milestone — v0.4.4
+## Current milestone — v0.4.6
 
 - [x] Persist immutable replenishment recommendation snapshots at review time.
 - [x] Record explicit accepted, modified, dismissed, and expired outcomes.
@@ -87,8 +88,10 @@ This roadmap reflects the current repository state.
 - [x] Add read/list HTTP endpoints for replenishment review records.
 - [x] Add additive PostgreSQL migration and rollback script.
 - [x] Add domain validation and PostgreSQL integration coverage.
-- [x] Align `/api/v1/meta` with version `0.4.4`.
-- [ ] Add a dedicated web review-history workspace.
+- [x] Add dedicated web review-history workspace.
+- [x] Add outcome filtering to the review-history workspace.
+- [x] Display immutable review snapshot fields and purchase-order linkage.
+- [x] Align `/api/v1/meta` with version `0.4.6`.
 - [ ] Add database-native cursor/streaming support for the largest report datasets.
 
 ## Later

@@ -4,6 +4,17 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
+### v0.4.6 — Replenishment Review History Workspace
+
+- add a dedicated web review-history panel to the Reports & Analytics workspace;
+- expose immutable replenishment review snapshots through the web API client;
+- filter review history by `accepted`, `modified`, `dismissed`, `expired`, or all outcomes;
+- display review time, product snapshot, outcome, on-hand quantity, suggested quantity, purchase-order linkage, and reviewer;
+- preserve the existing read-only reporting model and session-expiry handling;
+- align `/api/v1/meta` and its regression test with release version `0.4.6`.
+
+The web history view consumes the existing `GET /api/v1/replenishment/reviews` endpoint and does not add mutation capabilities to the browser.
+
 ### v0.4.5 — StockPilot GitHub Bot
 
 - add a repository-native `StockPilot Bot` GitHub Actions workflow at `.github/workflows/bot.yml`;
