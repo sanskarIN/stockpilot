@@ -25,8 +25,10 @@ type movementHistoryReader interface {
 }
 
 type replenishmentCursor struct {
-	SKU       string `json:"sku"`
-	ProductID string `json:"productId"`
+	RiskRank          int    `json:"riskRank"`
+	SuggestedQuantity int64  `json:"suggestedQuantity"`
+	SKU               string `json:"sku"`
+	ProductID         string `json:"productId"`
 }
 
 func (a *API) replenishmentReadiness(w http.ResponseWriter, r *http.Request) {
@@ -124,7 +126,13 @@ func (a *API) replenishmentReadiness(w http.ResponseWriter, r *http.Request) {
 
 	report := domain.ReplenishmentReadinessReport{AsOf: movementReport.AsOf, WindowDays: windowDays, Items: items}
 	if hasMore && len(items) > 0 {
-		report.NextCursor = encodeReplenishmentCursor(replenishmentCursor{SKU: items[len(items)-1].SKU, ProductID: items[len(items)-1].ProductID})
+		last := items[len(items)-1]
+		report.NextCursor = encodeReplenishmentCursor(replenishmentCursor{
+			RiskRank:          replenishmentRiskRank(last.Risk),
+			SuggestedQuantity: last.SuggestedQuantity,
+			SKU:               last.SKU,
+			ProductID:         last.ProductID,
+		})
 	}
 
 	if r.URL.Query().Get("format") == "csv" {
@@ -165,20 +173,24 @@ func decodeReplenishmentCursor(value string) (*replenishmentCursor, error) {
 	if err := json.Unmarshal(payload, &cursor); err != nil {
 		return nil, err
 	}
-	if cursor.SKU == "" || cursor.ProductID == "" {
+	if cursor.RiskRank < 0 || cursor.RiskRank > 4 || cursor.SKU == "" || cursor.ProductID == "" {
 		return nil, strconv.ErrSyntax
 	}
 	return &cursor, nil
 }
 
 func afterReplenishmentCursor(item domain.ReplenishmentReadinessItem, cursor replenishmentCursor) bool {
-	if item.Risk != "" {
-		// Cursor ordering must match the public sort order, including risk and quantity.
-		// The cursor intentionally stores only stable identity fields, so callers should
-		// use the returned cursor without editing it. Identity comparison is the final
-		// deterministic tie-breaker for equal-ranked rows.
+	riskRank := replenishmentRiskRank(item.Risk)
+	if riskRank != cursor.RiskRank {
+		return riskRank > cursor.RiskRank
 	}
-	return item.SKU > cursor.SKU || (item.SKU == cursor.SKU && item.ProductID > cursor.ProductID)
+	if item.SuggestedQuantity != cursor.SuggestedQuantity {
+		return item.SuggestedQuantity < cursor.SuggestedQuantity
+	}
+	if item.SKU != cursor.SKU {
+		return item.SKU > cursor.SKU
+	}
+	return item.ProductID > cursor.ProductID
 }
 
 func classifyReplenishmentRisk(onHand, reorderPoint int64, averageDailyOut float64) domain.ReplenishmentRisk {
