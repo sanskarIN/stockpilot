@@ -21,9 +21,9 @@ func (a *API) createReplenishmentReview(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	var body struct {
-		ProductID       string                              `json:"productId"`
-		Outcome         domain.ReplenishmentReviewOutcome  `json:"outcome"`
-		PurchaseOrderID string                              `json:"purchaseOrderId,omitempty"`
+		ProductID       string                             `json:"productId"`
+		Outcome         domain.ReplenishmentReviewOutcome `json:"outcome"`
+		PurchaseOrderID string                             `json:"purchaseOrderId,omitempty"`
 	}
 	if !decodeJSON(w, r, &body) {
 		return
@@ -97,6 +97,7 @@ func (a *API) createReplenishmentReview(w http.ResponseWriter, r *http.Request) 
 		writeDomainError(w, err)
 		return
 	}
+	now := time.Now().UTC()
 	review := domain.ReplenishmentReview{
 		ID:                id,
 		ProductID:         suggestion.ProductID,
@@ -110,10 +111,10 @@ func (a *API) createReplenishmentReview(w http.ResponseWriter, r *http.Request) 
 		TargetStock:       suggestion.TargetStock,
 		SuggestedQuantity: suggestion.SuggestedQuantity,
 		ReviewedBy:        authenticatedActorID(r),
-		ReviewedAt:        time.Now().UTC(),
+		ReviewedAt:        now,
 		PurchaseOrderID:   body.PurchaseOrderID,
 		Outcome:           body.Outcome,
-		CreatedAt:         time.Now().UTC(),
+		CreatedAt:         now,
 	}
 	if err := store.CreateReplenishmentReview(r.Context(), review); err != nil {
 		writeDomainError(w, err)
