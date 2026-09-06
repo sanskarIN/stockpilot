@@ -34,9 +34,9 @@ func TestReplenishmentReviewValidateOutcomes(t *testing.T) {
 			review := validReplenishmentReview()
 			review.Outcome = tt.outcome
 			review.PurchaseOrderID = tt.purchaseOrder
-		if err := review.Validate(); (err != nil) != tt.wantErr {
-			t.Fatalf("Validate() error = %v, wantErr %v", err, tt.wantErr)
-		}
-	})
+			if err := review.Validate(); (err != nil) != tt.wantErr {
+				t.Fatalf("Validate() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
 	}
 }
