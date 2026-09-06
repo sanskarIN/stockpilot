@@ -65,7 +65,8 @@ This roadmap reflects the current repository state.
 - [x] Warehouse/location valuation breakdown.
 - [x] Replenishment performance history with fill-rate and receipt-timeliness metrics.
 - [ ] Explicit traceability between reorder suggestions and resulting purchase-order decisions.
-- [ ] Cursor/streaming support for large report datasets.
+- [x] Deterministic cursor pagination for replenishment-readiness JSON reports.
+- [ ] Cursor/streaming support for large report datasets beyond replenishment-readiness.
 
 ## Release hardening
 
@@ -77,15 +78,20 @@ This roadmap reflects the current repository state.
 - [ ] Reproducible web, server, Android, and extension release artifacts.
 - [ ] Resolve every blocker/critical defect before the first stable release.
 
-## Current milestone — v0.4.2
+## Current milestone — v0.4.3
 
-- [ ] Persist a snapshot of each reviewed reorder recommendation used for a purchasing decision.
-- [ ] Link a recommendation snapshot to the resulting purchase order when one is created.
-- [ ] Record explicit outcomes: accepted, modified, dismissed, or expired.
-- [ ] Expose traceability through additive API/repository capabilities.
-- [ ] Add PostgreSQL migration and rollback coverage.
-- [ ] Add HTTP, repository, and integration regression tests.
-- [ ] Verify existing reorder, purchasing, audit, and reporting workflows remain compatible.
+- [x] Add opaque cursor metadata to replenishment-readiness report responses.
+- [x] Preserve deterministic report ordering across cursor pages.
+- [x] Validate malformed and incomplete cursors with bounded HTTP errors.
+- [x] Keep existing JSON fields and CSV export behavior compatible.
+- [x] Expose optional cursor continuation to the web API client.
+- [x] Add regression tests for cursor encoding, validation, and ordering.
+- [ ] Add database-native cursor/streaming support for the largest report datasets.
+- [ ] Complete the deferred replenishment recommendation traceability implementation with a migration, repository layer, HTTP workflow, and end-to-end regression coverage.
+
+## Historical v0.4.2 scope
+
+The v0.4.2 release documented replenishment recommendation traceability. The repository currently treats the durable recommendation-to-purchase-order implementation as unfinished follow-up work rather than marking it complete without corresponding code and CI evidence.
 
 ## Later
 

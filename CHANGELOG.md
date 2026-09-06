@@ -4,17 +4,26 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
-### v0.4.2 — Replenishment Recommendation Traceability
+### v0.4.3 — Report Cursor Pagination & Scalability
 
 Development focus:
 
-- add explicit, durable linkage between a reviewed reorder recommendation and a purchase-order decision;
-- capture the recommendation snapshot used for the decision so later inventory changes do not rewrite history;
-- distinguish accepted, modified, dismissed, and expired recommendation outcomes;
-- expose traceability through additive repository and HTTP capabilities without breaking existing report contracts;
-- validate migration compatibility and rollback behavior before the release is published.
+- add opaque cursor pagination to the replenishment-readiness JSON report;
+- keep cursor ordering aligned with the report's deterministic risk, quantity, SKU, and product ordering;
+- reject malformed or incomplete cursors with a bounded `400` response;
+- preserve the existing JSON fields and CSV export contract;
+- expose optional cursor continuation metadata to the web client;
+- add regression coverage for cursor round trips, validation, and ordering semantics.
 
-The v0.4.2 branch is intentionally being developed as a separate milestone after the v0.4.1 release-hardening work. The release will not be tagged until the complete CI suite is green.
+The v0.4.3 branch will not be tagged until GitHub Actions validates the complete change set on the final release commit.
+
+### v0.4.2 — Replenishment Recommendation Traceability
+
+The v0.4.2 release metadata documented the intended replenishment recommendation traceability milestone. The actual implementation remains a follow-up engineering item and is not treated as complete by v0.4.3.
+
+- documented explicit recommendation-to-purchase-order linkage;
+- documented recommendation snapshots and explicit outcomes;
+- preserved the known-good v0.4.1 baseline while the larger implementation is validated independently.
 
 ### v0.4.1 — Release Hardening
 

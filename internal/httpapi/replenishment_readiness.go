@@ -2,6 +2,8 @@ package httpapi
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"net/http"
 	"sort"
 	"strconv"
@@ -22,6 +24,13 @@ type movementHistoryReader interface {
 	GetStockMovementHistory(context.Context, int, int) (domain.StockMovementHistoryReport, error)
 }
 
+type replenishmentCursor struct {
+	RiskRank          int    `json:"riskRank"`
+	SuggestedQuantity int64  `json:"suggestedQuantity"`
+	SKU               string `json:"sku"`
+	ProductID         string `json:"productId"`
+}
+
 func (a *API) replenishmentReadiness(w http.ResponseWriter, r *http.Request) {
 	reader, ok := a.inventory.(movementHistoryReader)
 	if !ok {
@@ -30,6 +39,12 @@ func (a *API) replenishmentReadiness(w http.ResponseWriter, r *http.Request) {
 	}
 	windowDays := normalizeReplenishmentWindow(queryInt(r, "days", defaultReplenishmentWindowDays))
 	limit := normalizeReplenishmentLimit(queryInt(r, "limit", defaultReplenishmentRows))
+
+	cursor, err := decodeReplenishmentCursor(r.URL.Query().Get("cursor"))
+	if err != nil {
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "invalid replenishment readiness cursor"})
+		return
+	}
 
 	suggestions, err := a.inventory.ListReorderSuggestions(r.Context(), maxReplenishmentRows)
 	if err != nil {
@@ -90,13 +105,36 @@ func (a *API) replenishmentReadiness(w http.ResponseWriter, r *http.Request) {
 		if items[i].SuggestedQuantity != items[j].SuggestedQuantity {
 			return items[i].SuggestedQuantity > items[j].SuggestedQuantity
 		}
-		return items[i].SKU < items[j].SKU
+		if items[i].SKU != items[j].SKU {
+			return items[i].SKU < items[j].SKU
+		}
+		return items[i].ProductID < items[j].ProductID
 	})
-	if len(items) > limit {
+
+	if cursor != nil {
+		start := 0
+		for start < len(items) && !afterReplenishmentCursor(items[start], *cursor) {
+			start++
+		}
+		items = items[start:]
+	}
+
+	hasMore := len(items) > limit
+	if hasMore {
 		items = items[:limit]
 	}
 
 	report := domain.ReplenishmentReadinessReport{AsOf: movementReport.AsOf, WindowDays: windowDays, Items: items}
+	if hasMore && len(items) > 0 {
+		last := items[len(items)-1]
+		report.NextCursor = encodeReplenishmentCursor(replenishmentCursor{
+			RiskRank:          replenishmentRiskRank(last.Risk),
+			SuggestedQuantity: last.SuggestedQuantity,
+			SKU:               last.SKU,
+			ProductID:         last.ProductID,
+		})
+	}
+
 	if r.URL.Query().Get("format") == "csv" {
 		setCSVDownloadHeaders(w, "stockpilot-replenishment-readiness.csv")
 		writer := csvexport.New(w, csvexport.Options{FormulaSafe: true})
@@ -116,6 +154,43 @@ func (a *API) replenishmentReadiness(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusOK, report)
+}
+
+func encodeReplenishmentCursor(cursor replenishmentCursor) string {
+	payload, _ := json.Marshal(cursor)
+	return base64.RawURLEncoding.EncodeToString(payload)
+}
+
+func decodeReplenishmentCursor(value string) (*replenishmentCursor, error) {
+	if value == "" {
+		return nil, nil
+	}
+	payload, err := base64.RawURLEncoding.DecodeString(value)
+	if err != nil {
+		return nil, err
+	}
+	var cursor replenishmentCursor
+	if err := json.Unmarshal(payload, &cursor); err != nil {
+		return nil, err
+	}
+	if cursor.RiskRank < 0 || cursor.RiskRank > 4 || cursor.SKU == "" || cursor.ProductID == "" {
+		return nil, strconv.ErrSyntax
+	}
+	return &cursor, nil
+}
+
+func afterReplenishmentCursor(item domain.ReplenishmentReadinessItem, cursor replenishmentCursor) bool {
+	riskRank := replenishmentRiskRank(item.Risk)
+	if riskRank != cursor.RiskRank {
+		return riskRank > cursor.RiskRank
+	}
+	if item.SuggestedQuantity != cursor.SuggestedQuantity {
+		return item.SuggestedQuantity < cursor.SuggestedQuantity
+	}
+	if item.SKU != cursor.SKU {
+		return item.SKU > cursor.SKU
+	}
+	return item.ProductID > cursor.ProductID
 }
 
 func classifyReplenishmentRisk(onHand, reorderPoint int64, averageDailyOut float64) domain.ReplenishmentRisk {
