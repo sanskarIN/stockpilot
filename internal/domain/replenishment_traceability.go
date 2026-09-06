@@ -25,22 +25,22 @@ func (o ReplenishmentReviewOutcome) Valid() bool {
 }
 
 type ReplenishmentReview struct {
-	ID                string                      `json:"id"`
-	ProductID         string                      `json:"productId"`
-	SKU               string                      `json:"sku"`
-	ProductName       string                      `json:"productName"`
-	Unit              string                      `json:"unit"`
-	SupplierID        string                      `json:"supplierId,omitempty"`
-	OnHand            int64                       `json:"onHand"`
-	ReorderPoint      int64                       `json:"reorderPoint"`
-	ReorderQuantity   int64                       `json:"reorderQuantity"`
-	TargetStock       int64                       `json:"targetStock"`
-	SuggestedQuantity int64                       `json:"suggestedQuantity"`
-	ReviewedBy        string                      `json:"reviewedBy"`
-	ReviewedAt        time.Time                   `json:"reviewedAt"`
-	PurchaseOrderID   string                      `json:"purchaseOrderId,omitempty"`
+	ID                string                     `json:"id"`
+	ProductID         string                     `json:"productId"`
+	SKU               string                     `json:"sku"`
+	ProductName       string                     `json:"productName"`
+	Unit              string                     `json:"unit"`
+	SupplierID        string                     `json:"supplierId,omitempty"`
+	OnHand            int64                      `json:"onHand"`
+	ReorderPoint      int64                      `json:"reorderPoint"`
+	ReorderQuantity   int64                      `json:"reorderQuantity"`
+	TargetStock       int64                      `json:"targetStock"`
+	SuggestedQuantity int64                      `json:"suggestedQuantity"`
+	ReviewedBy        string                     `json:"reviewedBy"`
+	ReviewedAt        time.Time                  `json:"reviewedAt"`
+	PurchaseOrderID   string                     `json:"purchaseOrderId,omitempty"`
 	Outcome           ReplenishmentReviewOutcome `json:"outcome"`
-	CreatedAt         time.Time                   `json:"createdAt"`
+	CreatedAt         time.Time                  `json:"createdAt"`
 }
 
 func (r ReplenishmentReview) Validate() error {
