@@ -19,7 +19,8 @@ The v0.4.1 milestone is a clean maintenance release focused on release metadata 
 - aligned the repository release version with `0.4.1`;
 - aligned the `/api/v1/meta` regression test with the release version;
 - kept the v0.4.0 reporting contracts and database schema unchanged;
-- deferred replenishment recommendation traceability to v0.4.2 so it can be implemented and validated independently.
+- deferred replenishment recommendation traceability to v0.4.2 so it can be implemented and validated independently;
+- kept the release branch free of the previously failing traceability implementation.
 
 ### v0.4.0 — Replenishment Performance & Operational Analytics
 
