@@ -21,12 +21,17 @@ export type ReplenishmentReadinessReport = {
   asOf: string;
   windowDays: number;
   items: ReplenishmentReadinessItem[];
+  nextCursor?: string;
 };
 
-export async function replenishmentReadiness(days = 30, limit = 500): Promise<ReplenishmentReadinessReport> {
+export async function replenishmentReadiness(days = 30, limit = 500, cursor?: string): Promise<ReplenishmentReadinessReport> {
   const safeDays = Math.min(Math.max(days, 1), 365);
   const safeLimit = Math.min(Math.max(limit, 1), 5000);
-  const response = await fetch(`/api/v1/reports/replenishment-readiness?days=${safeDays}&limit=${safeLimit}`, { credentials: "include", headers: { Accept: "application/json" } });
+  const params = new URLSearchParams({ days: String(safeDays), limit: String(safeLimit) });
+  if (cursor) {
+    params.set("cursor", cursor);
+  }
+  const response = await fetch(`/api/v1/reports/replenishment-readiness?${params.toString()}`, { credentials: "include", headers: { Accept: "application/json" } });
   if (!response.ok) {
     throw new Error(`Replenishment readiness request failed (${response.status}).`);
   }
@@ -36,5 +41,6 @@ export async function replenishmentReadiness(days = 30, limit = 500): Promise<Re
 export function replenishmentReadinessCSV(days = 30, limit = 5000) {
   const safeDays = Math.min(Math.max(days, 1), 365);
   const safeLimit = Math.min(Math.max(limit, 1), 5000);
-  window.location.assign(`/api/v1/reports/replenishment-readiness?format=csv&days=${safeDays}&limit=${safeLimit}`);
+  const params = new URLSearchParams({ format: "csv", days: String(safeDays), limit: String(safeLimit) });
+  window.location.assign(`/api/v1/reports/replenishment-readiness?${params.toString()}`);
 }
