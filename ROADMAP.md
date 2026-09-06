@@ -64,7 +64,7 @@ This roadmap reflects the current repository state.
 - [x] Supplier purchasing totals and lead-time tracking.
 - [x] Warehouse/location valuation breakdown.
 - [x] Replenishment performance history with fill-rate and receipt-timeliness metrics.
-- [ ] Explicit traceability between reorder suggestions and resulting purchase-order decisions.
+- [x] Explicit traceability between reorder suggestions and resulting purchase-order decisions.
 - [x] Deterministic cursor pagination for replenishment-readiness JSON reports.
 - [ ] Cursor/streaming support for large report datasets beyond replenishment-readiness.
 
@@ -78,20 +78,18 @@ This roadmap reflects the current repository state.
 - [ ] Reproducible web, server, Android, and extension release artifacts.
 - [ ] Resolve every blocker/critical defect before the first stable release.
 
-## Current milestone — v0.4.3
+## Current milestone — v0.4.4
 
-- [x] Add opaque cursor metadata to replenishment-readiness report responses.
-- [x] Preserve deterministic report ordering across cursor pages.
-- [x] Validate malformed and incomplete cursors with bounded HTTP errors.
-- [x] Keep existing JSON fields and CSV export behavior compatible.
-- [x] Expose optional cursor continuation to the web API client.
-- [x] Add regression tests for cursor encoding, validation, and ordering.
+- [x] Persist immutable replenishment recommendation snapshots at review time.
+- [x] Record explicit accepted, modified, dismissed, and expired outcomes.
+- [x] Link accepted/modified reviews to existing purchase orders without auto-submission.
+- [x] Validate linked purchase orders contain the reviewed product.
+- [x] Add read/list HTTP endpoints for replenishment review records.
+- [x] Add additive PostgreSQL migration and rollback script.
+- [x] Add domain validation and PostgreSQL integration coverage.
+- [x] Align `/api/v1/meta` with version `0.4.4`.
+- [ ] Add a dedicated web review-history workspace.
 - [ ] Add database-native cursor/streaming support for the largest report datasets.
-- [ ] Complete the deferred replenishment recommendation traceability implementation with a migration, repository layer, HTTP workflow, and end-to-end regression coverage.
-
-## Historical v0.4.2 scope
-
-The v0.4.2 release documented replenishment recommendation traceability. The repository currently treats the durable recommendation-to-purchase-order implementation as unfinished follow-up work rather than marking it complete without corresponding code and CI evidence.
 
 ## Later
 

@@ -4,6 +4,19 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
+### v0.4.4 — Replenishment Review Traceability
+
+- persist immutable snapshots of reorder recommendations at review time;
+- record explicit `accepted`, `modified`, `dismissed`, or `expired` outcomes;
+- link accepted/modified reviews to an existing purchase order without auto-submitting it;
+- validate that linked purchase orders contain the reviewed product;
+- add read/list HTTP endpoints for replenishment review records;
+- add an additive PostgreSQL migration with a tested rollback script;
+- add domain and PostgreSQL integration coverage;
+- align `/api/v1/meta` with the release version `0.4.4`.
+
+The release deliberately keeps purchase-order lifecycle authority unchanged and does not infer recommendation decisions from timestamps or free-form notes.
+
 ### v0.4.3 — Report Cursor Pagination & Scalability
 
 Development focus:
@@ -19,11 +32,11 @@ The v0.4.3 branch will not be tagged until GitHub Actions validates the complete
 
 ### v0.4.2 — Replenishment Recommendation Traceability
 
-The v0.4.2 release metadata documented the intended replenishment recommendation traceability milestone. The actual implementation remains a follow-up engineering item and is not treated as complete by v0.4.3.
+The v0.4.2 release metadata documented the intended replenishment recommendation traceability milestone. The actual implementation remained a follow-up engineering item and was not treated as complete by v0.4.3.
 
 - documented explicit recommendation-to-purchase-order linkage;
 - documented recommendation snapshots and explicit outcomes;
-- preserved the known-good v0.4.1 baseline while the larger implementation is validated independently.
+- preserved the known-good v0.4.1 baseline while the larger implementation was validated independently.
 
 ### v0.4.1 — Release Hardening
 
@@ -48,35 +61,3 @@ The v0.4.0 milestone expands reporting with supplier-level replenishment executi
 - added HTTP and PostgreSQL regression coverage for bounds, receipts, fill rate, timeliness, and period handling;
 - documented the report's non-causal interpretation limits;
 - added no database migration and kept reporting read-only.
-
-### v0.3.9 — Report Count & Pagination Semantics
-
-The v0.3.9 milestone adds an additive total-count capability for bounded supplier-performance and warehouse-valuation reports without changing existing report response bodies.
-
-- added an optional `repository.CountedReports` capability for total result counts;
-- added PostgreSQL-backed supplier-performance and warehouse-valuation count queries;
-- exposed the complete bounded-result count through the `X-Total-Count` HTTP response header;
-- reused the same validated reporting period and pagination bounds for page and count queries;
-- preserved existing JSON and CSV response bodies and export formats;
-- preserved legacy repository implementations when the optional counted capability is unavailable;
-- exposed pagination response headers to approved browser origins through CORS;
-- aligned `/api/v1/meta` with the release version `0.3.9`;
-- added HTTP regression coverage for count-header behavior and pagination bounds;
-- added PostgreSQL integration coverage for report count queries;
-- corrected the roadmap to reflect completed supplier and warehouse reporting capabilities;
-- kept cursor/streaming pagination as a later optimization rather than changing default offset behavior;
-- added no database migration and kept reporting read-only.
-
-### v0.3.8 — SQL-Native Pagination & Query Optimization
-
-The v0.3.8 milestone moves bounded report pagination into PostgreSQL rather than fetching an expanded result set and slicing it in Go.
-
-- applied SQL `LIMIT` and `OFFSET` directly to bounded supplier-performance queries;
-- applied SQL `LIMIT` and `OFFSET` directly to bounded warehouse-valuation queries;
-- retained deterministic ordering for stable page boundaries;
-- preserved the additive `repository.BoundedReports` contract;
-- preserved legacy `repository.Reports` behavior and existing JSON/CSV response bodies;
-- retained request-context cancellation through PostgreSQL query execution;
-- kept warehouse valuation totals independent of page slicing;
-- added no database migration;
-- kept reporting read-only.
