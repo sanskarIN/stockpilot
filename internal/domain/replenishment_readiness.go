@@ -32,8 +32,8 @@ type ReplenishmentReadinessItem struct {
 }
 
 type ReplenishmentReadinessReport struct {
-	AsOf        time.Time                    `json:"asOf"`
-	WindowDays  int                          `json:"windowDays"`
-	Items       []ReplenishmentReadinessItem `json:"items"`
-	NextCursor  string                       `json:"nextCursor,omitempty"`
+	AsOf       time.Time                    `json:"asOf"`
+	WindowDays int                          `json:"windowDays"`
+	Items      []ReplenishmentReadinessItem `json:"items"`
+	NextCursor string                       `json:"nextCursor,omitempty"`
 }
