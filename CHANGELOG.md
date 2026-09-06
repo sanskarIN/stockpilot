@@ -4,6 +4,18 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
+### v0.4.5 — StockPilot GitHub Bot
+
+- add a repository-native `StockPilot Bot` GitHub Actions workflow at `.github/workflows/bot.yml`;
+- respond to `/stockpilot help`, `/stockpilot status`, and `/stockpilot triage` commands in issue conversations;
+- automatically provide a safe bug-triage checklist when `/stockpilot` is used in a newly opened issue;
+- keep bot permissions least-privileged with read-only repository contents and write access limited to issue comments;
+- avoid checking out or executing untrusted issue/PR content;
+- align `VERSION` and `/api/v1/meta` with `0.4.5`;
+- add documentation for enabling and using the bot.
+
+The bot is intentionally informational: it does not modify application data, merge pull requests, deploy StockPilot, or bypass the normal review and CI process.
+
 ### v0.4.4 — Replenishment Review Traceability
 
 - persist immutable snapshots of reorder recommendations at review time;

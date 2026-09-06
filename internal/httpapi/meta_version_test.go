@@ -24,7 +24,7 @@ func TestMetaEndpointReportsReleaseVersion(t *testing.T) {
 	if response.Name != "StockPilot" {
 		t.Fatalf("name=%q", response.Name)
 	}
-	if response.Version != "0.4.4" {
+	if response.Version != "0.4.5" {
 		t.Fatalf("version=%q", response.Version)
 	}
 }
