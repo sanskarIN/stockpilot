@@ -1,0 +1,87 @@
+name: StockPilot Bot
+
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  stockpilot-bot:
+    name: Respond to StockPilot commands
+    runs-on: ubuntu-latest
+    if: >-
+      github.actor != 'github-actions[bot]' &&
+      (github.event_name == 'issues' ||
+       startsWith(github.event.comment.body, '/stockpilot'))
+    steps:
+      - name: Respond to supported commands
+        uses: actions/github-script@v8
+        with:
+          script: |
+            const body = github.event_name === 'issues'
+              ? (context.payload.issue.body || '').trim()
+              : (context.payload.comment.body || '').trim();
+
+            if (github.event_name === 'issues') {
+              if (!body.toLowerCase().includes('/stockpilot')) {
+                return;
+              }
+            }
+
+            const command = body
+              .split(/\r?\n/)
+              .map(line => line.trim())
+              .find(line => line.toLowerCase().startsWith('/stockpilot'))
+              ?.toLowerCase() || '/stockpilot help';
+
+            const issueNumber = context.issue.number;
+            let response;
+
+            if (command === '/stockpilot status') {
+              response = [
+                '## StockPilot Bot',
+                '',
+                'The repository is currently maintained through GitHub Actions and pull-request checks.',
+                '',
+                '- Use `/stockpilot help` for supported commands.',
+                '- Use `/stockpilot status` to request this status response.',
+                '- Use `/stockpilot triage` to request a safe triage checklist.',
+              ].join('\n');
+            } else if (command === '/stockpilot triage') {
+              response = [
+                '## StockPilot Bot — Triage',
+                '',
+                'Please include:',
+                '1. What happened and the expected behavior.',
+                '2. Reproduction steps and relevant logs.',
+                '3. StockPilot version and deployment environment.',
+                '4. Whether the issue affects backend, web, Android, extension, database, or CI.',
+                '',
+                'The bot does not execute untrusted issue text or modify production data.',
+              ].join('\n');
+            } else {
+              response = [
+                '## StockPilot Bot',
+                '',
+                'Supported commands:',
+                '',
+                '- `/stockpilot help` — show this help.',
+                '- `/stockpilot status` — show repository automation status.',
+                '- `/stockpilot triage` — provide a bug-report triage checklist.',
+                '',
+                'Commands are informational only; changes still go through normal pull-request review and CI.',
+              ].join('\n');
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: response,
+            });
