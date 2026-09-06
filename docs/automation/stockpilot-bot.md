@@ -14,7 +14,7 @@ A newly opened issue that contains `/stockpilot` also receives the command respo
 
 ## Design and security
 
-The bot runs from `.github/workflows/bot.yml` and uses `actions/github-script@v8`. GitHub's current documentation shows that `issues: write` permits an action to add issue comments, while permissions not explicitly granted are set to `none`. citeturn0search12
+The bot runs from `.github/workflows/bot.yml` and uses `actions/github-script@v8`.
 
 The workflow intentionally:
 
@@ -26,8 +26,6 @@ The workflow intentionally:
 - does not merge pull requests;
 - does not deploy StockPilot;
 - does not modify StockPilot application or database data.
-
-`actions/github-script@v8` uses the Node 24 runtime and requires a sufficiently recent GitHub Actions runner. citeturn0search5turn0search0
 
 ## Extending the bot
 
