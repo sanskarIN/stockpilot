@@ -21,9 +21,9 @@ func (a *API) createReplenishmentReview(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	var body struct {
-		ProductID       string                             `json:"productId"`
+		ProductID       string                            `json:"productId"`
 		Outcome         domain.ReplenishmentReviewOutcome `json:"outcome"`
-		PurchaseOrderID string                             `json:"purchaseOrderId,omitempty"`
+		PurchaseOrderID string                            `json:"purchaseOrderId,omitempty"`
 	}
 	if !decodeJSON(w, r, &body) {
 		return
