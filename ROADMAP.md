@@ -77,9 +77,15 @@ This roadmap reflects the current repository state.
 - [ ] Reproducible web, server, Android, and extension release artifacts.
 - [ ] Resolve every blocker/critical defect before the first stable release.
 
-## Next milestone
+## Current milestone — v0.4.2
 
-- [ ] v0.4.2: replenishment recommendation traceability and outcome tracking.
+- [ ] Persist a snapshot of each reviewed reorder recommendation used for a purchasing decision.
+- [ ] Link a recommendation snapshot to the resulting purchase order when one is created.
+- [ ] Record explicit outcomes: accepted, modified, dismissed, or expired.
+- [ ] Expose traceability through additive API/repository capabilities.
+- [ ] Add PostgreSQL migration and rollback coverage.
+- [ ] Add HTTP, repository, and integration regression tests.
+- [ ] Verify existing reorder, purchasing, audit, and reporting workflows remain compatible.
 
 ## Later
 
