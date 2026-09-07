@@ -71,7 +71,10 @@ This roadmap reflects the current repository state.
 
 ## Release hardening
 
-- [ ] End-to-end browser tests for authentication, catalog, inventory, purchasing, and reporting.
+- [x] Deterministic Chromium browser E2E foundation.
+- [x] Signed-out login regression coverage.
+- [x] Authenticated dashboard-shell coverage using synthetic API fixtures.
+- [ ] Authenticated catalog, inventory, purchasing, and reporting workflow coverage.
 - [ ] Android instrumentation tests for authentication and critical inventory reads.
 - [ ] Accessibility audit across keyboard, screen-reader, contrast, touch-target, and reduced-motion paths.
 - [ ] Production restore rehearsal and migration rollback verification.
@@ -79,16 +82,11 @@ This roadmap reflects the current repository state.
 - [ ] Reproducible web, server, Android, and extension release artifacts.
 - [ ] Resolve every blocker/critical defect before the first stable release.
 
-## Current milestone — v0.4.7
+## v0.4.9 milestone
 
-- [x] Harden review-history filtering against stale asynchronous responses.
-- [x] Add accessible labeling, status announcements, and table semantics to review history.
-- [ ] Add broader browser accessibility/end-to-end coverage.
-- [ ] Complete accessibility audit across the primary web workflows.
-- [ ] Add automated checks for critical keyboard navigation paths.
-
-## Later
-
-- [ ] Notification adapters for low stock and expiring lots.
-- [ ] Optional multi-organization tenancy after single-organization workflows are fully hardened.
-- [ ] Additional mobile platforms only after Android workflows reach release quality.
+- [x] Add deterministic Playwright Chromium configuration.
+- [x] Add signed-out login contract regression.
+- [x] Add authenticated dashboard-shell regression with synthetic API fixtures.
+- [x] Add Browser E2E CI gate.
+- [x] Align release metadata and regression tests with `0.4.9`.
+- [ ] Expand browser coverage into catalog, inventory, purchasing, and reporting workflows.
