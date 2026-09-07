@@ -46,7 +46,7 @@ export function ReplenishmentReviewHistoryPanel({ onSessionExpired }: Props) {
     {state === "error" && <div className="notice error" role="alert"><span>{error}</span><button type="button" onClick={() => void load()}>Try again</button></div>}
     <div className="table-wrap">
       <table>
-        <caption className="sr-only">Replenishment review history filtered by outcome</caption>
+        <caption>Replenishment review history filtered by outcome</caption>
         <thead><tr><th scope="col">Reviewed</th><th scope="col">Product</th><th scope="col">Outcome</th><th scope="col" className="numeric">On hand</th><th scope="col" className="numeric">Suggested</th><th scope="col">Purchase order</th><th scope="col">Reviewer</th></tr></thead>
         <tbody>
           {items.map(item => <tr key={item.id}>
