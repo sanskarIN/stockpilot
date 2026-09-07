@@ -79,20 +79,13 @@ This roadmap reflects the current repository state.
 - [ ] Reproducible web, server, Android, and extension release artifacts.
 - [ ] Resolve every blocker/critical defect before the first stable release.
 
-## Current milestone — v0.4.6
+## Current milestone — v0.4.7
 
-- [x] Persist immutable replenishment recommendation snapshots at review time.
-- [x] Record explicit accepted, modified, dismissed, and expired outcomes.
-- [x] Link accepted/modified reviews to existing purchase orders without auto-submission.
-- [x] Validate linked purchase orders contain the reviewed product.
-- [x] Add read/list HTTP endpoints for replenishment review records.
-- [x] Add additive PostgreSQL migration and rollback script.
-- [x] Add domain validation and PostgreSQL integration coverage.
-- [x] Add dedicated web review-history workspace.
-- [x] Add outcome filtering to the review-history workspace.
-- [x] Display immutable review snapshot fields and purchase-order linkage.
-- [x] Align `/api/v1/meta` with version `0.4.6`.
-- [ ] Add database-native cursor/streaming support for the largest report datasets.
+- [x] Harden review-history filtering against stale asynchronous responses.
+- [x] Add accessible labeling, status announcements, and table semantics to review history.
+- [ ] Add broader browser accessibility/end-to-end coverage.
+- [ ] Complete accessibility audit across the primary web workflows.
+- [ ] Add automated checks for critical keyboard navigation paths.
 
 ## Later
 
