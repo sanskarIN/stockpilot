@@ -1,6 +1,6 @@
-import { test, expect } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
-async function mockAuthenticatedWorkspace(page: Parameters<Parameters<typeof test>[1]>[0]["page"]) {
+async function mockAuthenticatedWorkspace(page: Page) {
   await page.route("**/api/v1/auth/me", async (route) => {
     await route.fulfill({
       status: 200,
