@@ -71,7 +71,8 @@ This roadmap reflects the current repository state.
 
 ## Release hardening
 
-- [ ] End-to-end browser tests for authentication, catalog, inventory, purchasing, and reporting.
+- [x] Initial browser E2E test foundation for the signed-out web workflow.
+- [ ] End-to-end browser tests for authenticated catalog, inventory, purchasing, and reporting workflows.
 - [ ] Android instrumentation tests for authentication and critical inventory reads.
 - [ ] Accessibility audit across keyboard, screen-reader, contrast, touch-target, and reduced-motion paths.
 - [ ] Production restore rehearsal and migration rollback verification.
@@ -79,13 +80,21 @@ This roadmap reflects the current repository state.
 - [ ] Reproducible web, server, Android, and extension release artifacts.
 - [ ] Resolve every blocker/critical defect before the first stable release.
 
-## Current milestone — v0.4.7
+## Completed — v0.4.7
 
 - [x] Harden review-history filtering against stale asynchronous responses.
 - [x] Add accessible labeling, status announcements, and table semantics to review history.
-- [ ] Add broader browser accessibility/end-to-end coverage.
-- [ ] Complete accessibility audit across the primary web workflows.
-- [ ] Add automated checks for critical keyboard navigation paths.
+- [x] Preserve valid review rows during refresh.
+
+## Current milestone — v0.4.8
+
+- [x] Establish a deterministic Chromium Playwright test foundation.
+- [x] Add signed-out login accessibility regression coverage.
+- [x] Add keyboard traversal regression coverage for sign-in controls.
+- [x] Run browser regression checks as a dedicated CI gate.
+- [ ] Expand browser coverage to authenticated catalog, inventory, purchasing, and reporting workflows.
+- [ ] Complete the broader accessibility audit across primary web workflows.
+- [ ] Add automated checks for critical keyboard-navigation paths beyond authentication.
 
 ## Later
 
