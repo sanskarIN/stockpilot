@@ -2,8 +2,12 @@ import { test, expect } from "@playwright/test";
 
 test.describe("signed-out workspace", () => {
   test.beforeEach(async ({ page }) => {
-    await page.route("**/api/v1/me", async (route) => {
-      await route.fulfill({ status: 401, contentType: "application/json", body: JSON.stringify({ error: "unauthorized" }) });
+    await page.route("**/api/v1/auth/me", async (route) => {
+      await route.fulfill({
+        status: 401,
+        contentType: "application/json",
+        body: JSON.stringify({ error: "unauthorized" }),
+      });
     });
   });
 
@@ -19,12 +23,14 @@ test.describe("signed-out workspace", () => {
   test("supports keyboard traversal through the sign-in controls", async ({ page }) => {
     await page.goto("/");
 
+    const homeLink = page.getByRole("link", { name: "StockPilot home" });
+    await homeLink.focus();
+    await expect(homeLink).toBeFocused();
+
     await page.keyboard.press("Tab");
-    await expect(page.locator(":focus")).toHaveAttribute("aria-label", "StockPilot home");
+    await expect(page.getByLabel("Email")).toBeFocused();
     await page.keyboard.press("Tab");
-    await expect(page.locator(":focus")).toHaveAttribute("name", "email");
-    await page.keyboard.press("Tab");
-    await expect(page.locator(":focus")).toHaveAttribute("name", "password");
+    await expect(page.getByLabel("Password")).toBeFocused();
     await page.keyboard.press("Tab");
     await expect(page.getByRole("button", { name: "Sign in" })).toBeFocused();
   });
