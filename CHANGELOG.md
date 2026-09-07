@@ -4,6 +4,19 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
+### v0.4.9 — Authenticated Browser Reliability
+
+- add deterministic Playwright Chromium coverage for the signed-out login contract;
+- add an authenticated dashboard-shell browser fixture using an in-browser API test double;
+- verify the authenticated session boundary without requiring live credentials or production data;
+- verify dashboard navigation renders with deterministic empty catalog, inventory, reorder, order, and valuation responses;
+- add a dedicated Browser E2E CI gate alongside Go, Web, and PostgreSQL validation;
+- align `VERSION` and `/api/v1/meta` with release version `0.4.9`;
+- align the API metadata regression test with `0.4.9`;
+- document that deeper authenticated workflow coverage remains the next incremental step.
+
+The browser tests use synthetic fixtures only. They do not authenticate against a production account, persist credentials, or modify real application data.
+
 ### v0.4.6 — Replenishment Review History Workspace
 
 - add a dedicated web review-history panel to the Reports & Analytics workspace;
@@ -70,17 +83,3 @@ The v0.4.1 milestone is a clean maintenance release focused on release metadata 
 - kept the v0.4.0 reporting contracts and database schema unchanged;
 - deferred replenishment recommendation traceability to v0.4.2 so it can be implemented and validated independently;
 - kept the release branch free of the previously failing traceability implementation.
-
-### v0.4.0 — Replenishment Performance & Operational Analytics
-
-The v0.4.0 milestone expands reporting with supplier-level replenishment execution metrics based on historical purchase orders and recorded receipts.
-
-- added `repository.ReplenishmentReports` as an additive capability;
-- added PostgreSQL-backed replenishment-performance analytics;
-- honored explicit reporting `from`/`to` periods and standard pagination bounds;
-- added ordered, received, outstanding, fill-rate, on-time, late, and average-lead-time metrics;
-- added `GET /api/v1/reports/replenishment-performance`;
-- preserved existing JSON/CSV report contracts and legacy repository interfaces;
-- added HTTP and PostgreSQL regression coverage for bounds, receipts, fill rate, timeliness, and period handling;
-- documented the report's non-causal interpretation limits;
-- added no database migration and kept reporting read-only.
