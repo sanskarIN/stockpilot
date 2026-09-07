@@ -74,7 +74,8 @@ This roadmap reflects the current repository state.
 - [x] Deterministic Chromium browser E2E foundation.
 - [x] Signed-out login regression coverage.
 - [x] Authenticated dashboard-shell coverage using synthetic API fixtures.
-- [ ] Authenticated catalog, inventory, purchasing, and reporting workflow coverage.
+- [x] Authenticated primary-workspace navigation coverage using synthetic API fixtures.
+- [ ] Authenticated create/edit/receive mutation workflow coverage with safe test data.
 - [ ] Android instrumentation tests for authentication and critical inventory reads.
 - [ ] Accessibility audit across keyboard, screen-reader, contrast, touch-target, and reduced-motion paths.
 - [ ] Production restore rehearsal and migration rollback verification.
@@ -82,11 +83,13 @@ This roadmap reflects the current repository state.
 - [ ] Reproducible web, server, Android, and extension release artifacts.
 - [ ] Resolve every blocker/critical defect before the first stable release.
 
-## v0.4.9 milestone
+## v0.5.0 milestone
 
-- [x] Add deterministic Playwright Chromium configuration.
-- [x] Add signed-out login contract regression.
-- [x] Add authenticated dashboard-shell regression with synthetic API fixtures.
-- [x] Add Browser E2E CI gate.
-- [x] Align release metadata and regression tests with `0.4.9`.
-- [ ] Expand browser coverage into catalog, inventory, purchasing, and reporting workflows.
+- [x] Expand authenticated browser coverage across primary operational workspace entry points.
+- [x] Keep browser fixtures deterministic and synthetic.
+- [x] Align `/api/v1/meta` and release metadata with `0.5.0`.
+- [ ] Add authenticated catalog create/edit workflow coverage.
+- [ ] Add authenticated inventory movement workflow coverage.
+- [ ] Add authenticated purchase-order draft/receive workflow coverage.
+- [ ] Add authenticated reporting workspace coverage with complete report fixtures.
+- [ ] Add mutation-path regression coverage before release.
