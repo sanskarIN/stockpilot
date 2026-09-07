@@ -26,6 +26,6 @@ test.describe("signed-out workspace", () => {
     await page.keyboard.press("Tab");
     await expect(page.locator(":focus")).toHaveAttribute("name", "password");
     await page.keyboard.press("Tab");
-    await expect(page.locator(":focus")).toHaveRole("button", { name: "Sign in" });
+    await expect(page.getByRole("button", { name: "Sign in" })).toBeFocused();
   });
 });
