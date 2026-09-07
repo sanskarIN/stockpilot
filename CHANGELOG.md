@@ -4,6 +4,19 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
+### v0.4.8 — Browser Accessibility & End-to-End Reliability
+
+- add a Playwright-based Chromium browser test foundation for the web workspace;
+- add signed-out login regression coverage with deterministic `/api/v1/me` mocking;
+- verify accessible form labels, autocomplete semantics, and disabled submit behavior;
+- verify keyboard traversal through the primary sign-in controls;
+- run browser regression checks as a dedicated GitHub Actions CI job;
+- install only the Chromium browser required by the v0.4.8 browser suite;
+- align `VERSION` and `/api/v1/meta` with release version `0.4.8`;
+- align the API metadata regression test with `0.4.8`.
+
+The browser suite is intentionally incremental: it establishes reliable coverage for the public signed-out workflow while leaving authenticated end-to-end scenarios for subsequent releases that can provide a safe test account/bootstrap fixture.
+
 ### v0.4.6 — Replenishment Review History Workspace
 
 - add a dedicated web review-history panel to the Reports & Analytics workspace;
