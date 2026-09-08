@@ -4,6 +4,27 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
+### v0.5.1 — Authenticated Mutation Regression Hardening
+
+- add deterministic Playwright coverage for authenticated catalog product creation;
+- add deterministic Playwright coverage for authenticated stock-in inventory mutations;
+- assert the browser sends the expected product and inventory mutation payloads;
+- keep mutation E2E fixtures entirely synthetic and isolated from production credentials/data;
+- align `VERSION` and `/api/v1/meta` with `0.5.1`;
+- align the API metadata regression test with `0.5.1`;
+- document the mutation-path hardening milestone.
+
+The new browser coverage validates the existing mutation workflows without changing their server-authoritative validation model.
+
+### v0.5.0 — Authenticated Workflow Reliability
+
+- add authenticated Playwright browser coverage for the primary StockPilot workspaces;
+- add deterministic navigation coverage for Products, Inventory, Purchase Orders, Warehouses, Lot Inventory, and Audit History;
+- add regression coverage confirming each primary workspace can return to the Inventory Overview;
+- keep browser fixtures deterministic and synthetic;
+- align application release metadata with `0.5.0`;
+- update the project roadmap and release documentation.
+
 ### v0.4.9 — Authenticated Browser Reliability
 
 - add deterministic Playwright Chromium coverage for the signed-out login contract;
