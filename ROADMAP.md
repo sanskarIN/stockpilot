@@ -77,7 +77,7 @@ This roadmap reflects the current repository state.
 - [x] Authenticated primary-workspace navigation coverage using synthetic API fixtures.
 - [x] Authenticated catalog create workflow coverage with synthetic test data.
 - [x] Authenticated inventory movement workflow coverage with synthetic test data.
-- [ ] Authenticated purchase-order draft/receive mutation workflow coverage with safe test data.
+- [x] Authenticated purchase-order create/submit/receive mutation workflow coverage with synthetic test data.
 - [ ] Authenticated reporting workspace coverage with complete report fixtures.
 - [ ] Android instrumentation tests for authentication and critical inventory reads.
 - [ ] Accessibility audit across keyboard, screen-reader, contrast, touch-target, and reduced-motion paths.
@@ -86,14 +86,16 @@ This roadmap reflects the current repository state.
 - [ ] Reproducible web, server, Android, and extension release artifacts.
 - [ ] Resolve every blocker/critical defect before the first stable release.
 
-## v0.5.1 milestone
+## v0.5.2 milestone
 
-- [x] Align `VERSION` and `/api/v1/meta` with `0.5.1`.
-- [x] Align the API metadata regression test with `0.5.1`.
-- [x] Add deterministic authenticated catalog-create browser coverage.
-- [x] Add deterministic authenticated inventory stock-in browser coverage.
-- [x] Assert representative mutation request payloads in browser tests.
-- [x] Keep all mutation E2E fixtures synthetic and independent of production credentials/data.
-- [ ] Add authenticated purchase-order create/submit/receive browser coverage.
-- [ ] Add complete authenticated reporting browser fixtures and assertions.
+- [x] Fix the v0.5.1 authenticated catalog E2E locator ambiguity under Playwright strict mode.
+- [x] Add deterministic authenticated purchase-order creation coverage.
+- [x] Assert the purchase-order creation request payload.
+- [x] Add authenticated purchase-order submission/status mutation coverage.
+- [x] Assert the purchase-order status request payload.
+- [x] Add authenticated purchase-order receipt coverage.
+- [x] Assert the purchase-order receipt request payload.
+- [x] Keep all lifecycle E2E fixtures synthetic and independent of production credentials/data.
+- [x] Align `VERSION` and `/api/v1/meta` with `0.5.2`.
+- [x] Align the API metadata regression test with `0.5.2`.
 - [ ] Run and verify the complete release CI gate on the final release commit before publishing the Git tag.
