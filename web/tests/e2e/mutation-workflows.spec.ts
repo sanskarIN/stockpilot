@@ -110,7 +110,7 @@ test.describe("authenticated mutation workflows", () => {
 
     await page.getByLabel("SKU").fill("E2E-001");
     await page.getByLabel("Product name").fill("Synthetic Product");
-    await page.getByLabel("Unit").fill("pcs");
+    await page.getByRole("textbox", { name: "Unit" }).fill("pcs");
     await page.getByLabel("Unit cost (minor units)").fill("12500");
     await page.getByLabel("Currency").fill("INR");
     await page.getByLabel("Reorder point").fill("5");
