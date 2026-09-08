@@ -34,6 +34,21 @@ const product = {
   updatedAt: "2026-01-01T00:00:00Z",
 };
 
+function makeOrder(status: "draft" | "ordered" | "received", received = 0) {
+  return {
+    id: "po-1",
+    number: "E2E-PO-001",
+    supplierId: supplier.id,
+    warehouseId: warehouse.id,
+    status,
+    currency: "INR",
+    notes: "Synthetic E2E purchase order",
+    lines: [{ id: "pol-1", purchaseOrderId: "po-1", productId: product.id, quantity: 3, received, unitCostMinor: 12500 }],
+    createdAt: "2026-01-01T00:00:00Z",
+    updatedAt: "2026-01-01T00:00:00Z",
+  };
+}
+
 async function mockAuthenticatedData(page: Page) {
   await page.route("**/api/v1/auth/me", async (route) => {
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(user) });
@@ -97,6 +112,52 @@ async function mockInventory(page: Page) {
   });
 }
 
+async function mockPurchasing(page: Page) {
+  let order = makeOrder("draft");
+  await page.route("**/api/v1/suppliers**", async (route) => {
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ items: [supplier] }) });
+  });
+  await page.route("**/api/v1/warehouses**", async (route) => {
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ items: [warehouse] }) });
+  });
+  await page.route("**/api/v1/locations**", async (route) => {
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ items: [location] }) });
+  });
+  await page.route("**/api/v1/products**", async (route) => {
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ items: [product] }) });
+  });
+  await page.route("**/api/v1/orders", async (route) => {
+    const method = route.request().method();
+    if (method === "GET") {
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ items: [order] }) });
+      return;
+    }
+    if (method === "POST") {
+      const body = route.request().postDataJSON();
+      expect(body).toMatchObject({ number: "E2E-PO-001", supplierId: supplier.id, warehouseId: warehouse.id, status: "draft", currency: "INR" });
+      expect(body.lines).toHaveLength(1);
+      order = makeOrder("draft");
+      await route.fulfill({ status: 201, contentType: "application/json", body: JSON.stringify(order) });
+      return;
+    }
+    await route.fallback();
+  });
+  await page.route("**/api/v1/orders/po-1/status", async (route) => {
+    expect(route.request().method()).toBe("PATCH");
+    const body = route.request().postDataJSON();
+    expect(body).toEqual({ status: "ordered" });
+    order = makeOrder("ordered");
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(order) });
+  });
+  await page.route("**/api/v1/orders/po-1/lines/pol-1/receive", async (route) => {
+    expect(route.request().method()).toBe("POST");
+    const body = route.request().postDataJSON();
+    expect(body).toMatchObject({ quantity: 3, locationId: location.id });
+    order = makeOrder("received", 3);
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(order) });
+  });
+}
+
 test.describe("authenticated mutation workflows", () => {
   test("creates a catalog product through the authenticated UI", async ({ page }) => {
     await mockAuthenticatedData(page);
@@ -134,5 +195,27 @@ test.describe("authenticated mutation workflows", () => {
 
     await expect(page.getByRole("status")).toContainText("Movement movement-1 recorded");
     await expect(page.getByRole("status")).toContainText("New balance: 7");
+  });
+
+  test("creates, submits, and receives a purchase order through the authenticated UI", async ({ page }) => {
+    await mockAuthenticatedData(page);
+    await mockPurchasing(page);
+
+    await page.goto("/");
+    await page.getByRole("button", { name: "Purchase Orders", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Purchase order workflow" })).toBeVisible();
+    await page.getByRole("button", { name: "New order" }).click();
+
+    await page.getByLabel("Order number").fill("E2E-PO-001");
+    await page.getByRole("button", { name: "Create order" }).click();
+    await expect(page.getByRole("heading", { name: "E2E-PO-001" })).toBeVisible();
+
+    await page.getByRole("button", { name: "Submit order" }).click();
+    await expect(page.getByRole("status")).toContainText("Order is now ordered.");
+
+    await page.getByLabel("Quantity").fill("3");
+    await page.getByRole("button", { name: "Receive into inventory" }).click();
+    await expect(page.getByRole("status")).toContainText("Receipt committed against the selected lot.").or(page.getByRole("status")).toContainText("Receipt committed");
+    await expect(page.getByText("3 / 3 received")).toBeVisible();
   });
 });
