@@ -75,7 +75,10 @@ This roadmap reflects the current repository state.
 - [x] Signed-out login regression coverage.
 - [x] Authenticated dashboard-shell coverage using synthetic API fixtures.
 - [x] Authenticated primary-workspace navigation coverage using synthetic API fixtures.
-- [ ] Authenticated create/edit/receive mutation workflow coverage with safe test data.
+- [x] Authenticated catalog create workflow coverage with synthetic test data.
+- [x] Authenticated inventory movement workflow coverage with synthetic test data.
+- [ ] Authenticated purchase-order draft/receive mutation workflow coverage with safe test data.
+- [ ] Authenticated reporting workspace coverage with complete report fixtures.
 - [ ] Android instrumentation tests for authentication and critical inventory reads.
 - [ ] Accessibility audit across keyboard, screen-reader, contrast, touch-target, and reduced-motion paths.
 - [ ] Production restore rehearsal and migration rollback verification.
@@ -83,13 +86,14 @@ This roadmap reflects the current repository state.
 - [ ] Reproducible web, server, Android, and extension release artifacts.
 - [ ] Resolve every blocker/critical defect before the first stable release.
 
-## v0.5.0 milestone
+## v0.5.1 milestone
 
-- [x] Expand authenticated browser coverage across primary operational workspace entry points.
-- [x] Keep browser fixtures deterministic and synthetic.
-- [x] Align `/api/v1/meta` and release metadata with `0.5.0`.
-- [ ] Add authenticated catalog create/edit workflow coverage.
-- [ ] Add authenticated inventory movement workflow coverage.
-- [ ] Add authenticated purchase-order draft/receive workflow coverage.
-- [ ] Add authenticated reporting workspace coverage with complete report fixtures.
-- [ ] Add mutation-path regression coverage before release.
+- [x] Align `VERSION` and `/api/v1/meta` with `0.5.1`.
+- [x] Align the API metadata regression test with `0.5.1`.
+- [x] Add deterministic authenticated catalog-create browser coverage.
+- [x] Add deterministic authenticated inventory stock-in browser coverage.
+- [x] Assert representative mutation request payloads in browser tests.
+- [x] Keep all mutation E2E fixtures synthetic and independent of production credentials/data.
+- [ ] Add authenticated purchase-order create/submit/receive browser coverage.
+- [ ] Add complete authenticated reporting browser fixtures and assertions.
+- [ ] Run and verify the complete release CI gate on the final release commit before publishing the Git tag.
