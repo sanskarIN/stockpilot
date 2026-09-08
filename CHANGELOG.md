@@ -4,6 +4,19 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
+### v0.5.2 — Purchase Order Lifecycle Regression Hardening
+
+- fix the ambiguous Playwright `Unit` locator that caused authenticated product-creation E2E failure under strict mode;
+- add deterministic authenticated purchase-order create coverage;
+- add authenticated purchase-order submit/status mutation coverage with request-payload assertions;
+- add authenticated purchase-order receiving coverage with request-payload assertions;
+- keep all purchase-order E2E fixtures synthetic and independent of production credentials/data;
+- align `VERSION` and `/api/v1/meta` with `0.5.2`;
+- align the API metadata regression test with `0.5.2`;
+- document the completed purchase-order lifecycle regression milestone.
+
+The release hardens the existing purchase-order workflow without changing the server-authoritative lifecycle rules or production data paths.
+
 ### v0.5.1 — Authenticated Mutation Regression Hardening
 
 - add deterministic Playwright coverage for authenticated catalog product creation;
