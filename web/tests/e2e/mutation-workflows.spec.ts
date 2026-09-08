@@ -215,7 +215,7 @@ test.describe("authenticated mutation workflows", () => {
 
     await page.getByLabel("Quantity").fill("3");
     await page.getByRole("button", { name: "Receive into inventory" }).click();
-    await expect(page.getByRole("status")).toContainText("Receipt committed against the selected lot.").or(page.getByRole("status")).toContainText("Receipt committed");
+    await expect(page.getByRole("status")).toContainText("Receipt committed against the selected lot.");
     await expect(page.getByText("3 / 3 received")).toBeVisible();
   });
 });
