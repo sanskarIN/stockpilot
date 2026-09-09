@@ -4,6 +4,18 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
+### v0.5.4 — API Metadata & Reporting Route Hardening
+
+- align `/api/v1/meta` with `0.5.4`;
+- align the API metadata regression test with `0.5.4`;
+- preserve replenishment-readiness route registration independently of optional reporting-insights wiring;
+- retain the authenticated reporting regression coverage introduced in v0.5.3;
+- keep the release free of database migrations and production-data test dependencies;
+- align `VERSION` with `0.5.4`;
+- document the release-hardening milestone.
+
+The release is a focused maintenance patch that protects existing reporting behavior while preventing route registration from becoming accidentally coupled to optional report-repository wiring.
+
 ### v0.5.3 — Authenticated Reporting Workspace Hardening
 
 - add deterministic authenticated Playwright coverage for the Reports & Analytics workspace;
