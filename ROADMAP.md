@@ -86,6 +86,16 @@ This roadmap reflects the current repository state.
 - [ ] Reproducible web, server, Android, and extension release artifacts.
 - [ ] Resolve every blocker/critical defect before the first stable release.
 
+## v0.5.4 milestone
+
+- [x] Align `/api/v1/meta` with `0.5.4`.
+- [x] Align the API metadata regression test with `0.5.4`.
+- [x] Preserve replenishment-readiness route registration independently of optional reporting-insights wiring.
+- [x] Retain v0.5.3 authenticated reporting regression coverage.
+- [x] Keep the patch free of database migrations and production-data test dependencies.
+- [x] Align `VERSION` with `0.5.4`.
+- [ ] Run and verify the complete release CI gate on the final release commit before publishing the Git tag.
+
 ## v0.5.3 milestone
 
 - [x] Add deterministic authenticated Reports & Analytics browser coverage.
