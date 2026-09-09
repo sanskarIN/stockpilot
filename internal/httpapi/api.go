@@ -82,9 +82,8 @@ func NewCore(catalog repository.Catalog, inventory repository.Inventory, orders 
 	mux.HandleFunc("GET /api/v1/reports/inventory-valuation/export.csv", a.exportInventoryValuationCSV)
 	mux.HandleFunc("GET /api/v1/reports/inventory-aging", a.inventoryAging)
 	mux.HandleFunc("GET /api/v1/reports/stock-movement-history", a.stockMovementHistory)
-	mux.HandleFunc("GET /api/v1/reports/replenishment-readiness", a.replenishmentReadiness)
-	mux.HandleFunc("POST /api/v1/replenishment/reviews", a.createReplenishmentReview)
 	mux.HandleFunc("GET /api/v1/replenishment/reviews", a.listReplenishmentReviews)
+	mux.HandleFunc("POST /api/v1/replenishment/reviews", a.createReplenishmentReview)
 	mux.HandleFunc("GET /api/v1/orders", a.listOrders)
 	mux.HandleFunc("GET /api/v1/orders/export.csv", a.exportOrdersCSV)
 	mux.HandleFunc("POST /api/v1/orders", a.createOrder)
@@ -99,6 +98,7 @@ func NewCore(catalog repository.Catalog, inventory repository.Inventory, orders 
 		mux.HandleFunc("GET /api/v1/reports/supplier-performance", a.supplierPerformance)
 		mux.HandleFunc("GET /api/v1/reports/warehouse-valuation", a.warehouseValuation)
 		mux.HandleFunc("GET /api/v1/reports/replenishment-performance", a.replenishmentPerformance)
+		mux.HandleFunc("GET /api/v1/reports/replenishment-readiness", a.replenishmentReadiness)
 	}
 	if a.audit != nil {
 		mux.HandleFunc("GET /api/v1/audit", a.listAuditEvents)
@@ -185,7 +185,7 @@ func (a *API) ready(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) meta(w http.ResponseWriter, _ *http.Request) {
-	writeJSON(w, http.StatusOK, map[string]string{"name": "StockPilot", "version": "0.5.3", "credit": "Made by the Sanskar"})
+	writeJSON(w, http.StatusOK, map[string]string{"name": "StockPilot", "version": "0.5.4", "credit": "Made by the Sanskar"})
 }
 
 func decodeJSON[T any](w http.ResponseWriter, r *http.Request, out *T) bool {
