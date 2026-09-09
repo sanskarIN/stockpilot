@@ -4,6 +4,18 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
+### v0.5.3 — Authenticated Reporting Workspace Hardening
+
+- add deterministic authenticated Playwright coverage for the Reports & Analytics workspace;
+- fixture the complete reporting data surface, including overview, valuation, inventory aging, movement history, supplier performance, replenishment readiness, and replenishment review history;
+- assert representative rendered report metrics and report sections through the authenticated UI;
+- keep reporting E2E fixtures synthetic and independent of production credentials/data;
+- align `VERSION` with `0.5.3`;
+- preserve the server-authoritative reporting and read-only browser model;
+- document the completed reporting regression milestone.
+
+The release expands browser-level regression protection across the read-only reporting surface without changing production reporting contracts or mutation behavior.
+
 ### v0.5.2 — Purchase Order Lifecycle Regression Hardening
 
 - fix the ambiguous Playwright `Unit` locator that caused authenticated product-creation E2E failure under strict mode;
