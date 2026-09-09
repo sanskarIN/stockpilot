@@ -78,13 +78,23 @@ This roadmap reflects the current repository state.
 - [x] Authenticated catalog create workflow coverage with synthetic test data.
 - [x] Authenticated inventory movement workflow coverage with synthetic test data.
 - [x] Authenticated purchase-order create/submit/receive mutation workflow coverage with synthetic test data.
-- [ ] Authenticated reporting workspace coverage with complete report fixtures.
+- [x] Authenticated reporting workspace coverage with complete report fixtures.
 - [ ] Android instrumentation tests for authentication and critical inventory reads.
 - [ ] Accessibility audit across keyboard, screen-reader, contrast, touch-target, and reduced-motion paths.
 - [ ] Production restore rehearsal and migration rollback verification.
 - [ ] API compatibility/versioning policy wired into CI checks.
 - [ ] Reproducible web, server, Android, and extension release artifacts.
 - [ ] Resolve every blocker/critical defect before the first stable release.
+
+## v0.5.3 milestone
+
+- [x] Add deterministic authenticated Reports & Analytics browser coverage.
+- [x] Fixture report overview, inventory valuation, inventory aging, stock movement history, supplier performance, and replenishment readiness responses.
+- [x] Fixture replenishment review history and verify its empty-state rendering.
+- [x] Assert representative metrics and report sections through the authenticated UI.
+- [x] Keep all reporting E2E fixtures synthetic and independent of production credentials/data.
+- [x] Align `VERSION` with `0.5.3`.
+- [ ] Run and verify the complete release CI gate on the final release commit before publishing the Git tag.
 
 ## v0.5.2 milestone
 
