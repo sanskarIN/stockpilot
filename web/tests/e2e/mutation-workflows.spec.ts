@@ -53,6 +53,13 @@ async function mockAuthenticatedData(page: Page) {
   await page.route("**/api/v1/auth/me", async (route) => {
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(user) });
   });
+  await page.route("**/api/v1/products**", async (route) => {
+    if (route.request().method() === "GET") {
+      await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ items: [] }) });
+      return;
+    }
+    await route.fallback();
+  });
   await page.route("**/api/v1/reports/inventory-valuation**", async (route) => {
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ items: [], totals: [] }) });
   });
@@ -243,7 +250,7 @@ test.describe("authenticated mutation workflows", () => {
     await mockPurchasing(page);
 
     await page.goto("/");
-    await page.getByRole("button", { name: "Purchase Orders", exact: true }).click();
+    await page.getByRole("button", { name: "Purchase orders", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Purchase order workflow" })).toBeVisible();
     await page.getByRole("button", { name: "New order" }).click();
 
