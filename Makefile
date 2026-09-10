@@ -1,6 +1,6 @@
 GRADLE ?= gradle
 
-.PHONY: help fmt test test-unit vet build web-install web-build android-lint android-test android-build extension-check extension-test dev db-up db-down migrate backup backup-powershell clean
+.PHONY: help fmt test test-unit vet build web-build release-check web-install android-lint android-test android-build extension-check extension-test dev db-up db-down migrate backup backup-powershell clean
 
 help:
 	@echo "StockPilot development commands"
@@ -9,6 +9,7 @@ help:
 	@echo "  make vet               Run Go vet"
 	@echo "  make build             Build backend"
 	@echo "  make web-build         Build frontend"
+	@echo "  make release-check     Check VERSION/API metadata consistency"
 	@echo "  make android-lint      Run Android lint"
 	@echo "  make android-test      Run Android unit tests"
 	@echo "  make android-build     Build Android debug APK"
@@ -39,6 +40,9 @@ web-install:
 
 web-build:
 	cd web && npm run build
+
+release-check:
+	bash ./scripts/check-release-consistency.sh
 
 android-lint:
 	cd android && $(GRADLE) :app:lintDebug
