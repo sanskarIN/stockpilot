@@ -14,6 +14,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  release-consistency:
+    name: Release metadata consistency
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Verify release metadata
+        run: bash ./scripts/check-release-consistency.sh
+
   backend:
     name: Go quality
     runs-on: ubuntu-latest

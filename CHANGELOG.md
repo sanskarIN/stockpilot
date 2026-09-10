@@ -4,6 +4,18 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
+### v0.5.5 — Release Metadata & API Compatibility CI Guardrails
+
+- add a repository-level release consistency check that validates `VERSION` and `/api/v1/meta` use the same semantic version;
+- expose the release consistency check through `make release-check` for local verification;
+- add a dedicated CI gate so version drift fails before the rest of the release validation is treated as green;
+- align `VERSION` with `0.5.5`;
+- align `/api/v1/meta` and its regression test with `0.5.5`;
+- keep the release free of database migrations and production-data test dependencies;
+- document the API compatibility and release-hardening focus of the milestone.
+
+The release adds a small, deterministic guardrail around the existing API compatibility policy. It does not change business workflows, reporting authorization, database schema, or production-data handling.
+
 ### v0.5.4 — API Metadata & Reporting Route Hardening
 
 - align `/api/v1/meta` with `0.5.4`;
