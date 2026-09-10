@@ -110,7 +110,7 @@ jobs:
       - name: Verify readiness after migrations
         run: |
           for attempt in {1..30}; do
-            if curl --fail --silent http://localhost:8080/readyz | grep -q '\"ready\"'; then
+            if curl --fail --silent http://localhost:8080/readyz | grep -q '"ready"'; then
               exit 0
             fi
             sleep 1
@@ -128,6 +128,8 @@ jobs:
     name: Browser E2E
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      VITE_DISABLE_PROXY: '1'
     defaults:
       run:
         working-directory: web
