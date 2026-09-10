@@ -181,19 +181,24 @@ async function mockReports(page: Page) {
       { productId: product.id, sku: product.sku, name: product.name, unit: product.unit, onHand: 12, unitCostMinor: 12500, currency: "INR", valueMinor: 150000 },
     ], totals: [{ currency: "INR", valueMinor: 150000 }] }) });
   });
-  await page.route("**/api/v1/reports/inventory-aging**", async (route) => {
+  await page.route("**/api/v1/reports/inventory-aging", async (route) => {
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ items: [
       { productId: product.id, sku: product.sku, name: product.name, locationId: location.id, quantity: 12, ageDays: 12, bucket: "0-30", asOf: "2026-09-01T00:00:00Z", lastMovementAt: "2026-08-20T00:00:00Z" },
     ] }) });
   });
-  await page.route("**/api/v1/reports/stock-movement-history**", async (route) => {
+  await page.route("**/api/v1/reports/stock-movement-history", async (route) => {
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ asOf: "2026-09-01T00:00:00Z", windowDays: 30, items: [
       { productId: product.id, sku: product.sku, name: product.name, locationId: location.id, movementCount: 4, inboundUnits: 12, outboundUnits: 5, netUnits: 7, averageDailyOutbound: 0.17, lastMovementAt: "2026-08-31T00:00:00Z" },
     ] }) });
   });
-  await page.route("**/api/v1/reports/supplier-performance**", async (route) => {
+  await page.route("**/api/v1/reports/supplier-performance", async (route) => {
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ asOf: "2026-09-01T00:00:00Z", windowDays: 30, items: [
       { supplierId: supplier.id, supplierCode: supplier.code, supplierName: supplier.name, orderCount: 2, orderedUnits: 6, receivedUnits: 3, openUnits: 3, orderedValueMinor: 75000, receivedValueMinor: 37500, averageLeadTimeDays: 4.5, completedOrderCount: 1, onTimeOrderCount: 1 },
+    ] }) });
+  });
+  await page.route("**/api/v1/reports/replenishment-readiness**", async (route) => {
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ asOf: "2026-09-01T00:00:00Z", windowDays: 30, items: [
+      { productId: product.id, sku: product.sku, name: product.name, supplierId: supplier.id, unit: product.unit, onHand: 12, reorderPoint: 5, reorderQuantity: 10, targetStock: 15, suggestedQuantity: 3, outboundUnits: 5, averageDailyOutbound: 0.17, daysOfCover: 70.6, risk: "healthy" },
     ] }) });
   });
   await page.route("**/api/v1/replenishment/reviews**", async (route) => {
@@ -271,7 +276,7 @@ test.describe("authenticated mutation workflows", () => {
     await expect(page.getByRole("heading", { name: "Reports & analytics" })).toBeVisible();
     await expect(page.getByText("Refreshing reports…")).toBeHidden();
     await expect(page.getByRole("heading", { name: "Current on-hand value" })).toBeVisible();
-    await expect(page.getByText("₹1,500.00")).toBeVisible();
+    await expect(page.getByText("₹1,500.00", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("Synthetic Supplier")).toBeVisible();
     await expect(page.getByText("0-30")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Recent movement activity" })).toBeVisible();
