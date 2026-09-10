@@ -146,3 +146,13 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Run browser tests
         run: npm run e2e
+
+  release-consistency:
+    name: Release metadata consistency
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Verify release metadata
+        run: bash ./scripts/check-release-consistency.sh
