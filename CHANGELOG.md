@@ -4,6 +4,18 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
+### v0.5.5 — Release Metadata Consistency Hardening
+
+- add a validation-only release consistency checker for `VERSION`, `/api/v1/meta`, and the API metadata regression test;
+- expose the checker through `make release-check` for local verification;
+- run the same consistency gate in GitHub Actions so release metadata drift fails CI;
+- align `VERSION` and `/api/v1/meta` with `0.5.5`;
+- align the API metadata regression test with `0.5.5`;
+- document the release metadata contract and verification workflow;
+- keep the release free of database migrations and production-data test dependencies.
+
+The release is intentionally focused on preventing version drift between repository metadata, the running API metadata endpoint, and its regression test. The consistency checker is read-only and does not create tags or modify files.
+
 ### v0.5.4 — API Metadata & Reporting Route Hardening
 
 - align `/api/v1/meta` with `0.5.4`;
