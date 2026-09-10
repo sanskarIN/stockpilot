@@ -4,6 +4,18 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
+### v0.5.6 — Release Verification & Reproducibility Hardening
+
+- add a validation-only release-readiness gate for the v0.5.6 repository state;
+- validate `VERSION`, changelog/release documentation, and the existing release consistency contract;
+- add `make release-readiness` and `make release-verify` developer targets;
+- add a dedicated GitHub Actions release-readiness workflow;
+- verify Go module integrity with `go mod verify`;
+- run `go vet ./...`, race-enabled backend tests, and a reproducible backend build in the release-readiness workflow;
+- keep the release free of database migrations and production-data dependencies.
+
+The release is intentionally focused on preventing inconsistent or unreproducible release state. Release publication remains blocked until the final release commit passes the applicable CI and security checks.
+
 ### v0.5.5 — Release Metadata Consistency Hardening
 
 - add a validation-only release consistency checker for `VERSION`, `/api/v1/meta`, and the API metadata regression test;
