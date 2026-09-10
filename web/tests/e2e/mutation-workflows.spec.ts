@@ -196,11 +196,6 @@ async function mockReports(page: Page) {
       { supplierId: supplier.id, supplierCode: supplier.code, supplierName: supplier.name, orderCount: 2, orderedUnits: 6, receivedUnits: 3, openUnits: 3, orderedValueMinor: 75000, receivedValueMinor: 37500, averageLeadTimeDays: 4.5, completedOrderCount: 1, onTimeOrderCount: 1 },
     ] }) });
   });
-  await page.route("**/api/v1/reports/replenishment-readiness**", async (route) => {
-    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ asOf: "2026-09-01T00:00:00Z", windowDays: 30, items: [
-      { productId: product.id, sku: product.sku, name: product.name, supplierId: supplier.id, unit: product.unit, onHand: 12, reorderPoint: 5, reorderQuantity: 10, targetStock: 15, suggestedQuantity: 3, outboundUnits: 5, averageDailyOutbound: 0.17, daysOfCover: 70.6, risk: "healthy" },
-    ] }) });
-  });
   await page.route("**/api/v1/replenishment/reviews**", async (route) => {
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ items: [] }) });
   });
@@ -255,7 +250,7 @@ test.describe("authenticated mutation workflows", () => {
     await page.getByRole("button", { name: "New order" }).click();
 
     await page.getByLabel("Order number").fill("E2E-PO-001");
-    await page.getByRole("button", { name: "Create order" }).click();
+    await page.getByRole("button", { name: "Create draft order" }).click();
     await expect(page.getByRole("heading", { name: "E2E-PO-001" })).toBeVisible();
 
     await page.getByRole("button", { name: "Submit order" }).click();
@@ -274,12 +269,12 @@ test.describe("authenticated mutation workflows", () => {
     await page.goto("/");
     await page.getByRole("button", { name: "Reports", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Reports & analytics" })).toBeVisible();
-    await expect(page.getByText("Active products")).toBeVisible();
-    await expect(page.getByText("Current on-hand value")).toBeVisible();
+    await expect(page.getByText("Refreshing reports…")).toBeHidden();
+    await expect(page.getByRole("heading", { name: "Current on-hand value" })).toBeVisible();
     await expect(page.getByText("₹1,500.00")).toBeVisible();
     await expect(page.getByText("Synthetic Supplier")).toBeVisible();
     await expect(page.getByText("0-30")).toBeVisible();
-    await expect(page.getByText("Recent movement activity")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Recent movement activity" })).toBeVisible();
     await expect(page.getByText("Review stock risk before ordering")).toBeVisible();
     await expect(page.getByText("Review history")).toBeVisible();
     await expect(page.getByRole("status")).toContainText("0 reviews shown.");
