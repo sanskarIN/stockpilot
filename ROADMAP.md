@@ -82,9 +82,20 @@ This roadmap reflects the current repository state.
 - [ ] Android instrumentation tests for authentication and critical inventory reads.
 - [ ] Accessibility audit across keyboard, screen-reader, contrast, touch-target, and reduced-motion paths.
 - [ ] Production restore rehearsal and migration rollback verification.
-- [ ] API compatibility/versioning policy wired into CI checks.
+- [x] API compatibility/versioning policy wired into CI checks.
 - [ ] Reproducible web, server, Android, and extension release artifacts.
 - [ ] Resolve every blocker/critical defect before the first stable release.
+
+## v0.5.5 milestone
+
+- [x] Add a deterministic release consistency check for `VERSION` and `/api/v1/meta`.
+- [x] Validate the repository version as semantic `MAJOR.MINOR.PATCH` metadata.
+- [x] Expose the release consistency check through `make release-check`.
+- [x] Add a dedicated CI gate for release metadata consistency.
+- [x] Align `VERSION`, `/api/v1/meta`, and the metadata regression test with `0.5.5`.
+- [x] Keep the release free of database migrations and production-data test dependencies.
+- [x] Document the API compatibility and release-hardening milestone.
+- [ ] Run and verify the complete release CI gate on the final release commit before publishing the Git tag.
 
 ## v0.5.4 milestone
 
