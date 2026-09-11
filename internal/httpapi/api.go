@@ -185,7 +185,7 @@ func (a *API) ready(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *API) meta(w http.ResponseWriter, _ *http.Request) {
-	writeJSON(w, http.StatusOK, map[string]string{"name": "StockPilot", "version": "0.5.6", "credit": "Made by the Sanskar"})
+	writeJSON(w, http.StatusOK, map[string]string{"name": "StockPilot", "version": "0.5.7", "credit": "Made by the Sanskar"})
 }
 
 func decodeJSON[T any](w http.ResponseWriter, r *http.Request, out *T) bool {
@@ -218,10 +218,3 @@ func writeDomainError(w http.ResponseWriter, err error) {
 		status, message = http.StatusForbidden, "forbidden"
 	}
 	writeJSON(w, status, map[string]string{"error": message})
-}
-
-func writeJSON(w http.ResponseWriter, status int, value any) {
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(value)
-}
