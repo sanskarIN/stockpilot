@@ -4,6 +4,17 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
+### v0.5.8 — Release Gate Generalization & Verification Baseline
+
+- generalize the release-readiness checker so it follows the repository `VERSION` instead of remaining pinned to an older patch release;
+- align `VERSION`, `/api/v1/meta`, and the API metadata regression test with `0.5.8`;
+- make the Makefile release-readiness help text version-neutral so future patch releases do not inherit stale version references;
+- add dedicated v0.5.8 release verification documentation;
+- retain validation-only release checks with no production credentials or production-data dependency;
+- keep release publication blocked until the final v0.5.8 commit passes the complete applicable CI/security gate.
+
+The release is focused on removing release-process drift exposed during v0.5.7 verification and establishing a reusable, version-aware verification baseline.
+
 ### v0.5.7 — Browser E2E Regression Repair & Release Integrity
 
 - restore the complete authenticated browser E2E suite after a malformed test-file refactor caused the CI runner to execute an out-of-scope top-level assertion;
