@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 52 — v0.5.7 Browser E2E Regression Repair & Release Integrity.
+Phase 53 — v0.5.8 Release Gate Generalization & Verification Baseline.
 
 ## Repository state
 
@@ -12,27 +12,26 @@ Phase 52 — v0.5.7 Browser E2E Regression Repair & Release Integrity.
 - v0.5.0–v0.5.4 added authenticated workflow and reporting regression hardening.
 - v0.5.5 established release metadata consistency validation.
 - v0.5.6 established release-readiness and reproducibility validation.
-- v0.5.7 is the next patch baseline focused on repairing the concrete browser E2E regression found after v0.5.6.
-- `VERSION`, `/api/v1/meta`, and the API metadata regression test are aligned to `0.5.7`.
+- v0.5.7 repaired the concrete browser E2E regression found after v0.5.6 and hardened its Reports workspace selectors.
+- v0.5.8 removes a release-process regression where the release-readiness script remained pinned to v0.5.6.
 
-## v0.5.7 completed scope
+## v0.5.8 completed scope
 
-### Browser E2E regression repair
+### Release-readiness generalization
 
-- [x] Identify the CI collection failure caused by a top-level `expect(...)` statement in `web/tests/e2e/mutation-workflows.spec.ts`.
-- [x] Restore the complete authenticated mutation-workflow E2E suite.
-- [x] Restore the Playwright `expect` import and test definitions.
-- [x] Preserve deterministic catalog, inventory, purchasing, and reporting fixtures.
-- [x] Preserve the strict report currency assertion.
-- [x] Preserve the replenishment-readiness synthetic report fixture.
+- [x] Replace the hard-coded v0.5.6 expected version with the current repository `VERSION`.
+- [x] Derive the release documentation path from the active semantic version.
+- [x] Keep strict checks for `VERSION`, changelog entry, release document, release-consistency validation, and module verification.
+- [x] Keep the checker validation-only with no tag creation or production-data mutation.
 
-### Release metadata
+### Version alignment
 
-- [x] Align `VERSION` with `0.5.7`.
-- [x] Align `/api/v1/meta` with `0.5.7`.
-- [x] Align `internal/httpapi/meta_version_test.go` with `0.5.7`.
-- [x] Add dedicated `docs/releases/v0.5.7.md` release verification documentation.
-- [x] Add the v0.5.7 changelog entry.
+- [x] Align `VERSION` with `0.5.8`.
+- [x] Align `/api/v1/meta` with `0.5.8`.
+- [x] Align `internal/httpapi/meta_version_test.go` with `0.5.8`.
+- [x] Add the v0.5.8 changelog entry.
+- [x] Add `docs/releases/v0.5.8.md`.
+- [x] Make the Makefile release-readiness help text version-neutral.
 
 ## Verification gate
 
@@ -53,16 +52,17 @@ Also require successful applicable Browser E2E, PostgreSQL migration/readiness s
 
 - Release checks remain read-only with respect to application and production data.
 - No production credentials or production data are required for verification.
-- No database migration is introduced by v0.5.7.
+- No database migration is introduced by v0.5.8.
 - Existing API behavior remains backward compatible unless explicitly documented otherwise.
 - Focused, reviewable commits are preferred over artificial commit-count inflation.
-- Do not create or move the `v0.5.7` tag until the final applicable CI/security gate is green.
+- Do not create or move the `v0.5.8` tag until the final applicable CI/security gate is green.
+- Do not claim zero bugs merely because a release metadata gate passes; inspect all applicable CI/security results.
 
 ## Next development track
 
-1. Confirm CI evaluates the repaired browser E2E suite and v0.5.7 metadata.
+1. Let GitHub Actions evaluate the v0.5.8 changes.
 2. Inspect every failed job rather than assuming success.
 3. Fix any newly exposed regression before release publication.
 4. Re-run the complete applicable verification suite on the final release commit.
-5. Review the final v0.5.7 diff against the v0.5.6 release baseline.
-6. Publish `v0.5.7` only after the complete applicable gate is green.
+5. Review the final v0.5.8 diff against the v0.5.7 release baseline.
+6. Publish `v0.5.8` only after the complete applicable gate is green.
