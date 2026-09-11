@@ -4,10 +4,10 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-EXPECTED_VERSION="0.5.6"
+EXPECTED_VERSION="$(tr -d '[:space:]' < VERSION)"
 VERSION_FILE="VERSION"
 CHANGELOG_FILE="CHANGELOG.md"
-RELEASE_DOC="docs/releases/v0.5.6.md"
+RELEASE_DOC="docs/releases/v${EXPECTED_VERSION}.md"
 
 fail() {
   echo "release-readiness: $1" >&2
@@ -25,11 +25,8 @@ printf '%s\n' "$actual_version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || fail "V
 
 grep -Fq "### v${EXPECTED_VERSION} —" "$CHANGELOG_FILE" || fail "CHANGELOG.md has no v${EXPECTED_VERSION} release entry"
 grep -Fq "# StockPilot v${EXPECTED_VERSION} —" "$RELEASE_DOC" || fail "release documentation has no v${EXPECTED_VERSION} heading"
-
 grep -Fq 'scripts/check-release-consistency.sh' "$RELEASE_DOC" || fail "release documentation does not reference release consistency validation"
-
 grep -Fq 'make release-check' "$RELEASE_DOC" || fail "release documentation does not reference make release-check"
-
 grep -Fq 'go mod verify' "$RELEASE_DOC" || fail "release documentation does not reference module verification"
 
 if command -v go >/dev/null 2>&1; then
