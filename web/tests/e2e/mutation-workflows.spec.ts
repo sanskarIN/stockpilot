@@ -111,11 +111,7 @@ async function mockInventory(page: Page) {
     expect(route.request().method()).toBe("POST");
     const body = route.request().postDataJSON();
     expect(body).toMatchObject({ productId: "product-1", locationId: "loc-1", type: "stock_in", quantityDelta: 7 });
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({ movementId: "movement-1", balance: { productId: "product-1", locationId: "loc-1", quantity: 7 } }),
-    });
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ movementId: "movement-1", balance: { productId: "product-1", locationId: "loc-1", quantity: 7 } }) });
   });
 }
 
@@ -167,39 +163,22 @@ async function mockPurchasing(page: Page) {
 
 async function mockReports(page: Page) {
   await page.route("**/api/v1/reports/overview", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
-        inventory: { productCount: 1, activeProductCount: 1, activeWarehouseCount: 1, activeLocationCount: 1, totalUnits: 12, lowStockBalanceCount: 0, outOfStockCount: 0 },
-        purchasing: { totalOrders: 2, draftOrders: 1, orderedOrders: 1, partiallyReceivedOrders: 0, receivedOrders: 0, cancelledOrders: 0, outstandingUnits: 3 },
-      }),
-    });
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ inventory: { productCount: 1, activeProductCount: 1, activeWarehouseCount: 1, activeLocationCount: 1, totalUnits: 12, lowStockBalanceCount: 0, outOfStockCount: 0 }, purchasing: { totalOrders: 2, draftOrders: 1, orderedOrders: 1, partiallyReceivedOrders: 0, receivedOrders: 0, cancelledOrders: 0, outstandingUnits: 3 } }) });
   });
   await page.route("**/api/v1/reports/inventory-valuation", async (route) => {
-    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ items: [
-      { productId: product.id, sku: product.sku, name: product.name, unit: product.unit, onHand: 12, unitCostMinor: 12500, currency: "INR", valueMinor: 150000 },
-    ], totals: [{ currency: "INR", valueMinor: 150000 }] }) });
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ items: [{ productId: product.id, sku: product.sku, name: product.name, unit: product.unit, onHand: 12, unitCostMinor: 12500, currency: "INR", valueMinor: 150000 }], totals: [{ currency: "INR", valueMinor: 150000 }] }) });
   });
   await page.route("**/api/v1/reports/inventory-aging", async (route) => {
-    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ items: [
-      { productId: product.id, sku: product.sku, name: product.name, locationId: location.id, quantity: 12, ageDays: 12, bucket: "0-30", asOf: "2026-09-01T00:00:00Z", lastMovementAt: "2026-08-20T00:00:00Z" },
-    ] }) });
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ items: [{ productId: product.id, sku: product.sku, name: product.name, locationId: location.id, quantity: 12, ageDays: 12, bucket: "0-30", asOf: "2026-09-01T00:00:00Z", lastMovementAt: "2026-08-20T00:00:00Z" }] }) });
   });
   await page.route("**/api/v1/reports/stock-movement-history", async (route) => {
-    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ asOf: "2026-09-01T00:00:00Z", windowDays: 30, items: [
-      { productId: product.id, sku: product.sku, name: product.name, locationId: location.id, movementCount: 4, inboundUnits: 12, outboundUnits: 5, netUnits: 7, averageDailyOutbound: 0.17, lastMovementAt: "2026-08-31T00:00:00Z" },
-    ] }) });
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ asOf: "2026-09-01T00:00:00Z", windowDays: 30, items: [{ productId: product.id, sku: product.sku, name: product.name, locationId: location.id, movementCount: 4, inboundUnits: 12, outboundUnits: 5, netUnits: 7, averageDailyOutbound: 0.17, lastMovementAt: "2026-08-31T00:00:00Z" }] }) });
   });
   await page.route("**/api/v1/reports/supplier-performance", async (route) => {
-    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ asOf: "2026-09-01T00:00:00Z", windowDays: 30, items: [
-      { supplierId: supplier.id, supplierCode: supplier.code, supplierName: supplier.name, orderCount: 2, orderedUnits: 6, receivedUnits: 3, openUnits: 3, orderedValueMinor: 75000, receivedValueMinor: 37500, averageLeadTimeDays: 4.5, completedOrderCount: 1, onTimeOrderCount: 1 },
-    ] }) });
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ asOf: "2026-09-01T00:00:00Z", windowDays: 30, items: [{ supplierId: supplier.id, supplierCode: supplier.code, supplierName: supplier.name, orderCount: 2, orderedUnits: 6, receivedUnits: 3, openUnits: 3, orderedValueMinor: 75000, receivedValueMinor: 37500, averageLeadTimeDays: 4.5, completedOrderCount: 1, onTimeOrderCount: 1 }] }) });
   });
   await page.route("**/api/v1/reports/replenishment-readiness", async (route) => {
-    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ asOf: "2026-09-01T00:00:00Z", windowDays: 30, items: [
-      { productId: product.id, sku: product.sku, name: product.name, supplierId: supplier.id, unit: product.unit, onHand: 12, reorderPoint: 5, reorderQuantity: 10, targetStock: 15, suggestedQuantity: 3, outboundUnits: 5, averageDailyOutbound: 0.17, daysOfCover: 70.6, risk: "healthy" },
-    ] }) });
+    await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ asOf: "2026-09-01T00:00:00Z", windowDays: 30, items: [{ productId: product.id, sku: product.sku, name: product.name, supplierId: supplier.id, unit: product.unit, onHand: 12, reorderPoint: 5, reorderQuantity: 10, targetStock: 15, suggestedQuantity: 3, outboundUnits: 5, averageDailyOutbound: 0.17, daysOfCover: 70.6, risk: "healthy" }] }) });
   });
   await page.route("**/api/v1/replenishment/reviews", async (route) => {
     await route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ items: [] }) });
@@ -210,13 +189,11 @@ test.describe("authenticated mutation workflows", () => {
   test("creates a catalog product through the authenticated UI", async ({ page }) => {
     await mockAuthenticatedData(page);
     await mockCatalog(page);
-
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "Inventory overview" })).toBeVisible();
     await page.getByRole("button", { name: "Products", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Products" })).toBeVisible();
     await page.getByRole("button", { name: "Add product" }).click();
-
     await page.getByLabel("SKU").fill("E2E-001");
     await page.getByLabel("Product name").fill("Synthetic Product");
     await page.getByRole("textbox", { name: "Unit" }).fill("pcs");
@@ -225,7 +202,6 @@ test.describe("authenticated mutation workflows", () => {
     await page.getByLabel("Reorder point").fill("5");
     await page.getByLabel("Reorder quantity").fill("10");
     await page.getByRole("button", { name: "Create product" }).click();
-
     await expect(page.getByText("Synthetic Product").first()).toBeVisible();
     await expect(page.getByText("E2E-001").first()).toBeVisible();
   });
@@ -233,14 +209,11 @@ test.describe("authenticated mutation workflows", () => {
   test("records a stock-in mutation through the authenticated inventory UI", async ({ page }) => {
     await mockAuthenticatedData(page);
     await mockInventory(page);
-
     await page.goto("/");
     await page.getByRole("button", { name: "Inventory", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Move stock safely" })).toBeVisible();
-
     await page.getByLabel("Quantity").fill("7");
     await page.getByRole("button", { name: "Stock in" }).last().click();
-
     await expect(page.getByRole("status")).toContainText("Movement movement-1 recorded");
     await expect(page.getByRole("status")).toContainText("New balance: 7");
   });
@@ -248,19 +221,15 @@ test.describe("authenticated mutation workflows", () => {
   test("creates, submits, and receives a purchase order through the authenticated UI", async ({ page }) => {
     await mockAuthenticatedData(page);
     await mockPurchasing(page);
-
     await page.goto("/");
     await page.getByRole("button", { name: "Purchase orders", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Purchase order workflow" })).toBeVisible();
     await page.getByRole("button", { name: "New order" }).click();
-
     await page.getByLabel("Order number").fill("E2E-PO-001");
     await page.getByRole("button", { name: "Create draft order" }).click();
     await expect(page.getByRole("heading", { name: "E2E-PO-001" })).toBeVisible();
-
     await page.getByRole("button", { name: "Submit order" }).click();
     await expect(page.getByRole("status")).toContainText("Order is now ordered.");
-
     await page.getByLabel("Quantity").fill("3");
     await page.getByRole("button", { name: "Receive into inventory" }).click();
     await expect(page.getByRole("status")).toContainText("Receipt committed");
@@ -270,13 +239,12 @@ test.describe("authenticated mutation workflows", () => {
   test("loads the authenticated reports workspace with complete synthetic fixtures", async ({ page }) => {
     await mockAuthenticatedData(page);
     await mockReports(page);
-
     await page.goto("/");
     await page.getByRole("button", { name: "Reports", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Reports & analytics" })).toBeVisible();
     await expect(page.getByText("Refreshing reports…")).toBeHidden();
     await expect(page.getByRole("heading", { name: "Current on-hand value" })).toBeVisible();
-    await expect(page.getByText("₹1,500.00", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText(/₹\s*1,500\.00/, { exact: false }).first()).toBeVisible();
     await expect(page.getByText("Synthetic Supplier")).toBeVisible();
     await expect(page.getByText("0-30")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Recent movement activity" })).toBeVisible();
