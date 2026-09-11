@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 50 — v0.5.5 Release Metadata Consistency Hardening.
+Phase 52 — v0.5.7 Browser E2E Regression Repair & Release Integrity.
 
 ## Repository state
 
@@ -10,61 +10,59 @@ Phase 50 — v0.5.5 Release Metadata Consistency Hardening.
 - v0.1.x preview releases and the v0.2.x reporting foundation series are retained in repository history.
 - v0.3.x reporting foundations and v0.4.x reporting/replenishment hardening remain part of the established project history.
 - v0.5.0–v0.5.4 added authenticated workflow and reporting regression hardening.
-- v0.5.5 is based directly on the v0.5.4 baseline.
-- Release metadata is synchronized across `VERSION`, `/api/v1/meta`, and its regression test.
-- `scripts/check-release-consistency.sh` provides a read-only local consistency check.
-- GitHub Actions now runs the same release consistency check as a dedicated CI job.
-- Stable GitHub publication still requires the applicable CI and verification gates to pass.
+- v0.5.5 established release metadata consistency validation.
+- v0.5.6 established release-readiness and reproducibility validation.
+- v0.5.7 is the next patch baseline focused on repairing the concrete browser E2E regression found after v0.5.6.
+- `VERSION`, `/api/v1/meta`, and the API metadata regression test are aligned to `0.5.7`.
 
-## v0.5.5 completed scope
+## v0.5.7 completed scope
 
-### Release metadata consistency
+### Browser E2E regression repair
 
-- [x] Add a validation-only release consistency checker.
-- [x] Verify `VERSION` against the expected semantic version.
-- [x] Verify `/api/v1/meta` exposes the same release version.
-- [x] Verify the API metadata regression test asserts the same release version.
-- [x] Expose the check through `make release-check`.
-- [x] Run the check in GitHub Actions.
-- [x] Align release metadata with `0.5.5`.
-- [x] Document the release consistency contract.
-- [x] Add dedicated v0.5.5 release notes.
-- [x] Preserve existing changelog history while adding the v0.5.5 entry.
+- [x] Identify the CI collection failure caused by a top-level `expect(...)` statement in `web/tests/e2e/mutation-workflows.spec.ts`.
+- [x] Restore the complete authenticated mutation-workflow E2E suite.
+- [x] Restore the Playwright `expect` import and test definitions.
+- [x] Preserve deterministic catalog, inventory, purchasing, and reporting fixtures.
+- [x] Preserve the strict report currency assertion.
+- [x] Preserve the replenishment-readiness synthetic report fixture.
 
-## v0.5.5 verification gate
+### Release metadata
 
-Run all applicable repository checks before treating the release as stable:
+- [x] Align `VERSION` with `0.5.7`.
+- [x] Align `/api/v1/meta` with `0.5.7`.
+- [x] Align `internal/httpapi/meta_version_test.go` with `0.5.7`.
+- [x] Add dedicated `docs/releases/v0.5.7.md` release verification documentation.
+- [x] Add the v0.5.7 changelog entry.
+
+## Verification gate
+
+The release must not be called fully verified until the final main commit passes the actual applicable checks:
 
 ```text
 make release-check
-make fmt
+make release-readiness
 make vet
 make test
-make test-unit
 make build
 make web-build
-make android-lint
-make android-test
-make android-build
-make extension-check
-make extension-test
 ```
 
-Also verify CI/CodeQL, PostgreSQL migration/readiness behavior, browser E2E, accessibility, export safety, artifact integrity, and backup/restore procedures where applicable.
+Also require successful applicable Browser E2E, PostgreSQL migration/readiness smoke testing, CodeQL/security checks, Android checks, and extension checks where configured.
 
 ## Engineering rules
 
-- The release consistency checker must remain read-only.
-- No database migration is introduced by v0.5.5.
+- Release checks remain read-only with respect to application and production data.
 - No production credentials or production data are required for verification.
-- Existing API behavior remains backward compatible.
-- No authentication, authorization, inventory, purchasing, reporting, Android, extension, or web workflow contract is intentionally changed by this release.
+- No database migration is introduced by v0.5.7.
+- Existing API behavior remains backward compatible unless explicitly documented otherwise.
 - Focused, reviewable commits are preferred over artificial commit-count inflation.
-- A release must not be described as fully verified until the actual applicable CI results are successful.
+- Do not create or move the `v0.5.7` tag until the final applicable CI/security gate is green.
 
 ## Next development track
 
-1. Verify the complete v0.5.5 CI suite on the final release commit.
-2. Review the final v0.5.5 diff against v0.5.4 for unintended changes.
-3. Publish the `v0.5.5` tag/release only after verification succeeds.
-4. Begin v0.5.6 from the verified v0.5.5 baseline with a separately scoped improvement.
+1. Confirm CI evaluates the repaired browser E2E suite and v0.5.7 metadata.
+2. Inspect every failed job rather than assuming success.
+3. Fix any newly exposed regression before release publication.
+4. Re-run the complete applicable verification suite on the final release commit.
+5. Review the final v0.5.7 diff against the v0.5.6 release baseline.
+6. Publish `v0.5.7` only after the complete applicable gate is green.
