@@ -15,11 +15,12 @@ help:
 	@echo "  make extension-check   Validate extension sources"
 	@echo "  make extension-test    Run extension unit tests"
 	@echo "  make release-check     Verify release metadata consistency"
-	@echo "  make release-readiness Verify v0.5.6 release repository readiness"
+	@echo "  make release-readiness Verify current VERSION release repository readiness"
 	@echo "  make release-verify   Run the release verification gate"
 	@echo "  make db-up             Start PostgreSQL with Docker Compose"
-	@echo "  make migrate           Apply SQL migrations"
-	@echo "  make backup            Create a database backup with Bash"
+	@echo "  make db-down           Stop PostgreSQL"
+	@echo "  make migrate            Apply SQL migrations"
+	@echo "  make backup             Create a database backup with Bash"
 	@echo "  make backup-powershell Create a database backup with PowerShell"
 
 fmt:
