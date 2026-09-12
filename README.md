@@ -2,7 +2,7 @@
 
 StockPilot is an open-source inventory and purchasing platform with a Go/PostgreSQL backend, a React/TypeScript web application, a native Android client, and a Manifest V3 browser companion.
 
-The project is currently in pre-1.0 development. The current development release is `0.2.6`; the Android and browser companion clients remain independently versioned.
+The project is currently in pre-1.0 development. The current development release is `0.5.9`; the Android and browser companion clients remain independently versioned.
 
 ## What StockPilot includes
 
