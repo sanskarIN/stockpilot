@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 53 — v0.5.8 Release Gate Generalization & Verification Baseline.
+Phase 54 — v0.5.9 Release Metadata & Documentation Consistency.
 
 ## Repository state
 
@@ -13,25 +13,26 @@ Phase 53 — v0.5.8 Release Gate Generalization & Verification Baseline.
 - v0.5.5 established release metadata consistency validation.
 - v0.5.6 established release-readiness and reproducibility validation.
 - v0.5.7 repaired the concrete browser E2E regression found after v0.5.6 and hardened its Reports workspace selectors.
-- v0.5.8 removes a release-process regression where the release-readiness script remained pinned to v0.5.6.
+- v0.5.8 removed release-process drift by making release-readiness follow the active `VERSION`.
+- v0.5.9 removes stale current-version documentation and aligns the repository/API/test release metadata with `0.5.9`.
 
-## v0.5.8 completed scope
-
-### Release-readiness generalization
-
-- [x] Replace the hard-coded v0.5.6 expected version with the current repository `VERSION`.
-- [x] Derive the release documentation path from the active semantic version.
-- [x] Keep strict checks for `VERSION`, changelog entry, release document, release-consistency validation, and module verification.
-- [x] Keep the checker validation-only with no tag creation or production-data mutation.
+## v0.5.9 completed scope
 
 ### Version alignment
 
-- [x] Align `VERSION` with `0.5.8`.
-- [x] Align `/api/v1/meta` with `0.5.8`.
-- [x] Align `internal/httpapi/meta_version_test.go` with `0.5.8`.
-- [x] Add the v0.5.8 changelog entry.
-- [x] Add `docs/releases/v0.5.8.md`.
-- [x] Make the Makefile release-readiness help text version-neutral.
+- [x] Align `VERSION` with `0.5.9`.
+- [x] Align `/api/v1/meta` with `0.5.9`.
+- [x] Align `internal/httpapi/meta_version_test.go` with `0.5.9`.
+- [x] Correct the README current-development version from stale `0.2.6` to `0.5.9`.
+- [x] Add the v0.5.9 changelog entry.
+- [x] Add `docs/releases/v0.5.9.md`.
+
+### Release-process continuity
+
+- [x] Preserve the version-aware `scripts/check-release-readiness.sh` introduced in v0.5.8.
+- [x] Preserve `scripts/check-release-consistency.sh` as the release metadata contract.
+- [x] Preserve validation-only release checks with no production-data mutation.
+- [x] Keep release documentation explicit about the required verification gate.
 
 ## Verification gate
 
@@ -51,18 +52,22 @@ Also require successful applicable Browser E2E, PostgreSQL migration/readiness s
 ## Engineering rules
 
 - Release checks remain read-only with respect to application and production data.
-- No production credentials or production data are required for verification.
-- No database migration is introduced by v0.5.8.
+- No production credentials or production data are required for release metadata validation.
+- No database migration is introduced by v0.5.9.
 - Existing API behavior remains backward compatible unless explicitly documented otherwise.
 - Focused, reviewable commits are preferred over artificial commit-count inflation.
-- Do not create or move the `v0.5.8` tag until the final applicable CI/security gate is green.
-- Do not claim zero bugs merely because a release metadata gate passes; inspect all applicable CI/security results.
+- Do not create or move the `v0.5.9` tag until the final applicable CI/security gate is green.
+- Do not claim zero bugs merely because release metadata checks pass; inspect all applicable CI/security results.
+
+## Verification status
+
+Repository changes for v0.5.9 have been applied to `main`. The GitHub repository tools used for this work provide file/commit access, but they do not execute the project's local `make`, Go, Node, Android, PostgreSQL, or CodeQL commands in this conversation. Therefore the release is **prepared but not yet claimed fully verified** until GitHub Actions or an equivalent execution environment reports the applicable checks as successful.
 
 ## Next development track
 
-1. Let GitHub Actions evaluate the v0.5.8 changes.
+1. Let GitHub Actions evaluate the v0.5.9 changes.
 2. Inspect every failed job rather than assuming success.
 3. Fix any newly exposed regression before release publication.
 4. Re-run the complete applicable verification suite on the final release commit.
-5. Review the final v0.5.8 diff against the v0.5.7 release baseline.
-6. Publish `v0.5.8` only after the complete applicable gate is green.
+5. Review the final v0.5.9 diff for unintended changes.
+6. Publish `v0.5.9` only after the complete applicable gate is green.
