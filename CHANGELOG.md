@@ -4,6 +4,17 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
+### v0.5.9 — Release Metadata & Documentation Consistency
+
+- advance the repository release metadata from `0.5.8` to `0.5.9`;
+- align `/api/v1/meta` and its regression test with `0.5.9`;
+- correct the README's stale current-development version reference;
+- add dedicated v0.5.9 release verification documentation;
+- retain the version-aware release-readiness and release-consistency gates introduced in v0.5.8;
+- keep release publication blocked until the final v0.5.9 commit passes the complete applicable CI/security gate.
+
+The release continues the project's release-integrity track by eliminating stale user-facing version metadata while preserving the existing validation-only release process.
+
 ### v0.5.8 — Release Gate Generalization & Verification Baseline
 
 - generalize the release-readiness checker so it follows the repository `VERSION` instead of remaining pinned to an older patch release;
