@@ -2,7 +2,7 @@
 
 ## Current milestone
 
-Phase 54 — v0.5.9 Release Metadata & Documentation Consistency.
+Phase 55 — v0.6.0 Release Integrity & Verification Baseline.
 
 ## Repository state
 
@@ -14,18 +14,19 @@ Phase 54 — v0.5.9 Release Metadata & Documentation Consistency.
 - v0.5.6 established release-readiness and reproducibility validation.
 - v0.5.7 repaired the concrete browser E2E regression found after v0.5.6 and hardened its Reports workspace selectors.
 - v0.5.8 removed release-process drift by making release-readiness follow the active `VERSION`.
-- v0.5.9 removes stale current-version documentation and aligns the repository/API/test release metadata with `0.5.9`.
+- v0.5.9 removed stale current-version documentation and aligned the repository/API/test release metadata with `0.5.9`.
+- v0.6.0 continues the release-integrity track by aligning the active release metadata with `0.6.0` and preserving the verification contract.
 
-## v0.5.9 completed scope
+## v0.6.0 completed scope
 
 ### Version alignment
 
-- [x] Align `VERSION` with `0.5.9`.
-- [x] Align `/api/v1/meta` with `0.5.9`.
-- [x] Align `internal/httpapi/meta_version_test.go` with `0.5.9`.
-- [x] Correct the README current-development version from stale `0.2.6` to `0.5.9`.
-- [x] Add the v0.5.9 changelog entry.
-- [x] Add `docs/releases/v0.5.9.md`.
+- [x] Align `VERSION` with `0.6.0`.
+- [x] Align `/api/v1/meta` with `0.6.0`.
+- [x] Align `internal/httpapi/meta_version_test.go` with `0.6.0`.
+- [x] Align the README current-development version with `0.6.0`.
+- [x] Add the v0.6.0 changelog entry.
+- [x] Add `docs/releases/v0.6.0.md`.
 
 ### Release-process continuity
 
@@ -36,7 +37,7 @@ Phase 54 — v0.5.9 Release Metadata & Documentation Consistency.
 
 ## Verification gate
 
-The release must not be called fully verified until the final main commit passes the actual applicable checks:
+The release must not be called fully verified until the final main/release commit passes the actual applicable checks:
 
 ```text
 make release-check
@@ -53,21 +54,24 @@ Also require successful applicable Browser E2E, PostgreSQL migration/readiness s
 
 - Release checks remain read-only with respect to application and production data.
 - No production credentials or production data are required for release metadata validation.
-- No database migration is introduced by v0.5.9.
+- No database migration is introduced by v0.6.0.
 - Existing API behavior remains backward compatible unless explicitly documented otherwise.
 - Focused, reviewable commits are preferred over artificial commit-count inflation.
-- Do not create or move the `v0.5.9` tag until the final applicable CI/security gate is green.
+- Do not create or move the `v0.6.0` tag until the final applicable CI/security gate is green.
 - Do not claim zero bugs merely because release metadata checks pass; inspect all applicable CI/security results.
 
 ## Verification status
 
-Repository changes for v0.5.9 have been applied to `main`. The GitHub repository tools used for this work provide file/commit access, but they do not execute the project's local `make`, Go, Node, Android, PostgreSQL, or CodeQL commands in this conversation. Therefore the release is **prepared but not yet claimed fully verified** until GitHub Actions or an equivalent execution environment reports the applicable checks as successful.
+The v0.6.0 release-preparation changes have been applied to the dedicated `release/v0.6.0` branch. The GitHub repository tools available in this conversation can inspect and modify repository contents, but they do not execute the project's local Make, Go, Node, Android, PostgreSQL, or CodeQL commands directly. Therefore the release is **prepared but not yet claimed fully verified** until GitHub Actions or an equivalent execution environment reports the applicable checks as successful.
 
 ## Next development track
 
-1. Let GitHub Actions evaluate the v0.5.9 changes.
+1. Let GitHub Actions evaluate the v0.6.0 release branch/PR.
 2. Inspect every failed job rather than assuming success.
 3. Fix any newly exposed regression before release publication.
 4. Re-run the complete applicable verification suite on the final release commit.
-5. Review the final v0.5.9 diff for unintended changes.
-6. Publish `v0.5.9` only after the complete applicable gate is green.
+5. Review the final v0.6.0 diff for unintended changes.
+6. Merge the verified release changes into `main`.
+7. Publish `v0.6.0` only after the complete applicable gate is green.
+
+Made by the Sanskar
