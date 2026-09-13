@@ -21,7 +21,7 @@ jobs:
        startsWith(github.event.comment.body, '/stockpilot'))
     steps:
       - name: Respond to supported commands
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const body = github.event_name === 'issues'
