@@ -25,4 +25,35 @@ if ! grep -Fq "response.Version != \"$expected_version\"" internal/httpapi/meta_
   exit 1
 fi
 
-echo "release consistency check passed for v$expected_version"
+web_version="$(node -e 'console.log(JSON.parse(require("fs").readFileSync("web/package.json", "utf8")).version)' 2>/dev/null || true)"
+if [[ "$web_version" != "$expected_version" ]]; then
+  echo "web package version mismatch: expected $expected_version, found ${web_version:-<missing>}" >&2
+  exit 1
+fi
+
+extension_package_version="$(node -e 'console.log(JSON.parse(require("fs").readFileSync("extension/package.json", "utf8")).version)' 2>/dev/null || true)"
+if [[ "$extension_package_version" != "$expected_version" ]]; then
+  echo "extension package version mismatch: expected $expected_version, found ${extension_package_version:-<missing>}" >&2
+  exit 1
+fi
+
+extension_manifest_version="$(node -e 'console.log(JSON.parse(require("fs").readFileSync("extension/manifest.json", "utf8")).version)' 2>/dev/null || true)"
+if [[ "$extension_manifest_version" != "$expected_version" ]]; then
+  echo "extension manifest version mismatch: expected $expected_version, found ${extension_manifest_version:-<missing>}" >&2
+  exit 1
+fi
+
+IFS=. read -r major minor patch <<< "$expected_version"
+expected_android_code=$((10#$major * 1000000 + 10#$minor * 1000 + 10#$patch))
+android_version_name="$(sed -n 's/^[[:space:]]*versionName = "\([0-9][0-9.]*\)"/\1/p' android/app/build.gradle.kts | head -n1)"
+android_version_code="$(sed -n 's/^[[:space:]]*versionCode = \([0-9][0-9]*\)/\1/p' android/app/build.gradle.kts | head -n1)"
+if [[ "$android_version_name" != "$expected_version" ]]; then
+  echo "Android versionName mismatch: expected $expected_version, found ${android_version_name:-<missing>}" >&2
+  exit 1
+fi
+if [[ "$android_version_code" != "$expected_android_code" ]]; then
+  echo "Android versionCode mismatch: expected $expected_android_code, found ${android_version_code:-<missing>}" >&2
+  exit 1
+fi
+
+echo "release consistency check passed for v$expected_version across API, web, extension, and Android"
