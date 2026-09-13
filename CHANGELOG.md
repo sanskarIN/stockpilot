@@ -4,6 +4,18 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
+### v0.6.0 — Release Integrity & Verification Baseline
+
+- advance the repository release metadata from `0.5.9` to `0.6.0`;
+- align `/api/v1/meta` and its regression test with `0.6.0`;
+- align the README current-development version with `0.6.0`;
+- add dedicated v0.6.0 release verification documentation;
+- retain the version-aware release-readiness and release-consistency gates;
+- keep the release free of database migrations and production-data dependencies;
+- require the complete applicable CI/security gate before publication.
+
+The release establishes the next pre-1.0 release-integrity baseline after the v0.5.x verification hardening track. No intentional breaking `/api/v1` contract change is introduced.
+
 ### v0.5.9 — Release Metadata & Documentation Consistency
 
 - advance the repository release metadata from `0.5.8` to `0.5.9`;
