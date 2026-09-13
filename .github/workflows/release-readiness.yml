@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   release-readiness:
-    name: v0.5.6 readiness
+    name: v0.6.0 readiness
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
