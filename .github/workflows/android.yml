@@ -43,10 +43,10 @@ jobs:
       - name: Install Android 16 SDK
         run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0'
 
-      - name: Set up Gradle 9.5
+      - name: Set up Gradle 9.6
         uses: gradle/actions/setup-gradle@v6
         with:
-          gradle-version: '9.5.0'
+          gradle-version: '9.6.0'
 
       - name: Lint, test, and assemble debug APK
         run: gradle :app:lintDebug :app:testDebugUnitTest :app:assembleDebug --stacktrace
