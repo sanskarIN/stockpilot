@@ -2,7 +2,7 @@
 
 StockPilot is an open-source inventory and purchasing platform with a Go/PostgreSQL backend, a React/TypeScript web application, a native Android client, and a Manifest V3 browser companion.
 
-The project is currently in pre-1.0 development. The current development release is `0.6.0`; the Android and browser companion clients remain independently versioned.
+The project is currently in pre-1.0 development. The current development release is `0.6.1`; the Android and browser companion clients remain independently versioned.
 
 ## What StockPilot includes
 
@@ -56,7 +56,7 @@ For Android development:
 
 - JDK 17.
 - Android SDK 36.
-- Gradle 9.5.
+- Gradle 9.6.
 
 See [`android/README.md`](android/README.md) for Android-specific setup and security notes.
 
@@ -158,12 +158,17 @@ make android-test
 make android-build
 make extension-check
 make extension-test
+make release-check
+make release-readiness
+make release-verify
 make db-up
 make db-down
 make migrate
 make backup
 make clean
 ```
+
+`make release-verify` is the complete local release gate. It covers release metadata/readiness, Go vet/tests/build, the web build, browser extension checks/tests, and Android lint/unit-test/debug-build verification.
 
 Android commands use the `GRADLE` variable when a non-default Gradle executable is required:
 
