@@ -16,7 +16,7 @@ help:
 	@echo "  make extension-test    Run extension unit tests"
 	@echo "  make release-check     Verify release metadata consistency"
 	@echo "  make release-readiness Verify current VERSION release repository readiness"
-	@echo "  make release-verify   Run the release verification gate"
+	@echo "  make release-verify   Run the complete local release verification gate"
 	@echo "  make db-up             Start PostgreSQL with Docker Compose"
 	@echo "  make db-down           Stop PostgreSQL"
 	@echo "  make migrate            Apply SQL migrations"
@@ -65,7 +65,7 @@ release-check:
 release-readiness:
 	bash ./scripts/check-release-readiness.sh
 
-release-verify: release-check release-readiness vet test build web-build
+release-verify: release-check release-readiness vet test build web-build extension-check extension-test android-lint android-test android-build
 
 
 dev:
