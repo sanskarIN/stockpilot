@@ -10,8 +10,8 @@ android {
         applicationId = "in.sanskar.stockpilot"
         minSdk = 26
         targetSdk = 36
-        versionCode = 6000
-        versionName = "0.6.0"
+        versionCode = 6001
+        versionName = "0.6.1"
 
         testInstrumentationRunner = "android.test.InstrumentationTestRunner"
     }
