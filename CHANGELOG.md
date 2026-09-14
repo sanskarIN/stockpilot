@@ -4,6 +4,19 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
+### v0.6.1 — Complete Release Verification Gate
+
+- advance the repository release metadata from `0.6.0` to `0.6.1`;
+- align `/api/v1/meta` and its regression test with `0.6.1`;
+- align Web, browser extension, and Android client versions with `0.6.1`;
+- assign deterministic Android version code `6001`;
+- expand `make release-verify` to cover backend, web, browser extension, and Android verification;
+- retain version-aware release-readiness and release-consistency validation;
+- add dedicated v0.6.1 release verification documentation;
+- keep the release free of database migrations and production-data dependencies.
+
+The release focuses on preventing a false sense of release completeness when the top-level verification target does not exercise all supported client surfaces. No intentional breaking `/api/v1` contract change is introduced.
+
 ### v0.6.0 — Release Integrity & Verification Baseline
 
 - advance the repository release metadata from `0.5.9` to `0.6.0`;
