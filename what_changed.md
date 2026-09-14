@@ -2,30 +2,61 @@
 
 ## Current milestone
 
-Phase 56 — v0.6.0 client version-drift hardening.
+Phase 57 — v0.6.1 complete release verification gate.
 
 ## Completed
 
-- Fixed a concrete release-integrity defect where the web package still reported `0.1.0` while the repository/API release version was `0.6.0`.
-- Aligned the browser extension package and Manifest V3 version with `0.6.0`.
-- Aligned the Android app `versionName` with `0.6.0` and assigned deterministic `versionCode` `6000`.
-- Strengthened `scripts/check-release-consistency.sh` so supported client surfaces are checked against `VERSION` instead of allowing silent version drift.
-- Kept the change migration-free and independent of production credentials/data.
+- Advanced the repository release version from `0.6.0` to `0.6.1`.
+- Aligned `/api/v1/meta` and its regression test with `0.6.1`.
+- Aligned the web package, browser extension package/Manifest V3, and Android application with `0.6.1`.
+- Assigned Android version code `6001` using the deterministic semantic-version mapping already enforced by release consistency validation.
+- Expanded `make release-verify` so the top-level release gate covers backend, web, browser extension, and Android checks instead of stopping after the web build.
+- Added the dedicated `docs/releases/v0.6.1.md` verification record.
+- Updated the changelog and README to describe the new release gate and current version.
+- Kept the release migration-free and independent of production credentials/data.
 
 ## Verification state
 
-The fix is prepared in `fix/v0.6.0-version-drift` and submitted as PR #71. Repository inspection confirms the previously discovered client-version drift has been corrected in the changed files.
+The v0.6.1 work is prepared on branch `release/v0.6.1` from the current `main` baseline. Repository-level inspection confirms the intended version surfaces and release-gate changes are present.
 
-Full release confidence is still gated on GitHub Actions and applicable Android/extension/web/Go/security checks. Do not claim zero bugs or publish/move a release tag solely from static inspection.
+The GitHub connector does not execute arbitrary local shell commands in this workflow, so the final release state must still be validated by GitHub Actions and/or a local checkout before the branch is merged and a release tag is published.
+
+Do not claim zero bugs or full verification solely from static repository inspection.
+
+## Release gate
+
+The intended complete local verification command is:
+
+```text
+make release-verify
+```
+
+This now expands to:
+
+```text
+make release-check
+make release-readiness
+make vet
+make test
+make build
+make web-build
+make extension-check
+make extension-test
+make android-lint
+make android-test
+make android-build
+```
 
 ## Next steps
 
-1. Wait for PR #71 CI/security checks.
-2. If a check fails, inspect the failing job and fix the concrete defect before merging.
-3. Re-run the complete applicable verification set after each fix.
-4. Review the final PR diff for unintended changes.
-5. Merge only after required gates are green.
+1. Create a pull request from `release/v0.6.1` into `main`.
+2. Wait for all applicable CI, browser, Android, database, and CodeQL/security checks.
+3. Fix any concrete failing check before merge; do not bypass a failing gate.
+4. Re-run the complete applicable verification set after each fix.
+5. Review the final diff and release metadata for unintended changes.
+6. Merge only after the required gates are green.
+7. Publish/tag `v0.6.1` only from the verified final main commit.
 
 ## Engineering rule
 
-A green version-consistency check proves only release metadata consistency. It does not prove the entire application is bug-free. Functional, integration, browser, Android, extension, database, and security gates remain authoritative.
+A passing release-consistency check proves version metadata consistency. A passing release-readiness check proves repository release documentation and module-verification requirements are satisfied. Neither alone proves the application is bug-free. Functional, integration, database, browser, Android, and security gates remain authoritative.
