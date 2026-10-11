@@ -1,70 +1,31 @@
-# StockPilot — Work Continuity Log
+# What Changed
 
 ## Current milestone
 
-Phase 42 — v0.3.0 Reporting Foundations & Analytics Safety.
+Phase 56 — v0.6.0 client version-drift hardening.
 
-## Repository state
+## Completed
 
-- Default branch: `main`.
-- v0.1.x preview releases and the v0.2.0 reporting foundation are merged.
-- v0.2.1 inventory aging, v0.2.2 expiry risk, v0.2.3 export hardening, v0.2.4 movement velocity, v0.2.5 supplier performance, and v0.2.6 warehouse/location valuation are implemented in the reporting series.
-- v0.2.7 replenishment readiness, v0.2.8 scalability/purchasing-trends work, v0.2.9 reliability preparation, and v0.2.10 performance/operational-insights planning were carried forward in the repository history.
-- The v0.2.8 release metadata previously contained a v0.2.9 body and should remain an explicit historical cleanup item.
-- `VERSION` now records `0.3.0` as the current release marker.
-- `docs/releases/v0.3.0.md` contains the release checklist and notes.
-- `internal/reporting/` now provides bounded periods, previous-period calculation, period-over-period changes, and bounded query parameters with unit tests.
-- Stable GitHub publication still requires the applicable CI and verification gates to pass.
+- Fixed a concrete release-integrity defect where the web package still reported `0.1.0` while the repository/API release version was `0.6.0`.
+- Aligned the browser extension package and Manifest V3 version with `0.6.0`.
+- Aligned the Android app `versionName` with `0.6.0` and assigned deterministic `versionCode` `6000`.
+- Strengthened `scripts/check-release-consistency.sh` so supported client surfaces are checked against `VERSION` instead of allowing silent version drift.
+- Kept the change migration-free and independent of production credentials/data.
 
-## v0.3.0 completed scope
+## Verification state
 
-### Reporting foundations
+The fix is prepared in `fix/v0.6.0-version-drift` and submitted as PR #71. Repository inspection confirms the previously discovered client-version drift has been corrected in the changed files.
 
-- [x] Add bounded inclusive reporting periods with a 1–365 day safety envelope.
-- [x] Add deterministic previous-period calculation using the same number of days.
-- [x] Add period-over-period delta and percentage calculation.
-- [x] Represent zero-baseline percentage changes as undefined rather than inventing a value.
-- [x] Add centralized non-negative limit/offset validation.
-- [x] Add safe parsing for non-negative integer query values.
-- [x] Add focused unit tests for period, trend, and bounds behavior.
-- [x] Document the reporting package's read-only contract.
-- [x] Add a canonical `VERSION` marker and v0.3.0 release documentation.
+Full release confidence is still gated on GitHub Actions and applicable Android/extension/web/Go/security checks. Do not claim zero bugs or publish/move a release tag solely from static inspection.
 
-## v0.3.0 verification gate
+## Next steps
 
-Run all applicable repository checks before treating the release as stable:
+1. Wait for PR #71 CI/security checks.
+2. If a check fails, inspect the failing job and fix the concrete defect before merging.
+3. Re-run the complete applicable verification set after each fix.
+4. Review the final PR diff for unintended changes.
+5. Merge only after required gates are green.
 
-```text
-make fmt
-make vet
-make test
-make test-unit
-make build
-make web-build
-make android-lint
-make android-test
-make android-build
-make extension-check
-make extension-test
-```
+## Engineering rule
 
-Also verify CI/CodeQL, PostgreSQL migration/readiness behavior, accessibility, export safety, artifact integrity, and backup/restore procedures where applicable.
-
-## Engineering rules
-
-- Reporting remains read-only.
-- No automatic purchase-order creation or inventory mutation is introduced by v0.3.0.
-- No database migration is introduced by the reporting foundation work.
-- Existing API contracts must remain backward compatible.
-- Bounds and period validation must fail closed and deterministically.
-- Focused, reviewable commits are preferred over artificial commit-count inflation.
-- Repository commits use `sanskarin@outlook.in` where the connected GitHub identity supports author attribution.
-
-## Next development track
-
-1. Wire the shared reporting primitives into HTTP query parsing without changing existing response contracts.
-2. Add server-side report metadata for period, bounds, generated-at, and completeness state.
-3. Add bounded analytical trend endpoints backed by authoritative PostgreSQL aggregation.
-4. Add regression tests for cancellation, timeout propagation, deterministic ordering, and duplicate prevention.
-5. Integrate report-period context and retry/empty/error states into the web dashboard.
-6. Re-run the complete cross-platform and security verification suite before the next release.
+A green version-consistency check proves only release metadata consistency. It does not prove the entire application is bug-free. Functional, integration, browser, Android, extension, database, and security gates remain authoritative.

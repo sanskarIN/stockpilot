@@ -71,7 +71,14 @@ This roadmap reflects the current repository state.
 
 ## Release hardening
 
-- [ ] End-to-end browser tests for authentication, catalog, inventory, purchasing, and reporting.
+- [x] Deterministic Chromium browser E2E foundation.
+- [x] Signed-out login regression coverage.
+- [x] Authenticated dashboard-shell coverage using synthetic API fixtures.
+- [x] Authenticated primary-workspace navigation coverage using synthetic API fixtures.
+- [x] Authenticated catalog create workflow coverage with synthetic test data.
+- [x] Authenticated inventory movement workflow coverage with synthetic test data.
+- [x] Authenticated purchase-order create/submit/receive mutation workflow coverage with synthetic test data.
+- [x] Authenticated reporting workspace coverage with complete report fixtures.
 - [ ] Android instrumentation tests for authentication and critical inventory reads.
 - [ ] Accessibility audit across keyboard, screen-reader, contrast, touch-target, and reduced-motion paths.
 - [ ] Production restore rehearsal and migration rollback verification.
@@ -94,8 +101,26 @@ This roadmap reflects the current repository state.
 - [x] Align `/api/v1/meta` with version `0.4.6`.
 - [ ] Add database-native cursor/streaming support for the largest report datasets.
 
-## Later
+## v0.5.3 milestone
 
-- [ ] Notification adapters for low stock and expiring lots.
-- [ ] Optional multi-organization tenancy after single-organization workflows are fully hardened.
-- [ ] Additional mobile platforms only after Android workflows reach release quality.
+- [x] Add deterministic authenticated Reports & Analytics browser coverage.
+- [x] Fixture report overview, inventory valuation, inventory aging, stock movement history, supplier performance, and replenishment readiness responses.
+- [x] Fixture replenishment review history and verify its empty-state rendering.
+- [x] Assert representative metrics and report sections through the authenticated UI.
+- [x] Keep all reporting E2E fixtures synthetic and independent of production credentials/data.
+- [x] Align `VERSION` with `0.5.3`.
+- [ ] Run and verify the complete release CI gate on the final release commit before publishing the Git tag.
+
+## v0.5.2 milestone
+
+- [x] Fix the v0.5.1 authenticated catalog E2E locator ambiguity under Playwright strict mode.
+- [x] Add deterministic authenticated purchase-order creation coverage.
+- [x] Assert the purchase-order creation request payload.
+- [x] Add authenticated purchase-order submission/status mutation coverage.
+- [x] Assert the purchase-order status request payload.
+- [x] Add authenticated purchase-order receipt coverage.
+- [x] Assert the purchase-order receipt request payload.
+- [x] Keep all lifecycle E2E fixtures synthetic and independent of production credentials/data.
+- [x] Align `VERSION` and `/api/v1/meta` with `0.5.2`.
+- [x] Align the API metadata regression test with `0.5.2`.
+- [ ] Run and verify the complete release CI gate on the final release commit before publishing the Git tag.

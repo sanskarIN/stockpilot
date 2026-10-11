@@ -11,6 +11,16 @@ StockPilot is pre-1.0, but API changes should still be deliberate and reviewable
 - Database migrations must preserve compatibility with the server version deployed during a rolling update when practical.
 - Breaking API changes should be introduced under an explicit API-versioning plan rather than silently changing `/api/v1` semantics.
 
+## Release metadata consistency
+
+The release metadata has three intentionally synchronized sources of truth:
+
+- `VERSION` contains the repository release version.
+- `GET /api/v1/meta` reports the application version exposed to clients.
+- `internal/httpapi/meta_version_test.go` asserts the API metadata version.
+
+`make release-check` and the CI release-consistency job verify that these values agree before a release is considered ready. The checker is validation-only: it does not rewrite release metadata or create Git tags.
+
 ## Reporting pagination
 
 The supplier-performance and warehouse-valuation report endpoints support bounded pagination with `limit` and `offset`.

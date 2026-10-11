@@ -20,9 +20,9 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version: '1.26.x'
           cache: true
@@ -56,9 +56,9 @@ jobs:
         working-directory: web
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: npm
@@ -97,9 +97,9 @@ jobs:
       STATIC_DIR: ./web/dist
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version: '1.26.x'
           cache: true
@@ -110,7 +110,7 @@ jobs:
       - name: Verify readiness after migrations
         run: |
           for attempt in {1..30}; do
-            if curl --fail --silent http://localhost:8080/readyz | grep -q '\"ready\"'; then
+            if curl --fail --silent http://localhost:8080/readyz | grep -q '"ready"'; then
               exit 0
             fi
             sleep 1
@@ -123,3 +123,38 @@ jobs:
           if [ -f /tmp/stockpilot.pid ]; then
             kill "$(cat /tmp/stockpilot.pid)" 2>/dev/null || true
           fi
+
+  browser-e2e:
+    name: Browser E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      VITE_DISABLE_PROXY: '1'
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: web/package.json
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Run browser tests
+        run: npm run e2e
+
+  release-consistency:
+    name: Release metadata consistency
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+      - name: Verify release metadata
+        run: bash ./scripts/check-release-consistency.sh

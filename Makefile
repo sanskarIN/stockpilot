@@ -1,6 +1,6 @@
 GRADLE ?= gradle
 
-.PHONY: help fmt test test-unit vet build web-install web-build android-lint android-test android-build extension-check extension-test dev db-up db-down migrate backup backup-powershell clean
+.PHONY: help fmt test test-unit vet build web-install web-build android-lint android-test android-build extension-check extension-test release-check release-readiness release-verify dev db-up db-down migrate backup backup-powershell clean
 
 help:
 	@echo "StockPilot development commands"
@@ -14,9 +14,13 @@ help:
 	@echo "  make android-build     Build Android debug APK"
 	@echo "  make extension-check   Validate extension sources"
 	@echo "  make extension-test    Run extension unit tests"
+	@echo "  make release-check     Verify release metadata consistency"
+	@echo "  make release-readiness Verify current VERSION release repository readiness"
+	@echo "  make release-verify   Run the release verification gate"
 	@echo "  make db-up             Start PostgreSQL with Docker Compose"
-	@echo "  make migrate           Apply SQL migrations"
-	@echo "  make backup            Create a database backup with Bash"
+	@echo "  make db-down           Stop PostgreSQL"
+	@echo "  make migrate            Apply SQL migrations"
+	@echo "  make backup             Create a database backup with Bash"
 	@echo "  make backup-powershell Create a database backup with PowerShell"
 
 fmt:
@@ -54,6 +58,15 @@ extension-check:
 
 extension-test:
 	cd extension && npm test
+
+release-check:
+	bash ./scripts/check-release-consistency.sh
+
+release-readiness:
+	bash ./scripts/check-release-readiness.sh
+
+release-verify: release-check release-readiness vet test build web-build
+
 
 dev:
 	go run ./cmd/server
