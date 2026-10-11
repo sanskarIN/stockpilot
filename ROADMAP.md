@@ -86,15 +86,20 @@ This roadmap reflects the current repository state.
 - [ ] Reproducible web, server, Android, and extension release artifacts.
 - [ ] Resolve every blocker/critical defect before the first stable release.
 
-## v0.5.4 milestone
+## Current milestone — v0.4.6
 
-- [x] Align `/api/v1/meta` with `0.5.4`.
-- [x] Align the API metadata regression test with `0.5.4`.
-- [x] Preserve replenishment-readiness route registration independently of optional reporting-insights wiring.
-- [x] Retain v0.5.3 authenticated reporting regression coverage.
-- [x] Keep the patch free of database migrations and production-data test dependencies.
-- [x] Align `VERSION` with `0.5.4`.
-- [ ] Run and verify the complete release CI gate on the final release commit before publishing the Git tag.
+- [x] Persist immutable replenishment recommendation snapshots at review time.
+- [x] Record explicit accepted, modified, dismissed, and expired outcomes.
+- [x] Link accepted/modified reviews to existing purchase orders without auto-submission.
+- [x] Validate linked purchase orders contain the reviewed product.
+- [x] Add read/list HTTP endpoints for replenishment review records.
+- [x] Add additive PostgreSQL migration and rollback script.
+- [x] Add domain validation and PostgreSQL integration coverage.
+- [x] Add dedicated web review-history workspace.
+- [x] Add outcome filtering to the review-history workspace.
+- [x] Display immutable review snapshot fields and purchase-order linkage.
+- [x] Align `/api/v1/meta` with version `0.4.6`.
+- [ ] Add database-native cursor/streaming support for the largest report datasets.
 
 ## v0.5.3 milestone
 
