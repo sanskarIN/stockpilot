@@ -1,0 +1,24 @@
+{
+  "name": "StockPilot Inventory Management",
+  "short_name": "StockPilot",
+  "description": "A focused inventory management system for stock health, warehouse operations, and purchasing.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5f7fb",
+  "theme_color": "#111827",
+  "lang": "en",
+  "categories": ["business", "productivity"],
+  "shortcuts": [
+    {
+      "name": "Inventory overview",
+      "short_name": "Overview",
+      "url": "/#main"
+    },
+    {
+      "name": "Low stock",
+      "short_name": "Low stock",
+      "url": "/#low-stock-title"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="stockpilot_background">#F5F7FB</color>
+    <color name="stockpilot_surface">#FFFFFF</color>
+    <color name="stockpilot_surface_alt">#EEF2F7</color>
+    <color name="stockpilot_text">#172033</color>
+    <color name="stockpilot_muted">#5F6B7A</color>
+    <color name="stockpilot_accent">#2457D6</color>
+    <color name="stockpilot_accent_pressed">#1C46AF</color>
+    <color name="stockpilot_success">#147D4F</color>
+    <color name="stockpilot_danger">#B42318</color>
+    <color name="stockpilot_border">#D9E0EA</color>
+</resources>

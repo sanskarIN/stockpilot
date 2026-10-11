@@ -13,4 +13,13 @@ coverage/
 /tmp/
 backups/
 
+# Android / Gradle
+.gradle/
+android/.gradle/
+android/local.properties
+android/**/build/
+android/captures/
+*.apk
+*.aab
+
 *.tsbuildinfo

@@ -1,14 +1,27 @@
-.PHONY: help fmt test test-unit vet build web-install web-build dev db-up db-down migrate backup clean
+GRADLE ?= gradle
+
+.PHONY: help fmt test test-unit vet build web-install web-build android-lint android-test android-build extension-check extension-test release-check release-readiness release-verify dev db-up db-down migrate backup backup-powershell clean
 
 help:
 	@echo "StockPilot development commands"
-	@echo "  make fmt        Format Go code"
-	@echo "  make test       Run backend tests"
-	@echo "  make vet        Run Go vet"
-	@echo "  make build      Build backend"
-	@echo "  make web-build  Build frontend"
-	@echo "  make db-up      Start PostgreSQL with Docker Compose"
-	@echo "  make migrate    Apply SQL migrations"
+	@echo "  make fmt               Format Go code"
+	@echo "  make test              Run backend tests"
+	@echo "  make vet               Run Go vet"
+	@echo "  make build             Build backend"
+	@echo "  make web-build         Build frontend"
+	@echo "  make android-lint      Run Android lint"
+	@echo "  make android-test      Run Android unit tests"
+	@echo "  make android-build     Build Android debug APK"
+	@echo "  make extension-check   Validate extension sources"
+	@echo "  make extension-test    Run extension unit tests"
+	@echo "  make release-check     Verify release metadata consistency"
+	@echo "  make release-readiness Verify current VERSION release repository readiness"
+	@echo "  make release-verify   Run the release verification gate"
+	@echo "  make db-up             Start PostgreSQL with Docker Compose"
+	@echo "  make db-down           Stop PostgreSQL"
+	@echo "  make migrate            Apply SQL migrations"
+	@echo "  make backup             Create a database backup with Bash"
+	@echo "  make backup-powershell Create a database backup with PowerShell"
 
 fmt:
 	gofmt -w $$(find cmd internal -name '*.go')
@@ -17,7 +30,7 @@ test:
 	go test ./...
 
 test-unit:
-	go test ./internal/domain ./internal/service
+	go test ./internal/domain ./internal/idgen ./internal/config ./internal/httpapi
 
 vet:
 	go vet ./...
@@ -31,6 +44,30 @@ web-install:
 web-build:
 	cd web && npm run build
 
+android-lint:
+	cd android && $(GRADLE) :app:lintDebug
+
+android-test:
+	cd android && $(GRADLE) :app:testDebugUnitTest
+
+android-build:
+	cd android && $(GRADLE) :app:assembleDebug
+
+extension-check:
+	cd extension && npm run check
+
+extension-test:
+	cd extension && npm test
+
+release-check:
+	bash ./scripts/check-release-consistency.sh
+
+release-readiness:
+	bash ./scripts/check-release-readiness.sh
+
+release-verify: release-check release-readiness vet test build web-build
+
+
 dev:
 	go run ./cmd/server
 
@@ -41,10 +78,16 @@ db-down:
 	docker compose down
 
 migrate:
-	@for f in migrations/*.up.sql; do 		echo "Applying $$f"; 		docker compose exec -T db psql -U stockpilot -d stockpilot -v ON_ERROR_STOP=1 < "$$f"; 	done
+	@for f in migrations/*.up.sql; do \
+		echo "Applying $$f"; \
+		docker compose exec -T db psql -U stockpilot -d stockpilot -v ON_ERROR_STOP=1 < "$$f"; \
+	done
 
 backup:
-	./scripts/backup.sh
+	bash ./scripts/backup.sh
+
+backup-powershell:
+	pwsh -NoProfile -File ./scripts/backup.ps1
 
 clean:
-	rm -rf bin web/dist coverage
+	rm -rf bin web/dist coverage android/.gradle android/app/build

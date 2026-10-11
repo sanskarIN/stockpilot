@@ -1,0 +1,1 @@
+Release gate is automated in CI and CodeQL; publish v0.4.0 only after both complete successfully.
