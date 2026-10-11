@@ -4,6 +4,17 @@ All notable StockPilot changes are recorded here. The project is pre-1.0, so cur
 
 ## Unreleased
 
+### v0.4.7 — Web Review History Reliability & Accessibility
+
+- prevent stale asynchronous review-history responses from overwriting a newer outcome filter;
+- keep the last valid table visible while a refresh is in progress instead of rendering duplicate loading rows;
+- add explicit accessible labeling for the outcome filter and refresh action;
+- expose loading/result state through a polite status announcement;
+- add semantic table captions and column scopes for assistive technology;
+- align `VERSION` and `/api/v1/meta` with release version `0.4.7`.
+
+The v0.4.7 milestone is intentionally incremental: it hardens the v0.4.6 review-history workspace while broader browser end-to-end and accessibility coverage remains on the release-hardening roadmap.
+
 ### v0.4.6 — Replenishment Review History Workspace
 
 - add a dedicated web review-history panel to the Reports & Analytics workspace;
